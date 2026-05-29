@@ -124,7 +124,7 @@ function ConfigPage() {
           </div>
         </Section>
 
-        <Section icon={Target} title="Meta de Vendas" description="Meta mensal exibida no painel do frentista">
+        <Section icon={Target} title="Meta de Vendas (Global)" description="Meta padrão caso o frentista não tenha uma meta individual">
           <div className="grid gap-4 sm:grid-cols-[1fr_auto] items-end">
             <div className="grid gap-1.5">
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Meta mensal (R$)</label>
