@@ -43,9 +43,21 @@ const items = [
 export function AdminShell() {
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
   const path = useRouterState({ select: (s) => s.location.pathname });
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   const current = items.find((i) => path.startsWith(i.to));
 
