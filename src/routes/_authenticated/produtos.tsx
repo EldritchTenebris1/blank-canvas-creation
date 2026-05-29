@@ -184,7 +184,7 @@ function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: 
         className="w-full h-12 text-base font-bold shadow-lg shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
         style={{ background: "var(--gradient-accent)", color: "oklch(0.18 0.04 255)" }}
       >
-        {loading ? <Loader2 className="animate-spin" /> : editing ? "Atualizar Produto" : "Cadastrar Produto"}
+        {loading ? <Loader2 className="animate-spin" /> : initial ? "Atualizar Produto" : "Cadastrar Produto"}
       </Button>
     </div>
   );
