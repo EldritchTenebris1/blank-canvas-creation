@@ -24,11 +24,11 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
     <div className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Evolution Chart - Revenue & Profit over time */}
-        <div className="glass rounded-3xl p-6 lg:col-span-3 border-none shadow-sm overflow-hidden relative">
-          <div className="flex items-center justify-between mb-6">
+        <div className="premium-card p-6 lg:col-span-3 overflow-hidden animate-reveal" style={{ animationDelay: "100ms" }}>
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300">Evolução de Vendas</h3>
-              <p className="text-xs text-muted-foreground/40 mt-1">Comparativo entre receita e lucro no período</p>
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-accent/80">Evolução de Vendas</h3>
+              <p className="text-[10px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-tight">Comparativo entre receita e lucro no período</p>
             </div>
             <div className="flex gap-4">
               <div className="flex items-center gap-2">
@@ -54,16 +54,16 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                     <stop offset="95%" stopColor="oklch(0.85 0.18 90)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fill: "rgba(0,0,0,0.3)", fontSize: 10, fontWeight: 700 }} 
+                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700 }} 
                   axisLine={false}
                   tickLine={false}
                   dy={10}
                 />
                 <YAxis 
-                  tick={{ fill: "rgba(0,0,0,0.3)", fontSize: 10, fontWeight: 700 }} 
+                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700 }} 
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(val) => `R$${val >= 1000 ? (val/1000).toFixed(0) + 'k' : val}`}
@@ -98,8 +98,8 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
         </div>
 
         {/* Top Products */}
-        <div className="glass rounded-3xl p-6 lg:col-span-2 border-none shadow-sm">
-          <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-slate-300">Performance por Produto</h3>
+        <div className="premium-card p-6 lg:col-span-2 animate-reveal" style={{ animationDelay: "200ms" }}>
+          <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Performance por Produto</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topProducts} layout="vertical">
@@ -107,7 +107,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  tick={{ fill: "rgba(0,0,0,0.5)", fontSize: 11, fontWeight: 600 }} 
+                  tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11, fontWeight: 600 }} 
                   width={120}
                   axisLine={false}
                   tickLine={false}
@@ -127,8 +127,8 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
         </div>
 
         {/* Category Share */}
-        <div className="glass rounded-3xl p-6 border-none shadow-sm">
-          <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-slate-300">Share por Categoria</h3>
+        <div className="premium-card p-6 animate-reveal" style={{ animationDelay: "300ms" }}>
+          <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Share por Categoria</h3>
           <div className="h-[300px] w-full flex flex-col items-center justify-center">
             <ResponsiveContainer width="100%" height="70%">
               <PieChart>
@@ -165,14 +165,14 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
 function CustomTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border-none shadow-2xl rounded-2xl p-4 min-w-[150px] border border-slate-100">
-        {label && <p className="text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">{label}</p>}
-        <div className="space-y-2">
+      <div className="premium-glass rounded-2xl p-4 min-w-[180px] border-white/5 shadow-2xl backdrop-blur-xl animate-reveal">
+        {label && <p className="text-[10px] font-black uppercase text-accent mb-3 tracking-[0.2em]">{label}</p>}
+        <div className="space-y-2.5">
           {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-4">
-              <span className="text-[11px] font-bold text-slate-500 uppercase">{entry.name}:</span>
-              <span className="text-[11px] font-black text-slate-900">
-                {typeof entry.value === 'number' && entry.name.toLowerCase().includes('receita') || entry.name.toLowerCase().includes('lucro') || entry.name.toLowerCase().includes('revenue') || entry.name.toLowerCase().includes('profit') 
+            <div key={index} className="flex items-center justify-between gap-6">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-tight">{entry.name}:</span>
+              <span className="text-[11px] font-black text-foreground tabular-nums">
+                {typeof entry.value === 'number' && (entry.name.toLowerCase().includes('receita') || entry.name.toLowerCase().includes('lucro') || entry.name.toLowerCase().includes('revenue') || entry.name.toLowerCase().includes('profit'))
                   ? `R$ ${entry.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
                   : entry.value}
               </span>
