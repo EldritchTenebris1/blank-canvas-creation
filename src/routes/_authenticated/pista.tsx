@@ -1,21 +1,31 @@
+import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Package, Search, Plus, Minus, Check } from "lucide-react";
+import { Plus, Minus, Package2, AlertTriangle, Package } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/pista")({ component: PistaPage });
+
+type Product = {
+  id: string;
+  name: string;
+  brand: string | null;
+  category: { name: string } | null;
+  estoque_qty: number;
+  pista_qty: number;
+  pista_min: number;
+};
 
 function PistaPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = React.useState("");
+  const [qtyMap, setQtyMap] = React.useState<Record<string, number>>({});
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
@@ -24,111 +34,155 @@ function PistaPage() {
         .from("products")
         .select("*, category:categories(name)")
         .order("name");
-      return data ?? [];
+      return (data ?? []) as any[];
     },
-    refetchInterval: 10000,
+    refetchInterval: 5000,
   });
 
-  async function updateQuantity(p: any, delta: number) {
-    const newQty = Math.max(0, (p.pista_qty || 0) + delta);
+  const filtered = products.filter((p) =>
+    p.category?.name !== "Combustíveis" &&
+    (p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.brand?.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  async function move(p: any, delta: number, type: "entrada" | "ajuste") {
+    const newQty = (p.pista_qty || 0) + delta;
+    if (newQty < 0) return toast.error("Quantidade na pista não pode ser negativa");
     
     const { error } = await supabase
       .from("products")
       .update({ pista_qty: newQty })
       .eq("id", p.id);
-
+    
     if (error) return toast.error(error.message);
 
-    toast.success(`${p.name}: ${newQty} na pista`);
+    await supabase.from("movements").insert({
+      product_id: p.id,
+      type,
+      quantity: Math.abs(delta),
+      location: "pista",
+      user_id: user?.id,
+    });
+
+    toast.success(`${type === "entrada" ? "Adicionado" : "Removido"} da pista: ${p.name}`);
     qc.invalidateQueries({ queryKey: ["products"] });
+    setQtyMap((m) => ({ ...m, [p.id]: 0 }));
   }
 
-  const filteredProducts = products.filter(p => 
-    p.category?.name !== "Combustíveis" && 
-    (p.name.toLowerCase().includes(search.toLowerCase()) || 
-     p.brand?.toLowerCase().includes(search.toLowerCase()))
-  );
+  const lowCount = filtered.filter((p) => (p.pista_qty || 0) < (p.pista_min || 0)).length;
+  const totalItems = filtered.length;
 
   return (
     <div className="space-y-6">
       <PageHeader 
         title="Estoque na Pista" 
-        description="Gerencie a quantidade de produtos disponíveis para venda imediata" 
+        description="Controle de produtos disponíveis para venda imediata" 
       />
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <Stat label="Itens na Pista" value={totalItems.toString()} icon={Package2} />
+        <Stat label="Abaixo do Mínimo" value={lowCount.toString()} icon={AlertTriangle} highlight={lowCount > 0} />
+      </div>
+
+      <div className="mb-4">
         <Input 
           placeholder="Buscar produto na pista..." 
-          className="pl-10 glass border-none h-12 text-lg"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={search} 
+          onChange={(e) => setSearch(e.target.value)} 
+          className="max-w-md h-11" 
         />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <AnimatePresence mode="popLayout">
-          {filteredProducts.map((p) => (
-            <motion.div 
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              key={p.id} 
-              className="glass rounded-2xl p-5 border-none shadow-sm hover:shadow-md transition-all group"
-            >
-              <div className="mb-4">
-                <div className="font-bold text-slate-800 line-clamp-1">{p.name}</div>
-                <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                  {p.brand || "Geral"}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex flex-col">
-                  <span className="text-3xl font-black text-accent tracking-tighter">
+      <div className="glass overflow-x-auto rounded-2xl">
+        <table className="w-full min-w-[760px] text-sm">
+          <thead className="bg-card/40 text-xs uppercase tracking-wider text-muted-foreground">
+            <tr>
+              <th className="px-4 py-3 text-left">Produto</th>
+              <th className="px-4 py-3 text-right">Na Pista</th>
+              <th className="px-4 py-3 text-right">Mínimo</th>
+              <th className="px-4 py-3 text-right">Depósito</th>
+              <th className="px-4 py-3 text-center">Ajuste</th>
+              <th className="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((p) => {
+              const low = (p.pista_qty || 0) < (p.pista_min || 0);
+              const v = qtyMap[p.id] ?? 0;
+              return (
+                <tr key={p.id} className="border-t border-border/40 hover:bg-card/30 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-slate-800">{p.name}</div>
+                    <div className="text-xs text-muted-foreground uppercase font-bold tracking-tight">
+                      {p.brand || "—"}
+                    </div>
+                  </td>
+                  <td className={`px-4 py-3 text-right font-bold text-lg ${low ? "text-destructive" : "text-accent"}`}>
                     {p.pista_qty || 0}
-                  </span>
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Na Pista</span>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button 
-                    size="icon" 
-                    variant="secondary" 
-                    className="h-10 w-10 rounded-xl bg-white/50 hover:bg-white shadow-none"
-                    onClick={() => updateQuantity(p, -1)}
-                  >
-                    <Minus size={18} />
-                  </Button>
-                  <Button 
-                    size="icon" 
-                    variant="secondary" 
-                    className="h-10 w-10 rounded-xl bg-accent text-white hover:bg-accent/90 shadow-sm"
-                    onClick={() => updateQuantity(p, 1)}
-                  >
-                    <Plus size={18} />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase">
-                <span>Depósito: {p.estoque_qty || 0}</span>
-                <span className={p.pista_qty < (p.pista_min || 0) ? "text-destructive" : ""}>
-                  Mín: {p.pista_min || 0}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+                  </td>
+                  <td className="px-4 py-3 text-right text-muted-foreground font-medium">
+                    {p.pista_min || 0}
+                  </td>
+                  <td className="px-4 py-3 text-right text-muted-foreground/60">
+                    {p.estoque_qty || 0}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Input
+                      type="number" 
+                      value={v || ""} 
+                      min={0}
+                      onChange={(e) => setQtyMap({ ...qtyMap, [p.id]: Number(e.target.value) })}
+                      className="mx-auto h-9 w-24 text-center glass border-none focus-visible:ring-1 focus-visible:ring-accent"
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="bg-accent/5 hover:bg-accent/10 border-accent/20 text-accent"
+                        disabled={!v} 
+                        onClick={() => move(p, v, "entrada")}
+                      >
+                        <Plus size={14} className="mr-1" /> Adicionar
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="hover:bg-destructive/10 border-destructive/20 text-destructive"
+                        disabled={!v} 
+                        onClick={() => move(p, -v, "ajuste")}
+                      >
+                        <Minus size={14} className="mr-1" /> Remover
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+            {!isLoading && filtered.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                  <Package className="mx-auto mb-2 opacity-20" size={32} />
+                  Nenhum produto encontrado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
+    </div>
+  );
+}
 
-      {!isLoading && filteredProducts.length === 0 && (
-        <div className="glass py-20 text-center rounded-2xl border-dashed border-2">
-          <Package className="mx-auto mb-4 text-muted-foreground/30" size={48} />
-          <p className="text-muted-foreground font-medium">Nenhum produto encontrado na pista.</p>
-        </div>
-      )}
+function Stat({ label, value, icon: Icon, highlight }: { label: string; value: string; icon?: React.ElementType; highlight?: boolean }) {
+  return (
+    <div className={`glass rounded-2xl p-5 border-none shadow-sm ${highlight ? "bg-destructive/5 ring-1 ring-destructive/20" : ""}`}>
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
+        {Icon && <Icon size={16} className={highlight ? "text-destructive" : "text-accent"} />}
+      </div>
+      <div className={`mt-2 text-2xl font-black tracking-tight ${highlight ? "text-destructive" : "text-slate-800"}`}>{value}</div>
     </div>
   );
 }
