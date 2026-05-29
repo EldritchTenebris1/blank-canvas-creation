@@ -127,8 +127,8 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
         </div>
 
         {/* Category Share */}
-        <div className="glass rounded-3xl p-6 border-none shadow-sm">
-          <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-slate-300">Share por Categoria</h3>
+        <div className="premium-card p-6 animate-reveal" style={{ animationDelay: "300ms" }}>
+          <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Share por Categoria</h3>
           <div className="h-[300px] w-full flex flex-col items-center justify-center">
             <ResponsiveContainer width="100%" height="70%">
               <PieChart>
