@@ -16,6 +16,7 @@ import {
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
 import { Stat } from "@/components/buriti/Stat";
+import { Button } from "@/components/ui/button";
 
 // Lazy load heavy chart components
 const DashboardCharts = React.lazy(() => import("@/components/buriti/DashboardCharts"));
