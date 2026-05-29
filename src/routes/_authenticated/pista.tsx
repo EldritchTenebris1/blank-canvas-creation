@@ -133,17 +133,17 @@ function PistaPage() {
       ) : (
         <>
           {/* Desktop View: Table */}
-          <div className="hidden md:block glass overflow-hidden rounded-2xl border-none shadow-sm">
+          <div className="hidden md:block premium-card overflow-hidden border-white/5 bg-card/30">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-card/40 text-[10px] uppercase font-bold tracking-widest text-muted-foreground/70">
+                <thead className="bg-white/[0.02] text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground/40 border-b border-white/5">
                   <tr>
-                    <th className="px-6 py-4 text-left">Produto</th>
-                    <th className="px-6 py-4 text-right">Na Pista</th>
-                    <th className="px-6 py-4 text-right">Mínimo</th>
-                    <th className="px-6 py-4 text-right">Depósito</th>
-                    <th className="px-6 py-4 text-center">Ajuste</th>
-                    <th className="px-6 py-4"></th>
+                    <th className="px-6 py-5 text-left">Produto</th>
+                    <th className="px-6 py-5 text-right">Na Pista</th>
+                    <th className="px-6 py-5 text-right">Mínimo</th>
+                    <th className="px-6 py-5 text-right">Depósito</th>
+                    <th className="px-6 py-5 text-center">Movimentação Rápida</th>
+                    <th className="px-6 py-5"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/20">
