@@ -1,5 +1,6 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2, Loader2, Package, Tag, Hash, DollarSign, ArrowDownToLine, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
