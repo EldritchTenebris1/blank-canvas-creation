@@ -176,18 +176,18 @@ function Dashboard() {
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           <Button 
             onClick={() => navigate({ to: "/produtos" })}
             variant="outline" 
-            className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-[0.2em] gap-2 h-14 px-8 shadow-inner transition-all hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-[0.2em] gap-2 h-12 px-5 sm:h-14 sm:px-8 shadow-inner transition-all hover:scale-105 active:scale-95"
           >
             <Plus size={18} strokeWidth={3} />
             Gerenciar Inventário
           </Button>
           <Button 
             onClick={() => navigate({ to: "/relatorios" })}
-            className="rounded-2xl bg-accent text-accent-foreground hover:brightness-110 shadow-glow-accent text-xs font-black uppercase tracking-[0.2em] gap-2 h-14 px-8 transition-all hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto rounded-2xl bg-accent text-accent-foreground hover:brightness-110 shadow-glow-accent text-xs font-black uppercase tracking-[0.2em] gap-2 h-12 px-5 sm:h-14 sm:px-8 transition-all hover:scale-105 active:scale-95"
           >
             <BarChart3 size={18} strokeWidth={3} />
             Relatórios
