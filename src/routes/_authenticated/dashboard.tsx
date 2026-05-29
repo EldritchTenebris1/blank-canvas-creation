@@ -304,7 +304,7 @@ function Dashboard() {
                 <div className="p-2 rounded-xl bg-white/5 text-muted-foreground">
                   <BarChart3 size={18} />
                 </div>
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/80">Fluxo de Vendas (7 Dias)</h3>
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-accent">Fluxo de Vendas (7 Dias)</h3>
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-muted-foreground">
