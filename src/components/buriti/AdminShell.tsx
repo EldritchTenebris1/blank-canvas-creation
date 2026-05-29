@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Package,
@@ -13,6 +14,7 @@ import {
   Search,
   ChevronLeft,
   Menu,
+  Bell,
 } from "lucide-react";
 import { BuritiLogo } from "./Logo";
 import { NotificationsBell } from "./NotificationsBell";
