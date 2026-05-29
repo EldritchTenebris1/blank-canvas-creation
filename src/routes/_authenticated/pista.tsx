@@ -194,9 +194,8 @@ function PistaPage() {
         </TabsContent>
 
         <TabsContent value="combustiveis" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {fuelProducts.map((p) => {
-              const isLow = p.pista_qty < (p.pista_min || 0);
               return (
                 <div key={p.id} className="glass rounded-2xl p-5 border-l-4 border-l-orange-500">
                   <div className="flex items-start justify-between mb-4">
@@ -221,15 +220,16 @@ function PistaPage() {
                   <div className="flex gap-2">
                     <Button variant="outline" className="flex-1 text-xs" size="sm">Histórico</Button>
                     <Button className="flex-1 text-xs bg-accent hover:bg-accent/90" size="sm">Ajustar Preço</Button>
+                  </div>
                 </div>
               );
             })}
             {fuelProducts.length === 0 && !loadingProducts && (
-                <div className="glass col-span-full py-20 text-center text-muted-foreground rounded-2xl border-dashed">
-                  Nenhum combustível cadastrado.
-                </div>
-              )}
-           </div>
+              <div className="glass col-span-full py-20 text-center text-muted-foreground rounded-2xl border-dashed">
+                Nenhum combustível cadastrado.
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
     </div>
