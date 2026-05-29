@@ -177,7 +177,7 @@ export function AdminShell() {
             </Button>
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
-                <div className="h-1 w-1 rounded-full bg-primary" />
+                <div className="h-1 w-1 rounded-full bg-accent animate-pulse" />
                 Posto Buriti ERP
               </div>
               <div className="text-gradient truncate text-xl font-bold tracking-tight sm:text-2xl">
