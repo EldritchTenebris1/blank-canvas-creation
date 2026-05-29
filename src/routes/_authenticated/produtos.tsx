@@ -173,7 +173,7 @@ function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: 
           </Label>
           <Select
             value={f.category ?? ""}
-            onValueChange={(v) => setF({ ...f, category: v })}
+            onValueChange={handleCategoryChange}
           >
             <SelectTrigger className="h-11 bg-background/50 border-border/50">
               <SelectValue placeholder="Selecione..." />
