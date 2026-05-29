@@ -59,6 +59,7 @@ export type Database = {
           active: boolean
           created_at: string
           id: string
+          monthly_goal: number | null
           name: string
           user_id: string | null
         }
@@ -67,6 +68,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          monthly_goal?: number | null
           name: string
           user_id?: string | null
         }
@@ -75,6 +77,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          monthly_goal?: number | null
           name?: string
           user_id?: string | null
         }
