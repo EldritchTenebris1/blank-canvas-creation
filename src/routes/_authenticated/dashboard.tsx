@@ -297,7 +297,7 @@ function Dashboard() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="premium-card p-1 border-white/5 bg-card/30"
+            className="premium-card p-1 border-white/5 bg-card/30 group"
           >
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-3">
