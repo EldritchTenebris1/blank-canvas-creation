@@ -42,10 +42,10 @@ export function useProducts() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async ({ payload, id }: { payload: Partial<Database["public"]["Tables"]["products"]["Update"]>; id?: string }) => {
+    mutationFn: async ({ payload, id }: { payload: any; id?: string }) => {
       const { error } = id
         ? await supabase.from("products").update(payload).eq("id", id)
-        : await supabase.from("products").insert(payload as Database["public"]["Tables"]["products"]["Insert"]);
+        : await supabase.from("products").insert(payload);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -86,17 +86,26 @@ export function useProducts() {
       const product = query.data?.find(p => p.id === productId);
       if (!product) throw new Error("Produto não encontrado");
 
-      const field = location === "pista" ? "pista_qty" : location === "estoque" ? "estoque_qty" : null;
-      if (!field) throw new Error("Localização inválida");
+      let updatePayload: Database["public"]["Tables"]["products"]["Update"] = {};
+      let currentQty = 0;
 
-      const currentQty = (product as any)[field] || 0;
-      const newQty = currentQty + delta;
+      if (location === "pista") {
+        currentQty = product.pista_qty || 0;
+        updatePayload.pista_qty = currentQty + delta;
+      } else if (location === "estoque") {
+        currentQty = product.estoque_qty || 0;
+        updatePayload.estoque_qty = currentQty + delta;
+      } else {
+        throw new Error("Localização inválida para movimentação manual");
+      }
 
-      if (newQty < 0) throw new Error("Quantidade insuficiente");
+      if ((updatePayload.pista_qty ?? 0) < 0 || (updatePayload.estoque_qty ?? 0) < 0) {
+        throw new Error("Quantidade insuficiente");
+      }
 
       const { error: updateError } = await supabase
         .from("products")
-        .update({ [field]: newQty })
+        .update(updatePayload)
         .eq("id", productId);
 
       if (updateError) throw updateError;
