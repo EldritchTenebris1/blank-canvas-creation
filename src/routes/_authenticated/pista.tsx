@@ -23,51 +23,50 @@ const PistaRow = React.memo(({
 }) => {
   const low = (p.pista_qty || 0) < (p.pista_min || 0);
   return (
-    <tr className="transition-colors hover:bg-card/30">
-      <td className="px-6 py-4">
-        <div className="font-semibold text-slate-800">{p.name}</div>
-        <div className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground/60">
+    <tr className="group transition-colors hover:bg-white/[0.02]">
+      <td className="px-6 py-5">
+        <div className="font-bold tracking-tight text-foreground">{p.name}</div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 mt-1">
           {p.brand || "—"}
         </div>
       </td>
-      <td className={cn("px-6 py-4 text-right text-lg font-black", low ? "text-destructive" : "text-accent")}>
+      <td className={cn("px-6 py-5 text-right font-black text-lg tabular-nums transition-colors", low ? "text-destructive" : "text-primary")}>
         {p.pista_qty || 0}
       </td>
-      <td className="px-6 py-4 text-right text-muted-foreground/60 font-medium">
+      <td className="px-6 py-5 text-right text-[11px] font-black uppercase tracking-widest text-muted-foreground/30 tabular-nums">
         {p.pista_min || 0}
       </td>
-      <td className="px-6 py-4 text-right text-muted-foreground/40 italic">
+      <td className="px-6 py-5 text-right text-[11px] font-black uppercase tracking-widest text-muted-foreground/20 italic tabular-nums">
         {p.estoque_qty || 0}
       </td>
-      <td className="px-6 py-4">
-        <Input
-          type="number" 
-          value={value || ""} 
-          min={0}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="mx-auto h-10 w-24 text-center font-bold glass border-none focus-visible:ring-1 focus-visible:ring-accent"
-        />
-      </td>
-      <td className="px-6 py-4">
-        <div className="flex justify-end gap-1">
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="h-10 bg-accent/5 hover:bg-accent/10 border-accent/20 text-accent font-bold px-4"
-            disabled={!value} 
-            onClick={() => onMove(value, "entrada")}
-          >
-            <Plus size={16} className="mr-1" /> Entrada
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="h-10 hover:bg-destructive/10 border-destructive/20 text-destructive font-bold px-4"
-            disabled={!value} 
-            onClick={() => onMove(-value, "ajuste")}
-          >
-            <Minus size={16} className="mr-1" /> Saída
-          </Button>
+      <td className="px-6 py-5">
+        <div className="flex items-center justify-center gap-3">
+          <Input
+            type="number" 
+            value={value || ""} 
+            min={0}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className="h-10 w-24 text-center font-black bg-white/5 border-white/5 focus:bg-white/10 focus:ring-primary/20 transition-all rounded-xl"
+            placeholder="Qtd"
+          />
+          <div className="flex gap-1">
+            <Button 
+              size="sm" 
+              className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest shadow-glow hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
+              disabled={!value} 
+              onClick={() => onMove(value, "entrada")}
+            >
+              <Plus size={14} strokeWidth={3} className="mr-1.5" /> Entrada
+            </Button>
+            <Button 
+              size="sm" 
+              className="h-10 px-4 rounded-xl bg-destructive text-destructive-foreground font-black uppercase text-[10px] tracking-widest shadow-glow-destructive hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
+              disabled={!value} 
+              onClick={() => onMove(-value, "ajuste")}
+            >
+              <Minus size={14} strokeWidth={3} className="mr-1.5" /> Ajuste
+            </Button>
+          </div>
         </div>
       </td>
     </tr>
