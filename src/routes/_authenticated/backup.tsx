@@ -156,7 +156,7 @@ function BackupPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center text-[10px] font-bold text-muted-foreground/40 tabular-nums">
-                        {(b.size_bytes / 1024).toFixed(1)} KB
+                        {(Number(b.size_bytes || 0) / 1024).toFixed(1)} KB
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-center">
