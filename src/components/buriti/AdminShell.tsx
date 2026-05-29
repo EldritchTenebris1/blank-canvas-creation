@@ -222,6 +222,7 @@ export function AdminShell() {
                 className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/30 transition-all group-focus-within:text-primary group-focus-within:scale-110"
               />
               <Input
+                ref={searchInputRef}
                 placeholder="Busca global avançada..."
                 className="h-12 w-[300px] rounded-2xl border-white/5 bg-white/5 pl-12 shadow-inner backdrop-blur-md transition-all focus:w-[420px] focus:bg-white/8 focus:ring-primary/20 border-white/10"
               />
