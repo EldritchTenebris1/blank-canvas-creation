@@ -207,37 +207,6 @@ function ConfigPage() {
           </div>
         </Section>
 
-        <Section icon={Bell} title="Notificações e Alertas" description="Configure como deseja ser avisado">
-          <div className="grid gap-2">
-            <Toggle 
-              label="Alertas de estoque baixo" 
-              checked={formState.notify_low_stock === "true"}
-              onCheckedChange={(checked) => {
-                const val = String(checked);
-                handleInputChange("notify_low_stock", val);
-                saveSetting("notify_low_stock", val);
-              }}
-            />
-            <Toggle 
-              label="Resumo diário por e-mail" 
-              checked={formState.notify_daily_summary === "true"}
-              onCheckedChange={(checked) => {
-                const val = String(checked);
-                handleInputChange("notify_daily_summary", val);
-                saveSetting("notify_daily_summary", val);
-              }}
-            />
-            <Toggle 
-              label="Notificar movimentações de pista" 
-              checked={formState.notify_pista_movements === "true"}
-              onCheckedChange={(checked) => {
-                const val = String(checked);
-                handleInputChange("notify_pista_movements", val);
-                saveSetting("notify_pista_movements", val);
-              }}
-            />
-          </div>
-        </Section>
 
         <Section icon={Palette} title="Aparência" description="Personalize a interface do sistema">
           <div className="grid gap-2">

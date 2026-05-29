@@ -18,7 +18,7 @@ import {
   Menu,
 } from "lucide-react";
 import { BuritiLogo } from "./Logo";
-import { NotificationsBell } from "./NotificationsBell";
+
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -210,7 +210,7 @@ export function AdminShell() {
               </kbd>
             </div>
             
-            <NotificationsBell />
+            
             
             <div className="hidden items-center gap-4 rounded-2xl border border-white/5 bg-white/5 px-4 py-2 hover:bg-white/10 transition-colors lg:flex">
               <div className="relative">
