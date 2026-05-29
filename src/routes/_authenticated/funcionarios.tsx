@@ -11,8 +11,15 @@ import { Switch } from "@/components/ui/switch";
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { createEmployeeFn, deleteEmployeeFn, toggleEmployeeFn } from "@/lib/employees.functions";
 import { toast } from "sonner";
+import { z } from "zod";
 
 export const Route = createFileRoute("/_authenticated/funcionarios")({ component: FuncionariosPage });
+
+const employeeSchema = z.object({
+  name: z.string().min(2, "Nome muito curto").max(100),
+  access_code: z.string().regex(/^\d{1,3}$/, "Código deve ter 1-3 dígitos"),
+  pin: z.string().regex(/^\d{2,4}$/, "Senha deve ter 2-4 dígitos"),
+});
 
 type Employee = { id: string; name: string; access_code: string; active: boolean; created_at: string };
 
@@ -34,10 +41,13 @@ function FuncionariosPage() {
   const [saving, setSaving] = React.useState(false);
 
   async function save() {
-    if (!form.name || !form.access_code || !form.pin) return toast.error("Preencha todos os campos");
+    const result = employeeSchema.safeParse(form);
+    if (!result.success) {
+      return toast.error(result.error.errors[0].message);
+    }
     setSaving(true);
     try {
-      await createEmp({ data: form });
+      await createEmp({ data: result.data });
       toast.success("Frentista criado");
       setForm({ name: "", access_code: "", pin: "" });
       setOpen(false);

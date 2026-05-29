@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { z } from "zod";
 import {
   Select,
   SelectContent,
@@ -20,20 +21,23 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/produtos")({ component: ProdutosPage });
 
-type Product = {
+const productSchema = z.object({
+  name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres").max(100),
+  category: z.string().nullable(),
+  internal_code: z.string().nullable(),
+  sale_price: z.coerce.number().min(0, "O preço de venda não pode ser negativo"),
+  cost_price: z.coerce.number().min(0, "O preço de custo não pode ser negativo"),
+  pista_min: z.coerce.number().min(0, "O mínimo na pista não pode ser negativo"),
+  estoque_min: z.coerce.number().min(0, "O mínimo no estoque não pode ser negativo"),
+});
+
+type Product = z.infer<typeof productSchema> & {
   id: string;
-  name: string;
-  category: string | null;
   brand: string | null;
-  internal_code: string | null;
   barcode: string | null;
   description: string | null;
   pista_qty: number;
   estoque_qty: number;
-  pista_min: number;
-  estoque_min: number;
-  cost_price: number;
-  sale_price: number;
 };
 
 function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: () => void }) {
@@ -52,20 +56,19 @@ function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: 
   });
 
   async function save() {
-    if (!f.name) return toast.error("Nome obrigatório");
+    const result = productSchema.safeParse(f);
+    if (!result.success) {
+      return toast.error(result.error.errors[0].message);
+    }
+
     setLoading(true);
+    const data = result.data;
     const payload = {
-      name: f.name!,
-      category: f.category ?? null,
-      internal_code: f.internal_code ?? null,
-      sale_price: Number(f.sale_price ?? 0),
-      pista_min: Number(f.pista_min ?? 0),
-      estoque_min: Number(f.estoque_min ?? 0),
-      // Keep existing values for other fields if they exist
+      ...data,
       brand: f.brand ?? null,
       barcode: f.barcode ?? null,
-      cost_price: Number(f.cost_price ?? 0),
     };
+
     const { error } = initial?.id
       ? await supabase.from("products").update(payload).eq("id", initial.id)
       : await supabase.from("products").insert(payload);
