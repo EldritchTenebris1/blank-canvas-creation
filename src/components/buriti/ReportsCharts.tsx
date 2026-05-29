@@ -107,7 +107,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  tick={{ fill: "rgba(0,0,0,0.5)", fontSize: 11, fontWeight: 600 }} 
+                  tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11, fontWeight: 600 }} 
                   width={120}
                   axisLine={false}
                   tickLine={false}
