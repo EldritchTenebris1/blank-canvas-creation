@@ -96,7 +96,7 @@ function BackupPage() {
           <Button 
             onClick={() => createBackupMutation.mutate()}
             disabled={createBackupMutation.isPending}
-            className="rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] gap-2 h-14 px-8 shadow-glow"
+            className="w-full sm:w-auto rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] gap-2 h-12 px-5 sm:h-14 sm:px-8 shadow-glow"
           >
             {createBackupMutation.isPending ? (
               <Loader2 className="animate-spin" size={20} />
