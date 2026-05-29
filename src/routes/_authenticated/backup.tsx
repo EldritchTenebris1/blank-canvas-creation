@@ -109,7 +109,7 @@ function BackupPage() {
       />
 
       <div className="grid gap-6">
-        <div className="premium-card p-8 border-primary/20 bg-primary/5">
+        <div className="premium-card p-5 sm:p-8 border-primary/20 bg-primary/5">
           <div className="flex items-center gap-4 mb-6">
             <div className="p-3 rounded-2xl bg-primary text-primary-foreground shadow-glow">
               <ShieldAlert size={24} />
