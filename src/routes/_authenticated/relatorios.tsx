@@ -184,7 +184,7 @@ function RelatoriosPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <Kpi 
               label="Receita Total" 
               value={`R$ ${reportData.metrics.current.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} 
