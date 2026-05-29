@@ -27,7 +27,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
         <div className="glass rounded-3xl p-6 lg:col-span-3 border-none shadow-sm overflow-hidden relative">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60">Evolução de Vendas</h3>
+              <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300">Evolução de Vendas</h3>
               <p className="text-xs text-muted-foreground/40 mt-1">Comparativo entre receita e lucro no período</p>
             </div>
             <div className="flex gap-4">
@@ -97,7 +97,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
 
         {/* Top Products */}
         <div className="glass rounded-3xl p-6 lg:col-span-2 border-none shadow-sm">
-          <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-muted-foreground/60">Performance por Produto</h3>
+          <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-slate-300">Performance por Produto</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topProducts} layout="vertical">
@@ -125,7 +125,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
 
         {/* Category Share */}
         <div className="glass rounded-3xl p-6 border-none shadow-sm">
-          <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-muted-foreground/60">Share por Categoria</h3>
+          <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-slate-300">Share por Categoria</h3>
           <div className="h-[300px] w-full flex flex-col items-center justify-center">
             <ResponsiveContainer width="100%" height="70%">
               <PieChart>
