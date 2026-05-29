@@ -15,73 +15,185 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({ componen
 function ConfigPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const { data: goalValue } = useQuery({
-    queryKey: ["setting", "monthly_goal"],
+  
+  const { data: settings = {}, isLoading } = useQuery({
+    queryKey: ["app-settings"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "monthly_goal")
-        .maybeSingle();
-      return Number(data?.value ?? 0);
+      const { data } = await supabase.from("app_settings").select("*");
+      return (data ?? []).reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {} as Record<string, string>);
     },
   });
-  const [goal, setGoal] = React.useState<string>("");
-  const [saving, setSaving] = React.useState(false);
-  React.useEffect(() => {
-    if (goalValue !== undefined) setGoal(String(goalValue));
-  }, [goalValue]);
 
-  async function saveGoal() {
-    const v = Number(goal);
-    if (!Number.isFinite(v) || v < 0) return toast.error("Informe um valor válido");
-    setSaving(true);
+  const [formState, setFormState] = React.useState<Record<string, string>>({});
+  const [saving, setSaving] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (settings) {
+      setFormState(prev => ({ ...settings, ...prev }));
+    }
+  }, [settings]);
+
+  async function saveSetting(key: string, value: string) {
+    setSaving(key);
     const { error } = await supabase
       .from("app_settings")
-      .upsert({ key: "monthly_goal", value: String(v), updated_at: new Date().toISOString() });
-    setSaving(false);
-    if (error) return toast.error(error.message);
-    toast.success("Meta atualizada");
-    qc.invalidateQueries({ queryKey: ["setting", "monthly_goal"] });
-    qc.invalidateQueries({ queryKey: ["frentista-goal"] });
+      .upsert({ key, value, updated_at: new Date().toISOString() });
+    
+    if (error) {
+      toast.error(`Erro ao salvar ${key}: ` + error.message);
+    } else {
+      toast.success("Configuração atualizada");
+      qc.invalidateQueries({ queryKey: ["app-settings"] });
+      if (key === "monthly_goal") qc.invalidateQueries({ queryKey: ["frentista-goal"] });
+    }
+    setSaving(null);
+  }
+
+  const handleInputChange = (key: string, value: string) => {
+    setFormState(prev => ({ ...prev, [key]: value }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[400px] items-center justify-center">
+        <Loader2 className="animate-spin text-accent" size={32} />
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-4xl">
-      <PageHeader title="Configurações" description="Preferências do sistema" />
-      <div className="grid gap-4">
-        <Section icon={Target} title="Meta de vendas" description="Meta mensal exibida no painel do frentista">
-          <div className="grid gap-1.5 sm:grid-cols-[180px_1fr_auto] sm:items-center">
-            <label className="text-xs font-medium text-muted-foreground">Meta mensal (R$)</label>
-            <Input
-              type="number"
-              min={0}
-              step="100"
-              value={goal}
-              onChange={(e) => setGoal(e.target.value)}
-              placeholder="10000"
-            />
-            <Button onClick={saveGoal} disabled={saving} style={{ background: "var(--gradient-primary)" }}>
-              {saving ? <Loader2 className="animate-spin" size={16} /> : "Salvar"}
+    <div className="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <PageHeader title="Configurações" description="Gerencie as preferências e informações do sistema" />
+      
+      <div className="grid gap-6">
+        <Section icon={Target} title="Meta de Vendas" description="Meta mensal exibida no painel do frentista">
+          <div className="grid gap-4 sm:grid-cols-[1fr_auto] items-end">
+            <div className="grid gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Meta mensal (R$)</label>
+              <Input
+                type="number"
+                min={0}
+                step="100"
+                value={formState.monthly_goal ?? ""}
+                onChange={(e) => handleInputChange("monthly_goal", e.target.value)}
+                placeholder="Ex: 50000"
+                className="bg-background/50 border-border/40 focus:border-accent/50 transition-colors"
+              />
+            </div>
+            <Button 
+              onClick={() => saveSetting("monthly_goal", formState.monthly_goal)} 
+              disabled={saving === "monthly_goal"}
+              className="bg-accent hover:bg-accent/90 text-white min-w-[100px]"
+            >
+              {saving === "monthly_goal" ? <Loader2 className="animate-spin" size={16} /> : "Salvar Meta"}
             </Button>
           </div>
         </Section>
-        <Section icon={Building2} title="Posto Buriti" description="Informações do estabelecimento">
-          <Field label="Nome" defaultValue="Posto Buriti" />
-          <Field label="CNPJ" defaultValue="00.000.000/0001-00" />
-          <Field label="Endereço" defaultValue="—" />
+
+        <Section icon={Building2} title="Informações do Posto" description="Dados que aparecem em relatórios e notas">
+          <div className="grid gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome do Estabelecimento</label>
+                <Input 
+                  value={formState.station_name ?? ""} 
+                  onChange={(e) => handleInputChange("station_name", e.target.value)}
+                  placeholder="Ex: Posto Ipiranga Matriz"
+                  className="bg-background/50 border-border/40 focus:border-accent/50"
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">CNPJ</label>
+                <Input 
+                  value={formState.station_cnpj ?? ""} 
+                  onChange={(e) => handleInputChange("station_cnpj", e.target.value)}
+                  placeholder="00.000.000/0001-00"
+                  className="bg-background/50 border-border/40 focus:border-accent/50"
+                />
+              </div>
+            </div>
+            <div className="grid gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Endereço Completo</label>
+              <Input 
+                value={formState.station_address ?? ""} 
+                onChange={(e) => handleInputChange("station_address", e.target.value)}
+                placeholder="Rua, Número, Bairro, Cidade - UF"
+                className="bg-background/50 border-border/40 focus:border-accent/50"
+              />
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button 
+                onClick={async () => {
+                  await saveSetting("station_name", formState.station_name);
+                  await saveSetting("station_cnpj", formState.station_cnpj);
+                  await saveSetting("station_address", formState.station_address);
+                }} 
+                disabled={saving !== null}
+                className="bg-accent hover:bg-accent/90 text-white min-w-[120px]"
+              >
+                {saving ? <Loader2 className="animate-spin" size={16} /> : "Salvar Informações"}
+              </Button>
+            </div>
+          </div>
         </Section>
-        <Section icon={Shield} title="Conta administrador" description="Sua conta de acesso">
-          <Field label="E-mail" defaultValue={user?.email ?? ""} disabled />
+
+        <Section icon={Shield} title="Sua Conta" description="Informações de acesso e segurança">
+          <div className="grid gap-4 sm:grid-cols-[1fr_auto] items-end">
+            <div className="grid gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">E-mail de Acesso</label>
+              <Input value={user?.email ?? ""} disabled className="bg-muted/30 border-border/40 cursor-not-allowed" />
+            </div>
+            <Button variant="outline" className="border-accent/20 text-accent hover:bg-accent/10">
+              Alterar Senha
+            </Button>
+          </div>
         </Section>
-        <Section icon={Bell} title="Notificações" description="Alertas e avisos">
-          <Toggle label="Alertas de estoque baixo" defaultChecked />
-          <Toggle label="Resumo diário por e-mail" />
-          <Toggle label="Notificar movimentações de pista" defaultChecked />
+
+        <Section icon={Bell} title="Notificações e Alertas" description="Configure como deseja ser avisado">
+          <div className="grid gap-2">
+            <Toggle 
+              label="Alertas de estoque baixo" 
+              checked={formState.notify_low_stock === "true"}
+              onCheckedChange={(checked) => {
+                const val = String(checked);
+                handleInputChange("notify_low_stock", val);
+                saveSetting("notify_low_stock", val);
+              }}
+            />
+            <Toggle 
+              label="Resumo diário por e-mail" 
+              checked={formState.notify_daily_summary === "true"}
+              onCheckedChange={(checked) => {
+                const val = String(checked);
+                handleInputChange("notify_daily_summary", val);
+                saveSetting("notify_daily_summary", val);
+              }}
+            />
+            <Toggle 
+              label="Notificar movimentações de pista" 
+              checked={formState.notify_pista_movements === "true"}
+              onCheckedChange={(checked) => {
+                const val = String(checked);
+                handleInputChange("notify_pista_movements", val);
+                saveSetting("notify_pista_movements", val);
+              }}
+            />
+          </div>
         </Section>
-        <Section icon={Palette} title="Aparência" description="Tema visual do sistema">
-          <Toggle label="Modo escuro" defaultChecked disabled />
-          <Toggle label="Animações reduzidas" />
+
+        <Section icon={Palette} title="Aparência" description="Personalize a interface do sistema">
+          <div className="grid gap-2">
+            <Toggle label="Modo Escuro (Sempre Ativo)" checked={true} disabled />
+            <Toggle 
+              label="Animações Refinadas" 
+              checked={formState.ui_animations !== "false"}
+              onCheckedChange={(checked) => {
+                const val = String(checked);
+                handleInputChange("ui_animations", val);
+                saveSetting("ui_animations", val);
+              }}
+            />
+          </div>
         </Section>
       </div>
     </div>
@@ -90,31 +202,26 @@ function ConfigPage() {
 
 function Section({ icon: Icon, title, description, children }: { icon: React.ElementType; title: string; description: string; children: React.ReactNode }) {
   return (
-    <div className="glass rounded-2xl p-6">
-      <div className="mb-4 flex items-center gap-3 border-b border-border/40 pb-4">
-        <div className="grid h-10 w-10 place-items-center rounded-xl bg-card/60"><Icon size={18} className="text-accent" /></div>
+    <div className="glass rounded-2xl p-6 border border-white/5 hover:border-accent/20 transition-all duration-300">
+      <div className="mb-6 flex items-center gap-4 border-b border-border/40 pb-4">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-accent/20 to-accent/5 shadow-inner">
+          <Icon size={22} className="text-accent" />
+        </div>
         <div>
-          <div className="font-semibold">{title}</div>
-          <div className="text-xs text-muted-foreground">{description}</div>
+          <div className="font-bold text-lg tracking-tight">{title}</div>
+          <div className="text-xs text-muted-foreground font-medium">{description}</div>
         </div>
       </div>
       <div className="grid gap-3">{children}</div>
     </div>
   );
 }
-function Field({ label, ...rest }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+
+function Toggle({ label, checked, onCheckedChange, disabled }: { label: string; checked?: boolean; onCheckedChange?: (checked: boolean) => void; disabled?: boolean }) {
   return (
-    <div className="grid gap-1.5 sm:grid-cols-[180px_1fr] sm:items-center">
-      <label className="text-xs font-medium text-muted-foreground">{label}</label>
-      <Input {...rest} />
-    </div>
-  );
-}
-function Toggle({ label, defaultChecked, disabled }: { label: string; defaultChecked?: boolean; disabled?: boolean }) {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-border/40 px-4 py-3">
-      <div className="text-sm">{label}</div>
-      <Switch defaultChecked={defaultChecked} disabled={disabled} />
+    <div className="flex items-center justify-between rounded-xl border border-border/40 px-5 py-4 bg-card/30 hover:bg-card/50 transition-colors">
+      <div className="text-sm font-medium">{label}</div>
+      <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} />
     </div>
   );
 }
