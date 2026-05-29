@@ -26,7 +26,7 @@ export function useCategories() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async ({ payload, id }: { payload: Partial<Category>; id?: string }) => {
+    mutationFn: async ({ payload, id }: { payload: any; id?: string }) => {
       if (id) {
         const { data, error } = await supabase
           .from("categories")
