@@ -24,11 +24,11 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
     <div className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Evolution Chart - Revenue & Profit over time */}
-        <div className="glass rounded-3xl p-6 lg:col-span-3 border-none shadow-sm overflow-hidden relative">
-          <div className="flex items-center justify-between mb-6">
+        <div className="premium-card p-6 lg:col-span-3 overflow-hidden animate-reveal" style={{ animationDelay: "100ms" }}>
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300">Evolução de Vendas</h3>
-              <p className="text-xs text-muted-foreground/40 mt-1">Comparativo entre receita e lucro no período</p>
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-accent/80">Evolução de Vendas</h3>
+              <p className="text-[10px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-tight">Comparativo entre receita e lucro no período</p>
             </div>
             <div className="flex gap-4">
               <div className="flex items-center gap-2">
