@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Building2, Bell, Shield, Palette, Target, Loader2 } from "lucide-react";
+import { Building2, Bell, Shield, Palette, Target, Loader2, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -137,7 +137,30 @@ function ConfigPage() {
           </div>
         </Section>
 
-        <Section icon={Shield} title="Sua Conta" description="Informações de acesso e segurança">
+        <Section icon={User} title="Seu Perfil" description="Como você aparece no sistema">
+          <div className="grid gap-4">
+            <div className="grid gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome Completo</label>
+              <Input 
+                value={profileName} 
+                onChange={(e) => setProfileName(e.target.value)}
+                placeholder="Seu nome completo"
+                className="bg-background/50 border-border/40 focus:border-accent/50"
+              />
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button 
+                onClick={saveProfile} 
+                disabled={saving === "profile"}
+                className="bg-accent hover:bg-accent/90 text-white min-w-[120px]"
+              >
+                {saving === "profile" ? <Loader2 className="animate-spin" size={16} /> : "Salvar Perfil"}
+              </Button>
+            </div>
+          </div>
+        </Section>
+
+        <Section icon={Shield} title="Conta e Segurança" description="Informações de acesso e segurança">
           <div className="grid gap-4 sm:grid-cols-[1fr_auto] items-end">
             <div className="grid gap-1.5">
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">E-mail de Acesso</label>
