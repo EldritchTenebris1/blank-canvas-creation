@@ -335,15 +335,15 @@ function Dashboard() {
                 <AlertTriangle size={120} className="text-destructive" />
               </div>
               
-              <div className="flex items-center gap-4 mb-8 relative z-10">
-                <div className="p-3 rounded-2xl bg-destructive text-destructive-foreground shadow-[0_0_20px_oklch(var(--destructive)/0.4)]">
-                  <AlertTriangle size={24} strokeWidth={2.5} />
+              <div className="flex items-center gap-5 mb-10 relative z-10">
+                <div className="p-4 rounded-2xl bg-destructive text-destructive-foreground shadow-[0_0_30px_oklch(var(--destructive)/0.5)] animate-pulse">
+                  <AlertTriangle size={28} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black tracking-tight text-destructive uppercase italic">Ação Necessária</h3>
-                  <p className="text-[11px] text-destructive/50 font-black uppercase tracking-widest flex items-center gap-2">
-                    <span className="h-1 w-1 rounded-full bg-destructive animate-pulse" />
-                    {dashboardData.lowStockCount} {dashboardData.lowStockCount === 1 ? 'produto atingiu o nível crítico' : 'produtos atingiram o nível crítico'}
+                  <h3 className="text-2xl font-black tracking-tight text-destructive uppercase italic leading-none mb-2">Ação Crítica Necessária</h3>
+                  <p className="text-[12px] text-destructive/60 font-black uppercase tracking-[0.25em] flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-ping" />
+                    {dashboardData.lowStockCount} {dashboardData.lowStockCount === 1 ? 'item com ruptura de estoque' : 'itens com ruptura de estoque'}
                   </p>
                 </div>
               </div>
