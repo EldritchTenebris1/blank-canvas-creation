@@ -13,18 +13,18 @@ export function BuritiLogo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
         className={`${s.wrap} relative grid place-items-center rounded-xl shadow-glow-accent`}
         style={{ background: "var(--gradient-accent)" }}
       >
-        <Fuel size={s.icon} className="text-[oklch(0.18_0.04_255)]" strokeWidth={2.5} />
+        <Fuel size={s.icon} className="text-primary" strokeWidth={3} />
         <div
-          className="absolute -inset-px rounded-xl opacity-40 blur-md"
+          className="absolute -inset-px rounded-xl opacity-30 blur-md"
           style={{ background: "var(--gradient-accent)" }}
         />
       </div>
       <div className="leading-tight">
-        <div className={`${s.text} font-bold tracking-tight`}>
+        <div className={`${s.text} font-bold tracking-tight text-white`}>
           Posto <span className="gradient-text">Buriti</span>
         </div>
-        <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Sistema de gestão
+        <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-accent/80">
+          Padrão Ipiranga
         </div>
       </div>
     </div>
