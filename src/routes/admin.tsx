@@ -134,13 +134,13 @@ function AdminLogin() {
           </h1>
           <p className="max-w-md text-muted-foreground">
             Dashboard, controle duplo de estoque, movimentações em tempo real,
-            relatórios e alertas inteligentes — tudo em um só lugar.
+            relatórios inteligentes e gestão completa — tudo em um só lugar.
           </p>
           <div className="grid max-w-md grid-cols-2 gap-3 pt-4">
             {[
               ["Estoque duplo", "Pista + principal"],
               ["Tempo real", "Atualização instantânea"],
-              ["Alertas", "Reposição inteligente"],
+              ["Produtividade", "Foco no resultado"],
               ["Relatórios", "PDF e Excel"],
             ].map(([t, d]) => (
               <div key={t} className="glass rounded-xl p-4">
