@@ -35,6 +35,15 @@ export function useCategories() {
           .select()
           .single();
         if (error) throw error;
+
+        // If name changed, update all products that use this category
+        if (payload.name) {
+          await supabase
+            .from("products")
+            .update({ category: payload.name })
+            .eq("category_id", id);
+        }
+
         return data;
       } else {
         const { data, error } = await supabase
