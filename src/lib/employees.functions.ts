@@ -14,6 +14,7 @@ export const createEmployeeFn = createServerFn({ method: "POST" })
         name: z.string().min(2).max(80),
         access_code: z.string().regex(codeRegex, "Código deve ter 1-3 dígitos"),
         pin: z.string().regex(pinRegex, "Senha deve ter 2-4 dígitos"),
+        monthly_goal: z.number().min(0).optional(),
       })
       .parse(input),
   )
@@ -47,6 +48,7 @@ export const createEmployeeFn = createServerFn({ method: "POST" })
       access_code: code,
       name: data.name,
       active: true,
+      monthly_goal: data.monthly_goal ?? 0,
     });
     if (empErr) {
       await supabaseAdmin.auth.admin.deleteUser(newUserId);
@@ -85,6 +87,26 @@ export const deleteEmployeeFn = createServerFn({ method: "POST" })
     } else {
       await supabaseAdmin.from("employees").delete().eq("id", data.id);
     }
+    return { ok: true };
+  });
+
+export const updateEmployeeGoalFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ id: z.string().uuid(), goal: z.number().min(0) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const { data: roles } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin");
+    if (!roles || roles.length === 0) throw new Error("Sem permissão.");
+    await supabaseAdmin
+      .from("employees")
+      .update({ monthly_goal: data.goal })
+      .eq("id", data.id);
     return { ok: true };
   });
 
