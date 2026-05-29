@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard,
   Package,
@@ -14,7 +16,6 @@ import {
   Search,
   ChevronLeft,
   Menu,
-  Bell,
 } from "lucide-react";
 import { BuritiLogo } from "./Logo";
 import { NotificationsBell } from "./NotificationsBell";
@@ -43,6 +44,14 @@ export function AdminShell() {
   const navigate = useNavigate();
 
   const current = items.find((i) => path.startsWith(i.to));
+
+  const { data: stationName } = useQuery({
+    queryKey: ["app-setting", "station_name"],
+    queryFn: async () => {
+      const { data } = await supabase.from("app_settings").select("value").eq("key", "station_name").maybeSingle();
+      return data?.value || "Posto Buriti";
+    }
+  });
 
   // Close mobile drawer on route change
   React.useEffect(() => {
@@ -129,7 +138,7 @@ export function AdminShell() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
               >
-                <BuritiLogo size="md" />
+                <BuritiLogo size="md" name={stationName} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -156,7 +165,7 @@ export function AdminShell() {
         <SheetContent side="left" className="flex w-[260px] flex-col border-sidebar-border bg-sidebar p-0">
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <div className="flex h-[72px] items-center px-4">
-            <BuritiLogo size="md" />
+            <BuritiLogo size="md" name={stationName} />
           </div>
           <NavList />
         </SheetContent>
@@ -178,7 +187,7 @@ export function AdminShell() {
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
                 <div className="h-1 w-1 rounded-full bg-accent animate-pulse" />
-                Posto Buriti ERP
+                {stationName} ERP
               </div>
               <div className="text-gradient truncate text-xl font-bold tracking-tight sm:text-2xl">
                 {current?.label ?? "Painel"}
