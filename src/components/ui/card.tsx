@@ -3,13 +3,32 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("rounded-xl border bg-card text-card-foreground shadow", className)}
-      {...props}
-    />
-  ),
+  ({ className, ...props }, ref) => {
+    const cardRef = React.useRef<HTMLDivElement>(null);
+    
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = cardRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      cardRef.current?.style.setProperty("--mouse-x", `${x}px`);
+      cardRef.current?.style.setProperty("--mouse-y", `${y}px`);
+    };
+
+    return (
+      <div
+        ref={(node) => {
+          // @ts-ignore
+          cardRef.current = node;
+          if (typeof ref === "function") ref(node);
+          else if (ref) ref.current = node;
+        }}
+        onMouseMove={handleMouseMove}
+        className={cn("premium-card", className)}
+        {...props}
+      />
+    );
+  },
 );
 Card.displayName = "Card";
 
