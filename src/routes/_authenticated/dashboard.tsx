@@ -165,11 +165,11 @@ function Dashboard() {
               <Zap size={24} fill="currentColor" className="opacity-80" />
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-gradient uppercase italic">
+              <h1 className="text-4xl font-black tracking-tighter sm:text-5xl text-gradient uppercase italic leading-[0.9]">
                 Painel de Controle
               </h1>
-              <p className="text-xs text-muted-foreground/60 font-black uppercase tracking-widest flex items-center gap-2 mt-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+              <p className="text-[11px] text-muted-foreground/60 font-black uppercase tracking-[0.2em] flex items-center gap-2 mt-2">
+                <span className="h-2 w-2 rounded-full bg-success animate-pulse shadow-[0_0_10px_oklch(var(--success))]" />
                 SISTEMA OPERACIONAL ATIVO • {stationName}
               </p>
             </div>
