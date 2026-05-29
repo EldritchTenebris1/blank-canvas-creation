@@ -98,8 +98,8 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
         </div>
 
         {/* Top Products */}
-        <div className="glass rounded-3xl p-6 lg:col-span-2 border-none shadow-sm">
-          <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-slate-300">Performance por Produto</h3>
+        <div className="premium-card p-6 lg:col-span-2 animate-reveal" style={{ animationDelay: "200ms" }}>
+          <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Performance por Produto</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topProducts} layout="vertical">
