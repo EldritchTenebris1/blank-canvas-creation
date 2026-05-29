@@ -1,8 +1,37 @@
-import { Outlet, Link } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { LayoutDashboard, Package, Warehouse, Receipt, Bell, User } from "lucide-react";
+import appCss from "@/styles.css?url";
 
-export function RootComponent() {
+export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "PostoPro" },
+    ],
+    links: [{ rel: "stylesheet", href: appCss }],
+  }),
+  shellComponent: RootDocument,
+  component: RootComponent,
+});
+
+function RootDocument({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="pt-BR">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+function RootComponent() {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
