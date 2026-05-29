@@ -75,7 +75,7 @@ export function RecentMovements({ movements, products }: RecentMovementsProps) {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="group flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all border border-transparent hover:border-white/5"
+                className="group flex items-center gap-4 p-4 rounded-2xl hover:bg-white/[0.04] transition-all border border-transparent hover:border-white/5 mx-2"
               >
                 <div className={cn(
                   "h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110", 
