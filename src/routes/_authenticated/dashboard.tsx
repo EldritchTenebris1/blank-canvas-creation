@@ -203,10 +203,10 @@ function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="md:col-span-2 lg:col-span-7"
         >
-          <div className="premium-card h-full p-8 flex flex-col justify-between group overflow-hidden relative min-h-[320px]">
+          <div className="premium-card h-full p-8 flex flex-col justify-between group overflow-hidden relative min-h-[340px] border-primary/20 bg-primary/5">
              {/* Decorative Elements */}
-             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700 group-hover:scale-110 group-hover:rotate-6">
-               <DollarSign size={240} className="text-primary" />
+             <div className="absolute -top-20 -right-20 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700 group-hover:scale-110 group-hover:rotate-12 pointer-events-none">
+               <DollarSign size={400} className="text-primary" />
              </div>
              
              <div className="relative z-10">
