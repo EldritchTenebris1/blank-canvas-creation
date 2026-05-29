@@ -23,45 +23,48 @@ const EstoqueRow = React.memo(({
 }) => {
   const low = p.estoque_qty < p.estoque_min;
   return (
-    <tr className="transition-colors hover:bg-card/30">
-      <td className="px-6 py-4">
-        <div className="font-semibold text-slate-800">{p.name}</div>
-        <div className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground/60">
+    <tr className="group transition-colors hover:bg-white/[0.02]">
+      <td className="px-6 py-5">
+        <div className="font-bold tracking-tight text-foreground">{p.name}</div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 mt-1">
           {p.brand || "—"}
         </div>
       </td>
-      <td className={cn("px-6 py-4 text-right text-lg font-black", low ? "text-destructive" : "text-accent")}>
+      <td className={cn("px-6 py-5 text-right font-black text-lg tabular-nums transition-colors", low ? "text-destructive" : "text-primary")}>
         {p.estoque_qty}
       </td>
-      <td className="px-6 py-4 text-right text-muted-foreground/60 font-medium">{p.estoque_min}</td>
-      <td className="px-6 py-4 text-right text-muted-foreground/40 italic">{p.pista_qty}</td>
-      <td className="px-6 py-4">
-        <Input
-          type="number" value={value || ""} min={0}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="mx-auto h-10 w-24 text-center font-bold glass border-none focus-visible:ring-1 focus-visible:ring-accent"
-        />
+      <td className="px-6 py-5 text-right text-[11px] font-black uppercase tracking-widest text-muted-foreground/30 tabular-nums">
+        {p.estoque_min}
       </td>
-      <td className="px-6 py-4">
-        <div className="flex justify-end gap-1">
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="h-10 bg-accent/5 hover:bg-accent/10 border-accent/20 text-accent font-bold px-4"
-            disabled={!value} 
-            onClick={() => onMove(value, "entrada")}
-          >
-            <Plus size={16} className="mr-1" /> Entrada
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="h-10 hover:bg-destructive/10 border-destructive/20 text-destructive font-bold px-4"
-            disabled={!value} 
-            onClick={() => onMove(-value, "ajuste")}
-          >
-            <Minus size={16} className="mr-1" /> Saída
-          </Button>
+      <td className="px-6 py-5 text-right text-[11px] font-black uppercase tracking-widest text-muted-foreground/20 italic tabular-nums">
+        {p.pista_qty}
+      </td>
+      <td className="px-6 py-5">
+        <div className="flex items-center justify-center gap-3">
+          <Input
+            type="number" value={value || ""} min={0}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className="h-10 w-24 text-center font-black bg-white/5 border-white/5 focus:bg-white/10 focus:ring-primary/20 transition-all rounded-xl"
+            placeholder="Qtd"
+          />
+          <div className="flex gap-1">
+            <Button 
+              size="sm" 
+              className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest shadow-glow hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
+              disabled={!value} 
+              onClick={() => onMove(value, "entrada")}
+            >
+              <Plus size={14} strokeWidth={3} className="mr-1.5" /> Entrada
+            </Button>
+            <Button 
+              size="sm" 
+              className="h-10 px-4 rounded-xl bg-destructive text-destructive-foreground font-black uppercase text-[10px] tracking-widest shadow-glow-destructive hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
+              disabled={!value} 
+              onClick={() => onMove(-value, "ajuste")}
+            >
+              <Minus size={14} strokeWidth={3} className="mr-1.5" /> Ajuste
+            </Button>
+          </div>
         </div>
       </td>
     </tr>
@@ -128,17 +131,17 @@ function EstoquePage() {
       ) : (
         <>
           {/* Desktop View: Table */}
-          <div className="hidden md:block glass overflow-hidden rounded-2xl border-none shadow-sm">
+          <div className="hidden md:block premium-card overflow-hidden border-white/5 bg-card/30">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-card/40 text-[10px] uppercase font-bold tracking-widest text-muted-foreground/70">
+                <thead className="bg-white/[0.02] text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground/40 border-b border-white/5">
                   <tr>
-                    <th className="px-6 py-4 text-left">Produto</th>
-                    <th className="px-6 py-4 text-right">Estoque</th>
-                    <th className="px-6 py-4 text-right">Mínimo</th>
-                    <th className="px-6 py-4 text-right">Pista</th>
-                    <th className="px-6 py-4 text-center">Ajuste</th>
-                    <th className="px-6 py-4"></th>
+                    <th className="px-6 py-5 text-left">Produto</th>
+                    <th className="px-6 py-5 text-right">Estoque</th>
+                    <th className="px-6 py-5 text-right">Mínimo</th>
+                    <th className="px-6 py-5 text-right">Na Pista</th>
+                    <th className="px-6 py-5 text-center">Movimentação Rápida</th>
+                    <th className="px-6 py-5"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/20">
@@ -157,55 +160,65 @@ function EstoquePage() {
           </div>
 
           {/* Mobile View: Cards */}
-          <div className="grid gap-3 md:hidden">
+          <div className="grid gap-4 md:hidden">
             {filtered.map((p) => {
               const low = p.estoque_qty < p.estoque_min;
               const v = qtyMap[p.id] ?? 0;
               return (
-                <div key={p.id} className="glass rounded-2xl p-4 space-y-4 border-none shadow-sm">
+                <div key={p.id} className="premium-card p-5 space-y-5 border-white/5 active:scale-[0.98] transition-all">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <div className="font-bold text-base leading-tight truncate">{p.name}</div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
-                        {p.brand || "S/M"}
+                      <div className="font-bold text-lg leading-tight truncate">{p.name}</div>
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mt-1.5">
+                        {p.brand || "SEM MARCA"}
                       </div>
                     </div>
-                    <div className={cn("shrink-0 text-xl font-black px-3 py-1 rounded-xl bg-card/50", low ? "text-destructive" : "text-accent")}>
+                    <div className={cn("shrink-0 text-2xl font-black px-4 py-2 rounded-2xl bg-white/5 border border-white/5 transition-colors", low ? "text-destructive border-destructive/20" : "text-primary border-primary/20")}>
                       {p.estoque_qty}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-black uppercase text-muted-foreground/70">Mínimo: {p.estoque_min}</span>
-                      <span className="text-[9px] font-black uppercase text-muted-foreground/50">Na Pista: {p.pista_qty}</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+                      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-2 italic">Metas & Pista</div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-[10px] font-bold">
+                          <span className="text-muted-foreground/30 uppercase">Mínimo</span>
+                          <span className="text-foreground">{p.estoque_min} un</span>
+                        </div>
+                        <div className="flex justify-between text-[10px] font-bold">
+                          <span className="text-muted-foreground/30 uppercase">Pista</span>
+                          <span className="text-muted-foreground">{p.pista_qty} un</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex flex-col justify-center gap-2">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 ml-1">Quantidade</label>
                       <Input
                         type="number" 
-                        placeholder="Qtd"
+                        placeholder="0"
                         value={v || ""} 
                         min={0}
                         onChange={(e) => setQtyMap({ ...qtyMap, [p.id]: Number(e.target.value) })}
-                        className="h-11 w-24 text-center font-bold bg-accent/5 border-accent/20"
+                        className="h-12 text-center font-black bg-white/5 border-white/5 focus:bg-white/10 rounded-2xl text-lg"
                       />
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 pt-2">
                     <Button 
-                      className="flex-1 h-12 rounded-xl bg-accent text-[oklch(0.18_0.04_255)] font-black shadow-glow-accent active:scale-[0.98] transition-transform disabled:opacity-30"
+                      className="flex-1 h-14 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-[0.1em] text-xs shadow-glow active:scale-95 transition-all disabled:opacity-20"
                       disabled={!v} 
                       onClick={() => handleMove(p, v, "entrada")}
                     >
-                      <Plus size={20} className="mr-1" /> Entrada
+                      <Plus size={18} strokeWidth={3} className="mr-2" /> Entrada
                     </Button>
                     <Button 
-                      className="flex-1 h-12 rounded-xl bg-destructive text-white font-black shadow-glow-destructive active:scale-[0.98] transition-transform disabled:opacity-30"
+                      className="flex-1 h-14 rounded-2xl bg-destructive text-destructive-foreground font-black uppercase tracking-[0.1em] text-xs shadow-glow-destructive active:scale-95 transition-all disabled:opacity-20"
                       disabled={!v} 
                       onClick={() => handleMove(p, -v, "ajuste")}
                     >
-                      <Minus size={20} className="mr-1" /> Saída
+                      <Minus size={18} strokeWidth={3} className="mr-2" /> Ajuste
                     </Button>
                   </div>
                 </div>
