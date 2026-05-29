@@ -14,19 +14,9 @@ export const Route = createFileRoute("/_authenticated/backup")({
 });
 
 function BackupPage() {
-  const { user } = useAuth();
+  const { user, session, loading } = useAuth();
   const qc = useQueryClient();
-
-  // Verify access immediately
-  if (user?.email !== "eldritch.tenebris1@gmail.com") {
-    return (
-      <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
-        <ShieldAlert size={64} className="text-destructive opacity-20" />
-        <h2 className="text-2xl font-black uppercase tracking-tighter">Acesso Restrito</h2>
-        <p className="text-muted-foreground max-w-sm">Esta área é exclusiva para o administrador mestre do sistema.</p>
-      </div>
-    );
-  }
+  const isMasterAdmin = user?.email === "eldritch.tenebris1@gmail.com";
 
   const { data: backups = [], isLoading } = useQuery({
     queryKey: ["backups"],
@@ -38,11 +28,16 @@ function BackupPage() {
       if (error) throw error;
       return data;
     },
+    enabled: isMasterAdmin,
   });
 
   const createBackupMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("create-backup");
+      if (!session?.access_token) throw new Error("Sessão expirada. Faça login novamente.");
+
+      const { data, error } = await supabase.functions.invoke("create-backup", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
       if (error) throw error;
       return data;
     },
@@ -54,6 +49,24 @@ function BackupPage() {
       toast.error("Erro ao realizar backup: " + err.message);
     },
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <Loader2 className="animate-spin text-primary" size={28} />
+      </div>
+    );
+  }
+
+  if (!isMasterAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
+        <ShieldAlert size={64} className="text-destructive opacity-20" />
+        <h2 className="text-2xl font-black uppercase tracking-tighter">Acesso Restrito</h2>
+        <p className="text-muted-foreground max-w-sm">Esta área é exclusiva para o administrador mestre do sistema.</p>
+      </div>
+    );
+  }
 
   const downloadBackup = async (filePath: string, name: string) => {
     const { data, error } = await supabase.storage
