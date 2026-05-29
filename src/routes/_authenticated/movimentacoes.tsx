@@ -19,7 +19,7 @@ type Product = { id: string; name: string; brand: string | null };
 const TYPE_META = {
   venda: { label: "Venda", icon: ShoppingCart, color: "text-accent" },
   entrada: { label: "Entrada", icon: ArrowDownToLine, color: "text-emerald-400" },
-  ajuste: { label: "Ajuste", icon: ArrowUpFromLine, color: "text-destructive" },
+  ajuste: { label: "Ajuste", icon: RefreshCw, color: "text-muted-foreground/50" },
   reposicao: { label: "Reposição", icon: RefreshCw, color: "text-blue-400" },
 } as const;
 
