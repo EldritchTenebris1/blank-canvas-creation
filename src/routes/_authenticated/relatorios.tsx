@@ -158,7 +158,7 @@ function RelatoriosPage() {
         description="Análise detalhada de vendas, lucros e movimentação"
         action={
           <div className="flex items-center gap-3">
-            <div className="flex glass p-1 rounded-xl border-none">
+            <div className="flex premium-glass p-1 rounded-xl border-white/5">
               {[7, 30, 90].map((d) => (
                 <button
                   key={d} onClick={() => setDays(d)}
