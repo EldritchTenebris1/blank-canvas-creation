@@ -288,61 +288,66 @@ function ProdutosPage() {
   }, []);
 
   return (
-    <div className="space-y-[clamp(1rem,3vw,1.5rem)] pb-20 md:pb-0">
-      <PageHeader
-        title="Produtos"
-        description="Cadastro completo do catálogo"
-        action={
-          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
-            <DialogTrigger asChild>
-              <Button 
-                className="h-12 md:h-11 px-6 shadow-glow-accent transition-transform active:scale-95"
-                style={{ background: "var(--gradient-accent)", color: "oklch(0.18 0.04 255)" }}
-              >
-                <Plus size={18} className="mr-2" /> Novo produto
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl w-[95vw] rounded-2xl md:w-full">
-              <DialogHeader><DialogTitle className="text-[clamp(1.25rem,4vw,1.5rem)]">{editing ? "Editar produto" : "Novo produto"}</DialogTitle></DialogHeader>
-              <ProdutoForm initial={editing ?? undefined} onDone={() => setOpen(false)} />
-            </DialogContent>
-          </Dialog>
-        }
-      />
+    <div className="space-y-8 pb-20 md:pb-0">
+      <header className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-gradient">Catálogo</h1>
+          <p className="text-sm text-muted-foreground">Gerencie o portfólio de produtos e níveis de segurança.</p>
+        </div>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
+          <DialogTrigger asChild>
+            <Button size="lg" className="shadow-glow-primary">
+              <Plus size={20} className="mr-2" /> Novo Produto
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl w-[95vw] rounded-3xl md:w-full border-white/5 bg-background/95 backdrop-blur-2xl shadow-premium">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black tracking-tighter">
+                {editing ? "Refinar Produto" : "Novo Item"}
+              </DialogTitle>
+            </DialogHeader>
+            <ProdutoForm initial={editing ?? undefined} onDone={() => setOpen(false)} />
+          </DialogContent>
+        </Dialog>
+      </header>
 
-      <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-accent" size={18} />
+      <div className="relative max-w-md group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 transition-colors group-focus-within:text-primary" size={18} />
         <Input 
-          placeholder="Buscar por nome, código ou marca..." 
+          placeholder="Busca instantânea..." 
           value={search} 
           onChange={(e) => setSearch(e.target.value)} 
-          className="pl-11 h-12 md:h-11 max-w-md bg-card/50 border-border/40 focus:bg-card transition-all" 
+          className="pl-11 h-12 bg-white/5 border-white/5 focus:bg-white/10" 
         />
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center p-12">
-          <Loader2 className="animate-spin text-accent" size={32} />
+        <div className="flex items-center justify-center p-24">
+          <Loader2 className="animate-spin text-primary" size={48} />
         </div>
       ) : (
-        <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           {/* Desktop View: Table */}
-          <div className="hidden md:block glass overflow-hidden rounded-2xl border-none shadow-sm">
+          <div className="hidden md:block premium-card border-white/5 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-card/40 text-[10px] uppercase font-bold tracking-widest text-muted-foreground/70">
-                  <tr>
-                    <th className="px-6 py-4 text-left">Produto</th>
-                    <th className="px-6 py-4 text-left">Código</th>
-                    <th className="px-6 py-4 text-right">Pista</th>
-                    <th className="px-6 py-4 text-right">Estoque</th>
-                    <th className="px-6 py-4 text-right">Custo</th>
-                    <th className="px-6 py-4 text-right">Venda</th>
-                    <th className="px-6 py-4 text-right">Margem</th>
+                <thead>
+                  <tr className="border-b border-white/5 bg-white/[0.02]">
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Produto</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">ID Interno</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Pista</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Estoque</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Custo</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Venda</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Margem</th>
                     <th className="px-6 py-4"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/20">
+                <tbody className="divide-y divide-white/5">
                   {filtered.map((p) => (
                     <ProductRow key={p.id} p={p} onEdit={handleEdit} onDelete={handleDelete} />
                   ))}
@@ -352,19 +357,22 @@ function ProdutosPage() {
           </div>
 
           {/* Mobile View: Cards */}
-          <div className="grid gap-3 md:hidden">
+          <div className="grid gap-4 md:hidden">
             {filtered.map((p) => (
               <ProductCard key={p.id} p={p} onEdit={handleEdit} onDelete={handleDelete} />
             ))}
           </div>
 
           {filtered.length === 0 && (
-            <div className="glass rounded-2xl p-12 text-center text-muted-foreground border-none">
-              <Package size={48} className="mx-auto mb-4 opacity-20" />
-              <p>Nenhum produto cadastrado.</p>
+            <div className="premium-card p-24 text-center border-white/5">
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/5 border border-white/5 text-muted-foreground/20">
+                <Package size={40} />
+              </div>
+              <h3 className="text-xl font-bold tracking-tight">Nenhum item encontrado</h3>
+              <p className="mt-2 text-sm text-muted-foreground/60">Tente ajustar sua busca ou cadastrar um novo produto.</p>
             </div>
           )}
-        </>
+        </motion.div>
       )}
     </div>
   );
