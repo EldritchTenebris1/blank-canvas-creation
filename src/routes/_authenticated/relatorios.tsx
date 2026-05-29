@@ -233,23 +233,37 @@ function Kpi({ label, value, icon: Icon, trend, isAccent }: { label: string; val
   const isPositive = trend >= 0;
   
   return (
-    <div className="glass rounded-3xl p-6 border-none shadow-sm group hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500">
+    <div className="premium-card p-6 group animate-reveal">
       <div className="flex items-center justify-between mb-4">
-        <div className="p-2 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-accent group-hover:text-[oklch(0.18_0.04_255)] transition-colors">
-          <Icon size={18} />
+        <div className={`p-3 rounded-2xl transition-all duration-300 ${
+          isAccent 
+            ? "bg-accent/10 text-accent group-hover:bg-accent group-hover:text-accent-foreground" 
+            : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
+        }`}>
+          <Icon size={20} />
         </div>
-        <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-tighter ${isPositive ? 'text-emerald-500' : 'text-rose-500'}`}>
-          {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-tight ${
+          isPositive 
+            ? 'bg-emerald-500/10 text-emerald-500' 
+            : 'bg-rose-500/10 text-rose-500'
+        }`}>
+          {isPositive ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
           {Math.abs(trend).toFixed(1)}%
         </div>
       </div>
       <div>
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">{label}</h3>
-        <div className={`text-2xl font-black tracking-tighter ${isAccent ? 'text-accent' : 'text-slate-900'}`}>{value}</div>
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60 mb-1.5">{label}</h3>
+        <div className={`text-3xl font-black tracking-tighter transition-transform duration-300 group-hover:scale-[1.02] origin-left ${
+          isAccent ? 'text-accent drop-shadow-[0_0_10px_var(--accent-glow)]' : 'text-foreground'
+        }`}>
+          {value}
+        </div>
       </div>
-      <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2">
-        <Calendar size={12} className="text-slate-300" />
-        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">vs período anterior</span>
+      <div className="mt-5 pt-4 border-t border-white/5 flex items-center gap-2">
+        <div className="p-1 rounded-md bg-white/5 text-muted-foreground/30">
+          <Calendar size={10} />
+        </div>
+        <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/40 italic">vs período anterior</span>
       </div>
     </div>
   );
