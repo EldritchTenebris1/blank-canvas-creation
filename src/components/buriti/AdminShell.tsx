@@ -18,6 +18,7 @@ import {
   Menu,
   Bell,
   CheckCheck,
+  Database,
 } from "lucide-react";
 import { BuritiLogo } from "./Logo";
 
