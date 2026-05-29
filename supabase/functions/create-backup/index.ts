@@ -1,6 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
+const MASTER_ADMIN_EMAIL = "eldritch.tenebris1@gmail.com";
+
+function readJwtPayload(accessToken: string) {
+  const [, payload] = accessToken.split(".");
+  if (!payload) return null;
+
+  try {
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    return JSON.parse(atob(padded)) as { sub?: string; email?: string; exp?: number };
+  } catch (error) {
+    console.error("Backup JWT payload parse failed:", error);
+    return null;
+  }
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -29,23 +45,16 @@ serve(async (req) => {
 
     const accessToken = authHeader.replace(/^Bearer\s+/i, "").trim();
 
-    // Validate the token using a client scoped to the incoming auth header
-    const authClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const { data: { user }, error: userError } = await authClient.auth.getUser(accessToken);
-
-    if (userError || !user) {
-      console.error("Backup auth validation failed:", userError?.message ?? "No user returned");
+    const jwtPayload = readJwtPayload(accessToken);
+    if (!jwtPayload?.sub || !jwtPayload.email || (jwtPayload.exp && jwtPayload.exp * 1000 < Date.now())) {
+      console.error("Backup JWT validation failed: missing claims or expired token");
       return new Response(JSON.stringify({ error: "Invalid user" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (user.email !== "eldritch.tenebris1@gmail.com") {
+
+    if (jwtPayload.email !== MASTER_ADMIN_EMAIL) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -81,7 +90,7 @@ serve(async (req) => {
       name: fileName,
       file_path: fileName,
       size_bytes: fileSize,
-      created_by: user.id,
+      created_by: jwtPayload.sub,
     });
 
     if (dbError) throw dbError;
