@@ -18,6 +18,7 @@ import {
   Menu,
   Bell,
   CheckCheck,
+  Database,
 } from "lucide-react";
 import { BuritiLogo } from "./Logo";
 
@@ -29,7 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-const items = [
+const baseItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/produtos", label: "Produtos", icon: Package },
   { to: "/pista", label: "Pista", icon: Fuel },
@@ -58,8 +59,15 @@ export function AdminShell() {
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
+  const items = React.useMemo(() => {
+    const list = [...baseItems] as any[];
+    if (user?.email === "eldritch.tenebris1@gmail.com") {
+      list.push({ to: "/backup", label: "Backup Master", icon: Database });
+    }
+    return list;
+  }, [user]);
 
-  const current = items.find((i) => path.startsWith(i.to));
+  const current = items.find((i: any) => path.startsWith(i.to));
 
   const { data: stationName } = useQuery({
     queryKey: ["app-setting", "station_name"],
