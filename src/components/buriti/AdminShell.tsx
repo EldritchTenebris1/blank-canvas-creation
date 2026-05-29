@@ -59,8 +59,15 @@ export function AdminShell() {
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
+  const items = React.useMemo(() => {
+    const list = [...baseItems] as any[];
+    if (user?.email === "eldritch.tenebris1@gmail.com") {
+      list.push({ to: "/backup", label: "Backup Master", icon: Database });
+    }
+    return list;
+  }, [user]);
 
-  const current = items.find((i) => path.startsWith(i.to));
+  const current = items.find((i: any) => path.startsWith(i.to));
 
   const { data: stationName } = useQuery({
     queryKey: ["app-setting", "station_name"],
