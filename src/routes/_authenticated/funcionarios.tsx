@@ -134,7 +134,6 @@ function FuncionariosPage() {
               <div className="grid h-10 w-10 place-items-center rounded-xl text-sm font-bold text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
                 {e.name[0]?.toUpperCase()}
               </div>
-              </div>
             </div>
             
             <div className="mt-4 grid gap-1.5">
