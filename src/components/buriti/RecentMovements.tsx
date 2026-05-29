@@ -39,13 +39,13 @@ export function RecentMovements({ movements, products }: RecentMovementsProps) {
 
   return (
     <div className="premium-card p-1 border-white/5 h-full bg-card/30 flex flex-col">
-      <div className="p-6 border-b border-white/5 flex items-center justify-between">
+      <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
-            <Activity size={18} strokeWidth={2.5} />
+          <div className="p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-glow group-hover:rotate-6 transition-transform">
+            <Activity size={20} strokeWidth={2.5} />
           </div>
           <div>
-            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/80 leading-none mb-1.5">Fluxo Operacional</h3>
+            <h3 className="text-sm font-black uppercase tracking-[0.25em] text-accent leading-none mb-1.5">Fluxo Operacional</h3>
             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/40 font-bold uppercase tracking-widest">
               <Clock size={10} />
               Tempo Real
