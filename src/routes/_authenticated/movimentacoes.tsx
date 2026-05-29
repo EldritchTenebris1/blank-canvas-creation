@@ -66,7 +66,8 @@ function MovimentacoesPage() {
         ))}
       </div>
 
-      <div className="premium-card overflow-hidden border-white/5">
+      {/* Desktop View: Table */}
+      <div className="hidden md:block premium-card overflow-hidden border-white/5">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
             <thead>
@@ -136,6 +137,48 @@ function MovimentacoesPage() {
           </table>
         </div>
       </div>
+
+      {/* Mobile View: Cards */}
+      <div className="grid gap-3 md:hidden">
+        {filtered.map((m) => {
+          const meta = TYPE_META[m.type];
+          const Icon = meta.icon;
+          const product = productMap[m.product_id];
+          const author = m.user_id ? users[m.user_id] : null;
+          return (
+            <div key={m.id} className="premium-card border-white/5 p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border border-current/10 bg-current/5 ${meta.color} text-[10px] font-black uppercase tracking-widest`}>
+                  <Icon size={12} strokeWidth={3} /> {meta.label}
+                </div>
+                <span className="text-2xl font-black tabular-nums text-foreground leading-none">{m.quantity}</span>
+              </div>
+              <div>
+                <div className="font-black text-sm tracking-tight text-foreground">{product?.name ?? "—"}</div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30">{product?.brand ?? ""}</div>
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="h-7 w-7 shrink-0 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-muted-foreground/40">
+                    <UserCircle size={16} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-black text-foreground uppercase tracking-tight truncate">{author?.name ?? "Sistema"}</div>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 bg-white/5 px-1.5 py-0.5 rounded-md">{m.location}</span>
+                  </div>
+                </div>
+                <div className="text-right text-[10px] font-bold tabular-nums text-muted-foreground/40 shrink-0">
+                  {new Date(m.created_at).toLocaleString("pt-BR", { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <div className="premium-card border-white/5 px-6 py-12 text-center text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/20 italic">Sem movimentações.</div>
+        )}
+      </div>
+
 
     </div>
   );
