@@ -16,6 +16,8 @@ import {
   Search,
   ChevronLeft,
   Menu,
+  Bell,
+  CheckCheck,
 } from "lucide-react";
 import { BuritiLogo } from "./Logo";
 
@@ -23,6 +25,8 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -196,6 +200,8 @@ export function AdminShell() {
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
+            <NotificationsMenu />
+            
             <div className="relative hidden xl:block group">
               <Search
                 size={18}
@@ -252,5 +258,84 @@ export function AdminShell() {
         </main>
       </div>
     </div>
+  );
+}
+
+function NotificationsMenu() {
+  const [notifications, setNotifications] = React.useState([
+    { id: "1", title: "Estoque Baixo", message: "Gasolina Comum abaixo do mínimo na pista.", time: "5 min atrás", type: "warning" },
+    { id: "2", title: "Nova Venda", message: "Venda de R$ 250,00 realizada por João.", time: "12 min atrás", type: "info" },
+    { id: "3", title: "Alerta de Sistema", message: "Backup diário concluído com sucesso.", time: "1h atrás", type: "success" },
+  ]);
+
+  const clearNotifications = () => {
+    setNotifications([]);
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative h-11 w-11 shrink-0 rounded-2xl border border-white/5 bg-white/5 text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground"
+        >
+          <Bell size={20} />
+          {notifications.length > 0 && (
+            <span className="absolute right-2.5 top-2.5 flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0 border-white/10 bg-background/95 backdrop-blur-xl shadow-2xl rounded-2xl overflow-hidden" align="end">
+        <div className="flex items-center justify-between border-b border-white/5 p-4 bg-white/5">
+          <h3 className="text-sm font-bold tracking-tight">Notificações</h3>
+          {notifications.length > 0 && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={clearNotifications}
+              className="h-8 gap-1.5 px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-accent hover:bg-accent/10"
+            >
+              <CheckCheck size={12} />
+              Limpar Tudo
+            </Button>
+          )}
+        </div>
+        <ScrollArea className="h-[350px]">
+          {notifications.length > 0 ? (
+            <div className="divide-y divide-white/5">
+              {notifications.map((n) => (
+                <div key={n.id} className="group p-4 transition-colors hover:bg-white/5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold leading-none">{n.title}</p>
+                      <p className="text-[11px] leading-relaxed text-muted-foreground/80 line-clamp-2">
+                        {n.message}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground/40 font-medium">{n.time}</p>
+                    </div>
+                    <div className={cn(
+                      "h-1.5 w-1.5 rounded-full mt-1.5 shrink-0",
+                      n.type === 'warning' ? "bg-amber-500" : n.type === 'success' ? "bg-emerald-500" : "bg-blue-500"
+                    )} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+              <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-white/5 text-muted-foreground/20">
+                <Bell size={24} />
+              </div>
+              <p className="text-sm font-bold text-muted-foreground/60">Tudo limpo por aqui!</p>
+              <p className="text-[11px] text-muted-foreground/40 mt-1">Você não tem novas notificações no momento.</p>
+            </div>
+          )}
+        </ScrollArea>
+      </PopoverContent>
+    </Popover>
   );
 }
