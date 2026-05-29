@@ -2,14 +2,14 @@ import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { UserPlus, Trash2, Loader2, KeyRound, Power } from "lucide-react";
+import { UserPlus, Trash2, Loader2, KeyRound, Power, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { PageHeader } from "@/components/buriti/PageHeader";
-import { createEmployeeFn, deleteEmployeeFn, toggleEmployeeFn } from "@/lib/employees.functions";
+import { createEmployeeFn, deleteEmployeeFn, toggleEmployeeFn, updateEmployeeGoalFn } from "@/lib/employees.functions";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -21,7 +21,7 @@ const employeeSchema = z.object({
   pin: z.string().regex(/^\d{2,4}$/, "Senha deve ter 2-4 dígitos"),
 });
 
-type Employee = { id: string; name: string; access_code: string; active: boolean; created_at: string };
+type Employee = { id: string; name: string; access_code: string; active: boolean; created_at: string; monthly_goal: number };
 
 function FuncionariosPage() {
   const qc = useQueryClient();
@@ -29,6 +29,7 @@ function FuncionariosPage() {
   const createEmp = useServerFn(createEmployeeFn);
   const deleteEmp = useServerFn(deleteEmployeeFn);
   const toggleEmp = useServerFn(toggleEmployeeFn);
+  const updateGoal = useServerFn(updateEmployeeGoalFn);
 
   const { data: employees = [] } = useQuery({
     queryKey: ["employees"],
@@ -37,7 +38,7 @@ function FuncionariosPage() {
     refetchInterval: 5000,
   });
 
-  const [form, setForm] = React.useState({ name: "", access_code: "", pin: "" });
+  const [form, setForm] = React.useState({ name: "", access_code: "", pin: "", monthly_goal: "" });
   const [saving, setSaving] = React.useState(false);
 
   async function save() {
@@ -47,9 +48,9 @@ function FuncionariosPage() {
     }
     setSaving(true);
     try {
-      await createEmp({ data: result.data });
+      await createEmp({ data: { ...result.data, monthly_goal: Number(form.monthly_goal || 0) } });
       toast.success("Frentista criado");
-      setForm({ name: "", access_code: "", pin: "" });
+      setForm({ name: "", access_code: "", pin: "", monthly_goal: "" });
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["employees"] });
     } catch (e) {
@@ -70,6 +71,14 @@ function FuncionariosPage() {
     try {
       await toggleEmp({ data: { id, active } });
       qc.invalidateQueries({ queryKey: ["employees"] });
+    } catch (e) { toast.error((e as Error).message); }
+  }
+
+  async function updateEmployeeGoal(id: string, goal: number) {
+    try {
+      await updateGoal({ data: { id, goal } });
+      qc.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Meta atualizada");
     } catch (e) { toast.error((e as Error).message); }
   }
 
@@ -100,6 +109,10 @@ function FuncionariosPage() {
                   <label className="mb-1 block text-xs font-medium text-muted-foreground">Senha numérica (2-4 dígitos)</label>
                   <Input type="password" value={form.pin} maxLength={4} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })} />
                 </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground">Meta mensal (R$)</label>
+                  <Input type="number" value={form.monthly_goal} onChange={(e) => setForm({ ...form, monthly_goal: e.target.value })} placeholder="Ex: 1000" />
+                </div>
                 <Button onClick={save} disabled={saving} style={{ background: "var(--gradient-primary)" }}>
                   {saving ? <Loader2 className="animate-spin" /> : "Criar"}
                 </Button>
@@ -121,7 +134,26 @@ function FuncionariosPage() {
               <div className="grid h-10 w-10 place-items-center rounded-xl text-sm font-bold text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
                 {e.name[0]?.toUpperCase()}
               </div>
+              </div>
             </div>
+            
+            <div className="mt-4 grid gap-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-1">
+                <Target size={10} /> Meta Mensal
+              </label>
+              <div className="flex gap-2">
+                <Input 
+                  type="number" 
+                  defaultValue={e.monthly_goal} 
+                  className="h-8 text-sm bg-background/30 border-border/20"
+                  onBlur={(ev) => {
+                    const val = Number(ev.target.value);
+                    if (val !== e.monthly_goal) updateEmployeeGoal(e.id, val);
+                  }}
+                />
+              </div>
+            </div>
+
             <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3">
               <div className="flex items-center gap-2 text-xs">
                 <Power size={12} /> <Switch checked={e.active} onCheckedChange={(v) => toggle(e.id, v)} />
