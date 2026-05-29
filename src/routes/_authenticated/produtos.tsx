@@ -1,21 +1,38 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Package, Tag, Hash, DollarSign, ArrowDownToLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/produtos")({ component: ProdutosPage });
 
 type Product = {
-  id: string; name: string; category: string | null; brand: string | null;
-  internal_code: string | null; barcode: string | null; description: string | null;
-  pista_qty: number; estoque_qty: number; pista_min: number; estoque_min: number;
-  cost_price: number; sale_price: number;
+  id: string;
+  name: string;
+  category: string | null;
+  brand: string | null;
+  internal_code: string | null;
+  barcode: string | null;
+  description: string | null;
+  pista_qty: number;
+  estoque_qty: number;
+  pista_min: number;
+  estoque_min: number;
+  cost_price: number;
+  sale_price: number;
 };
 
 function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: () => void }) {
@@ -25,77 +42,154 @@ function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: 
   const [loading, setLoading] = React.useState(false);
   const qc = useQueryClient();
 
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data } = await supabase.from("categories").select("name").order("name");
+      return data || [];
+    },
+  });
+
   async function save() {
     if (!f.name) return toast.error("Nome obrigatório");
     setLoading(true);
-    // Do NOT include pista_qty / estoque_qty here — those are managed in /pista and /estoque.
     const payload = {
       name: f.name!,
       category: f.category ?? null,
-      brand: f.brand ?? null,
       internal_code: f.internal_code ?? null,
-      barcode: f.barcode ?? null,
-      description: f.description ?? null,
-      cost_price: Number(f.cost_price ?? 0),
       sale_price: Number(f.sale_price ?? 0),
       pista_min: Number(f.pista_min ?? 0),
       estoque_min: Number(f.estoque_min ?? 0),
+      // Keep existing values for other fields if they exist
+      brand: f.brand ?? null,
+      barcode: f.barcode ?? null,
+      cost_price: Number(f.cost_price ?? 0),
     };
     const { error } = initial?.id
       ? await supabase.from("products").update(payload).eq("id", initial.id)
       : await supabase.from("products").insert(payload);
     setLoading(false);
     if (error) return toast.error(error.message);
-    toast.success("Salvo");
+    toast.success("Produto salvo com sucesso");
     qc.invalidateQueries({ queryKey: ["products"] });
     onDone();
   }
 
-  const fields: [keyof Product, string, string?][] = [
-    ["name", "Nome"],
-    ["category", "Categoria"],
-    ["brand", "Marca"],
-    ["internal_code", "Código interno"],
-    ["barcode", "Código de barras"],
-    ["cost_price", "Custo (R$)", "number"],
-    ["sale_price", "Venda (R$)", "number"],
-    ["pista_min", "Mín. na Pista", "number"],
-    ["estoque_min", "Mín. no Estoque", "number"],
-  ];
-
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2">
-        {fields.map(([k, label, type]) => (
-          <div key={k}>
-            <label className="mb-1 block text-xs font-medium text-muted-foreground">{label}</label>
-            <Input
-              type={type ?? "text"}
-              value={(f[k] as string | number | undefined) ?? ""}
-              onChange={(e) =>
-                setF({ ...f, [k]: type === "number" ? Number(e.target.value) : e.target.value })
-              }
-            />
-          </div>
-        ))}
+    <div className="space-y-6 pt-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="sm:col-span-2 space-y-2">
+          <Label className="text-sm font-semibold flex items-center gap-2">
+            <Package size={14} className="text-accent" /> Nome do Produto
+          </Label>
+          <Input
+            placeholder="Ex: Óleo 5W30 Sintético"
+            value={f.name ?? ""}
+            onChange={(e) => setF({ ...f, name: e.target.value })}
+            className="h-11 bg-background/50 border-border/50"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold flex items-center gap-2">
+            <Tag size={14} className="text-accent" /> Categoria
+          </Label>
+          <Select
+            value={f.category ?? ""}
+            onValueChange={(v) => setF({ ...f, category: v })}
+          >
+            <SelectTrigger className="h-11 bg-background/50 border-border/50">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((c) => (
+                <SelectItem key={c.name} value={c.name}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold flex items-center gap-2">
+            <Hash size={14} className="text-accent" /> Código Interno
+          </Label>
+          <Input
+            placeholder="Ex: LUB001"
+            value={f.internal_code ?? ""}
+            onChange={(e) => setF({ ...f, internal_code: e.target.value })}
+            className="h-11 bg-background/50 border-border/50 font-mono"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold flex items-center gap-2">
+            <DollarSign size={14} className="text-accent" /> Preço de Venda (R$)
+          </Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={f.sale_price ?? ""}
+            onChange={(e) => setF({ ...f, sale_price: Number(e.target.value) })}
+            className="h-11 bg-background/50 border-border/50 text-accent font-semibold"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+            Custo (R$) - Opcional
+          </Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={f.cost_price ?? ""}
+            onChange={(e) => setF({ ...f, cost_price: Number(e.target.value) })}
+            className="h-11 bg-background/50 border-border/50"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold flex items-center gap-2">
+            <ArrowDownToLine size={14} className="text-destructive" /> Mín. na Pista
+          </Label>
+          <Input
+            type="number"
+            value={f.pista_min ?? ""}
+            onChange={(e) => setF({ ...f, pista_min: Number(e.target.value) })}
+            className="h-11 bg-background/50 border-border/50"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold flex items-center gap-2">
+            <ArrowDownToLine size={14} className="text-destructive" /> Mín. no Estoque
+          </Label>
+          <Input
+            type="number"
+            value={f.estoque_min ?? ""}
+            onChange={(e) => setF({ ...f, estoque_min: Number(e.target.value) })}
+            className="h-11 bg-background/50 border-border/50"
+          />
+        </div>
       </div>
-      <div className="rounded-xl border border-border/40 bg-card/30 p-3 text-xs text-muted-foreground">
-        💡 As <strong className="text-foreground">quantidades em Pista e Estoque</strong> são
-        controladas nas páginas <strong className="text-foreground">Pista</strong> e{" "}
-        <strong className="text-foreground">Estoque</strong>, com registro automático em
-        Movimentações.
+
+      <div className="rounded-xl border border-border/40 bg-accent/5 p-4 text-xs text-muted-foreground leading-relaxed">
+        <p>💡 <strong>Atenção:</strong> O controle de quantidades atuais é feito diretamente nas páginas de <span className="text-foreground font-medium">Pista</span> e <span className="text-foreground font-medium">Estoque</span> para garantir o registro correto das movimentações.</p>
       </div>
+
       <Button
         onClick={save}
         disabled={loading}
-        className="w-full"
-        style={{ background: "var(--gradient-primary)" }}
+        className="w-full h-12 text-base font-bold shadow-lg shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        style={{ background: "var(--gradient-accent)", color: "oklch(0.18 0.04 255)" }}
       >
-        {loading ? <Loader2 className="animate-spin" /> : "Salvar"}
+        {loading ? <Loader2 className="animate-spin" /> : editing ? "Atualizar Produto" : "Cadastrar Produto"}
       </Button>
     </div>
   );
 }
+
 
 function ProdutosPage() {
   const [editing, setEditing] = React.useState<Product | null>(null);
