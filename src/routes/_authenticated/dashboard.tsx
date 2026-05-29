@@ -176,18 +176,18 @@ function Dashboard() {
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           <Button 
             onClick={() => navigate({ to: "/produtos" })}
             variant="outline" 
-            className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-[0.2em] gap-2 h-14 px-8 shadow-inner transition-all hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-[0.2em] gap-2 h-12 px-5 sm:h-14 sm:px-8 shadow-inner transition-all hover:scale-105 active:scale-95"
           >
             <Plus size={18} strokeWidth={3} />
             Gerenciar Inventário
           </Button>
           <Button 
             onClick={() => navigate({ to: "/relatorios" })}
-            className="rounded-2xl bg-accent text-accent-foreground hover:brightness-110 shadow-glow-accent text-xs font-black uppercase tracking-[0.2em] gap-2 h-14 px-8 transition-all hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto rounded-2xl bg-accent text-accent-foreground hover:brightness-110 shadow-glow-accent text-xs font-black uppercase tracking-[0.2em] gap-2 h-12 px-5 sm:h-14 sm:px-8 transition-all hover:scale-105 active:scale-95"
           >
             <BarChart3 size={18} strokeWidth={3} />
             Relatórios
@@ -203,7 +203,7 @@ function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="md:col-span-2 lg:col-span-7"
         >
-          <div className="premium-card h-full p-8 flex flex-col justify-between group overflow-hidden relative min-h-[340px] border-primary/20 bg-primary/5">
+          <div className="premium-card h-full p-5 sm:p-8 flex flex-col justify-between group overflow-hidden relative min-h-[300px] sm:min-h-[340px] border-primary/20 bg-primary/5">
              {/* Decorative Elements */}
              <div className="absolute -top-20 -right-20 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700 group-hover:scale-110 group-hover:rotate-12 pointer-events-none">
                <DollarSign size={400} className="text-primary" />
@@ -227,14 +227,14 @@ function Dashboard() {
                
                 <div className="flex flex-col">
                   <span className="text-xs font-black text-muted-foreground/30 uppercase tracking-[0.2em] mb-2">Total Consolidado</span>
-                  <div className="text-7xl font-black tracking-tighter text-gradient leading-none tabular-nums drop-shadow-2xl">
+                  <div className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-gradient leading-none tabular-nums drop-shadow-2xl break-words">
                     R$ {dashboardData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
                 </div>
              </div>
 
-             <div className="mt-8 pt-6 border-t border-white/5 flex items-end justify-between relative z-10">
-               <div className="flex flex-col gap-4 flex-1 mr-8">
+             <div className="mt-8 pt-6 border-t border-white/5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between relative z-10">
+               <div className="flex flex-col gap-4 flex-1 sm:mr-8">
                  <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
                    <span>Performance de Estoque</span>
                    <span className="text-primary">98% Otimizado</span>

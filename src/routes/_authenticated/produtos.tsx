@@ -391,13 +391,13 @@ function ProdutosPage() {
           <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-gradient">Catálogo</h1>
           <p className="text-sm text-muted-foreground">Gerencie o portfólio de produtos e níveis de segurança.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="lg" onClick={() => setCatOpen(true)} className="border-white/5 bg-white/5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Button variant="outline" size="lg" onClick={() => setCatOpen(true)} className="w-full sm:w-auto border-white/5 bg-white/5">
             <Settings2 size={20} className="mr-2" /> Categorias
           </Button>
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
             <DialogTrigger asChild>
-              <Button size="lg" className="shadow-glow-primary">
+              <Button size="lg" className="w-full sm:w-auto shadow-glow-primary">
                 <Plus size={20} className="mr-2" /> Novo Produto
               </Button>
             </DialogTrigger>

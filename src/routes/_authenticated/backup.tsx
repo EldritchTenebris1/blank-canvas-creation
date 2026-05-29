@@ -96,7 +96,7 @@ function BackupPage() {
           <Button 
             onClick={() => createBackupMutation.mutate()}
             disabled={createBackupMutation.isPending}
-            className="rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] gap-2 h-14 px-8 shadow-glow"
+            className="w-full sm:w-auto rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] gap-2 h-12 px-5 sm:h-14 sm:px-8 shadow-glow"
           >
             {createBackupMutation.isPending ? (
               <Loader2 className="animate-spin" size={20} />
@@ -109,7 +109,7 @@ function BackupPage() {
       />
 
       <div className="grid gap-6">
-        <div className="premium-card p-8 border-primary/20 bg-primary/5">
+        <div className="premium-card p-5 sm:p-8 border-primary/20 bg-primary/5">
           <div className="flex items-center gap-4 mb-6">
             <div className="p-3 rounded-2xl bg-primary text-primary-foreground shadow-glow">
               <ShieldAlert size={24} />
