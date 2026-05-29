@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAuth } from "@/lib/auth";
 
 export const productSchema = z.object({
   name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres").max(100),
@@ -24,6 +25,7 @@ export type Product = z.infer<typeof productSchema> & {
 
 export function useProducts() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const query = useQuery({
     queryKey: ["products"],
@@ -32,7 +34,7 @@ export function useProducts() {
       if (error) throw error;
       return (data ?? []) as Product[];
     },
-    refetchInterval: 10000,
+    refetchInterval: 10000, 
   });
 
   const saveMutation = useMutation({
@@ -58,17 +60,66 @@ export function useProducts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Excluído");
+      toast.success("Produto excluído");
     },
     onError: (error: any) => {
       toast.error(error.message || "Erro ao excluir produto");
     },
   });
 
+  const moveStockMutation = useMutation({
+    mutationFn: async ({ 
+      productId, 
+      delta, 
+      location, 
+      type 
+    }: { 
+      productId: string; 
+      delta: number; 
+      location: "pista" | "estoque"; 
+      type: "entrada" | "ajuste" | "venda" | "transferencia"
+    }) => {
+      const product = query.data?.find(p => p.id === productId);
+      if (!product) throw new Error("Produto não encontrado");
+
+      const field = location === "pista" ? "pista_qty" : "estoque_qty";
+      const currentQty = (product as any)[field] || 0;
+      const newQty = currentQty + delta;
+
+      if (newQty < 0) throw new Error("Quantidade insuficiente");
+
+      const { error: updateError } = await supabase
+        .from("products")
+        .update({ [field]: newQty })
+        .eq("id", productId);
+
+      if (updateError) throw updateError;
+
+      const { error: movementError } = await supabase.from("movements").insert({
+        product_id: productId,
+        type,
+        quantity: Math.abs(delta),
+        location,
+        user_id: user?.id,
+      });
+
+      if (movementError) throw movementError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    }
+  });
+
   return {
     ...query,
     save: saveMutation.mutateAsync,
     isSaving: saveMutation.isPending,
-    remove: deleteMutation.mutate,
+    remove: deleteMutation.mutateAsync,
+    isDeleting: deleteMutation.isPending,
+    moveStock: moveStockMutation.mutateAsync,
+    isMoving: moveStockMutation.isPending,
   };
 }
