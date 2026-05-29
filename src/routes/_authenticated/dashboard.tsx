@@ -174,13 +174,6 @@ function Dashboard() {
             <Plus size={16} />
             Novo Produto
           </Button>
-          <Button 
-            onClick={() => navigate({ to: "/vender" })}
-            className="rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow text-xs font-bold uppercase tracking-widest gap-2 h-11 px-6"
-          >
-            <ShoppingCart size={16} />
-            Lançar Venda
-          </Button>
         </div>
       </header>
 
