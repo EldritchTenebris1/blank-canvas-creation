@@ -120,7 +120,7 @@ const ProductCard = React.memo(({ p, onEdit, onDelete }: { p: Product; onEdit: (
 ProductCard.displayName = "ProductCard";
 
 function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: () => void }) {
-  const [f, setF] = React.useState<Partial<Product>>(
+  const [f, setF] = React.useState<Partial<Product & { category_id?: string | null }>>(
     initial ?? { pista_min: 5, estoque_min: 10, cost_price: 0, sale_price: 0 },
   );
   const { save, isSaving } = useProducts();
@@ -136,6 +136,7 @@ function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: 
       ...result.data,
       brand: f.brand ?? null,
       barcode: f.barcode ?? null,
+      category_id: f.category_id ?? null,
     };
 
     try {
@@ -145,6 +146,11 @@ function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: 
       // Error handled by mutation
     }
   }
+
+  const handleCategoryChange = (name: string) => {
+    const cat = categories.find(c => c.name === name);
+    setF({ ...f, category: name, category_id: cat?.id || null });
+  };
 
   return (
     <div className="space-y-6 pt-4">
