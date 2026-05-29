@@ -54,16 +54,16 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                     <stop offset="95%" stopColor="oklch(0.85 0.18 90)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fill: "rgba(0,0,0,0.3)", fontSize: 10, fontWeight: 700 }} 
+                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700 }} 
                   axisLine={false}
                   tickLine={false}
                   dy={10}
                 />
                 <YAxis 
-                  tick={{ fill: "rgba(0,0,0,0.3)", fontSize: 10, fontWeight: 700 }} 
+                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700 }} 
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(val) => `R$${val >= 1000 ? (val/1000).toFixed(0) + 'k' : val}`}
