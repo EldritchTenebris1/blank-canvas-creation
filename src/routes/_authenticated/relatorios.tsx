@@ -132,9 +132,12 @@ function RelatoriosPage() {
       const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       
+      const today = new Date();
+      const dateStr = today.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }).replace(/\//g, "-");
+
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `relatorio_ipiranga_${days}d.csv`);
+      link.setAttribute("download", `relatorio_${dateStr}_${days}_dias.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
