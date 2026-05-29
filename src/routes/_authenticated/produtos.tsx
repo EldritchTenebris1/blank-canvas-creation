@@ -23,34 +23,46 @@ export const Route = createFileRoute("/_authenticated/produtos")({ component: Pr
 const ProductRow = React.memo(({ p, onEdit, onDelete }: { p: Product; onEdit: (p: Product) => void; onDelete: (id: string) => void }) => {
   const margin = p.sale_price > 0 ? ((p.sale_price - (p.cost_price || 0)) / p.sale_price) * 100 : 0;
   return (
-    <tr className="transition-colors hover:bg-card/30">
-      <td className="px-6 py-4">
-        <div className="font-semibold text-slate-800">{p.name}</div>
-        <div className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground/60">
+    <motion.tr 
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="group transition-colors hover:bg-white/5"
+    >
+      <td className="px-6 py-5">
+        <div className="font-bold tracking-tight text-foreground">{p.name}</div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
           {p.brand ?? "—"} · {p.category ?? "—"}
         </div>
       </td>
-      <td className="px-6 py-4">
-        <span className="bg-accent/5 px-2 py-1 rounded-md font-mono text-xs text-accent">
+      <td className="px-6 py-5">
+        <span className="bg-white/5 px-3 py-1.5 rounded-xl font-mono text-xs text-muted-foreground border border-white/5 group-hover:border-primary/20 group-hover:text-primary transition-colors">
           {p.internal_code ?? "—"}
         </span>
       </td>
-      <td className={cn("px-6 py-4 text-right font-bold", p.pista_qty < p.pista_min ? "text-destructive" : "text-accent")}>{p.pista_qty}</td>
-      <td className={cn("px-6 py-4 text-right font-bold", p.estoque_qty < p.estoque_min ? "text-destructive" : "")}>{p.estoque_qty}</td>
-      <td className="px-6 py-4 text-right font-medium">R$ {Number(p.cost_price).toFixed(2)}</td>
-      <td className="px-6 py-4 text-right font-bold text-accent">R$ {Number(p.sale_price).toFixed(2)}</td>
-      <td className="px-6 py-4 text-right">
-        <span className="bg-accent/10 px-2 py-1 rounded-full text-xs font-black text-accent">
+      <td className={cn("px-6 py-5 text-right font-black tabular-nums", p.pista_qty < p.pista_min ? "text-destructive" : "text-primary")}>
+        {p.pista_qty}
+      </td>
+      <td className={cn("px-6 py-5 text-right font-black tabular-nums", p.estoque_qty < p.estoque_min ? "text-destructive" : "text-foreground")}>
+        {p.estoque_qty}
+      </td>
+      <td className="px-6 py-5 text-right font-medium text-muted-foreground tabular-nums">
+        R$ {Number(p.cost_price).toFixed(2)}
+      </td>
+      <td className="px-6 py-5 text-right font-black text-primary tabular-nums">
+        R$ {Number(p.sale_price).toFixed(2)}
+      </td>
+      <td className="px-6 py-5 text-right">
+        <span className="bg-primary/10 px-3 py-1.5 rounded-xl text-xs font-black text-primary border border-primary/20">
           {margin.toFixed(0)}%
         </span>
       </td>
-      <td className="px-6 py-4">
-        <div className="flex justify-end gap-2">
-          <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-accent/10 hover:text-accent" onClick={() => onEdit(p)}><Pencil size={15} /></Button>
-          <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-destructive/10 hover:text-destructive" onClick={() => onDelete(p.id)}><Trash2 size={15} /></Button>
+      <td className="px-6 py-5">
+        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => onEdit(p)}><Pencil size={14} /></Button>
+          <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:bg-destructive/10" onClick={() => onDelete(p.id)}><Trash2 size={14} /></Button>
         </div>
       </td>
-    </tr>
+    </motion.tr>
   );
 });
 
