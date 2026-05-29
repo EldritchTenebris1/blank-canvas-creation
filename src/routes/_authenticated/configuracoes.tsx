@@ -241,7 +241,7 @@ function ConfigPage() {
 
         <Section icon={Palette} title="Aparência" description="Personalize a interface do sistema">
           <div className="grid gap-2">
-            <Toggle label="Modo Escuro (Sempre Ativo)" checked={true} disabled />
+            
             <Toggle 
               label="Animações Refinadas" 
               checked={formState.ui_animations !== "false"}

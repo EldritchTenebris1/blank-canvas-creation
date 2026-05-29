@@ -23,9 +23,6 @@ export function BuritiLogo({ size = "md", name }: { size?: "sm" | "md" | "lg"; n
         <div className={`${s.text} font-bold tracking-tight text-white`}>
           {name || "Posto Buriti"}
         </div>
-        <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-accent/80">
-          Padrão Ipiranga
-        </div>
       </div>
     </div>
   );
