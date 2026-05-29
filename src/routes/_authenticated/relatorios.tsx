@@ -102,21 +102,33 @@ function RelatoriosPage() {
 
   const handleExport = () => {
     try {
+      const SEP = ";";
+      const escapeCell = (value: string | number) => {
+        const str = String(value ?? "");
+        if (str.includes(SEP) || str.includes('"') || str.includes("\n")) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
+      const formatMoney = (n: number) =>
+        n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
       const headers = ["Data", "Produto", "Quantidade", "Preço Unitário", "Total"];
       const rows = movements
         .filter(m => m.type === "venda")
         .map(m => {
           const p = productMap[m.product_id];
+          const price = Number(p?.sale_price || 0);
           return [
-            new Date(m.created_at).toLocaleDateString(),
+            new Date(m.created_at).toLocaleDateString("pt-BR"),
             p?.name || "",
             m.quantity,
-            p?.sale_price || 0,
-            m.quantity * Number(p?.sale_price || 0)
-          ].join(",");
+            formatMoney(price),
+            formatMoney(m.quantity * price),
+          ].map(escapeCell).join(SEP);
         });
-      
-      const csvContent = [headers.join(","), ...rows].join("\n");
+
+      const csvContent = [headers.map(escapeCell).join(SEP), ...rows].join("\n");
       const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       
