@@ -18,9 +18,16 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Get user info from JWT to verify email
+    // Get user info from the incoming JWT to verify email.
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No auth header");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const accessToken = authHeader.replace(/^Bearer\s+/i, "").trim();
 
     // Validate the token using a client scoped to the incoming auth header
     const authClient = createClient(
@@ -29,9 +36,15 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: { user }, error: userError } = await authClient.auth.getUser();
+    const { data: { user }, error: userError } = await authClient.auth.getUser(accessToken);
 
-    if (userError || !user) throw new Error("Invalid user");
+    if (userError || !user) {
+      console.error("Backup auth validation failed:", userError?.message ?? "No user returned");
+      return new Response(JSON.stringify({ error: "Invalid user" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     if (user.email !== "eldritch.tenebris1@gmail.com") {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 403,
