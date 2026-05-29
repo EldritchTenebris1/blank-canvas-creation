@@ -3,6 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth";
+import { Database } from "@/integrations/supabase/types";
+
+type TransactionType = Database["public"]["Enums"]["transaction_type"];
+type StockLocation = Database["public"]["Enums"]["stock_location"];
 
 export const productSchema = z.object({
   name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres").max(100),
@@ -38,10 +42,10 @@ export function useProducts() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async ({ payload, id }: { payload: any; id?: string }) => {
+    mutationFn: async ({ payload, id }: { payload: Partial<Database["public"]["Tables"]["products"]["Update"]>; id?: string }) => {
       const { error } = id
         ? await supabase.from("products").update(payload).eq("id", id)
-        : await supabase.from("products").insert(payload);
+        : await supabase.from("products").insert(payload as Database["public"]["Tables"]["products"]["Insert"]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -76,13 +80,15 @@ export function useProducts() {
     }: { 
       productId: string; 
       delta: number; 
-      location: "pista" | "estoque"; 
-      type: "entrada" | "ajuste" | "venda" | "transferencia"
+      location: StockLocation; 
+      type: TransactionType;
     }) => {
       const product = query.data?.find(p => p.id === productId);
       if (!product) throw new Error("Produto não encontrado");
 
-      const field = location === "pista" ? "pista_qty" : "estoque_qty";
+      const field = location === "pista" ? "pista_qty" : location === "estoque" ? "estoque_qty" : null;
+      if (!field) throw new Error("Localização inválida");
+
       const currentQty = (product as any)[field] || 0;
       const newQty = currentQty + delta;
 
