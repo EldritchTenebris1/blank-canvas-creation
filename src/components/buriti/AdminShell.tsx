@@ -43,9 +43,21 @@ const items = [
 export function AdminShell() {
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
   const path = useRouterState({ select: (s) => s.location.pathname });
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   const current = items.find((i) => path.startsWith(i.to));
 
@@ -210,11 +222,12 @@ export function AdminShell() {
                 className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/30 transition-all group-focus-within:text-primary group-focus-within:scale-110"
               />
               <Input
+                ref={searchInputRef}
                 placeholder="Busca global avançada..."
                 className="h-12 w-[300px] rounded-2xl border-white/5 bg-white/5 pl-12 shadow-inner backdrop-blur-md transition-all focus:w-[420px] focus:bg-white/8 focus:ring-primary/20 border-white/10"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden select-none items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-1 font-mono text-[9px] font-black text-muted-foreground/40 xl:flex">
-                <span className="opacity-50 text-[11px]">⌘</span> K
+                <span className="opacity-50 text-[11px]">CTRL</span> K
               </div>
             </div>
             
