@@ -307,7 +307,7 @@ function Dashboard() {
                 <h3 className="text-sm font-black uppercase tracking-[0.2em] text-accent">Fluxo de Vendas (7 Dias)</h3>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-muted-foreground">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
                   <Calendar size={12} />
                   Última Semana
                 </div>
