@@ -75,6 +75,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                 <Area 
                   type="monotone" 
                   dataKey="revenue" 
+                  name="Receita"
                   stroke="oklch(0.65 0.2 250)" 
                   strokeWidth={3}
                   fillOpacity={1} 
@@ -84,6 +85,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                 <Area 
                   type="monotone" 
                   dataKey="profit" 
+                  name="Lucro"
                   stroke="oklch(0.85 0.18 90)" 
                   strokeWidth={3}
                   fillOpacity={1} 
