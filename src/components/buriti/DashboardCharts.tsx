@@ -18,60 +18,95 @@ interface DashboardChartsProps {
 
 export default function DashboardCharts({ daysData, topData }: DashboardChartsProps) {
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
-      <div className="glass rounded-2xl p-5 lg:col-span-2 border-none shadow-sm">
-        <div className="mb-4">
-          <h3 className="font-bold text-slate-800">Vendas — últimos 7 dias</h3>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Evolução das movimentações</p>
+    <div className="grid gap-6 lg:grid-cols-3">
+      <div className="premium-card p-6 lg:col-span-2 border-white/5">
+        <div className="mb-6">
+          <h3 className="text-lg font-bold tracking-tight">Vendas semanais</h3>
+          <p className="text-[11px] text-muted-foreground/60">Análise de movimentação dos últimos 7 dias.</p>
         </div>
-        <div className="h-[260px] w-full">
+        <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={daysData}>
               <defs>
                 <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="oklch(0.85 0.18 90)" stopOpacity={0.5} />
-                  <stop offset="100%" stopColor="oklch(0.85 0.18 90)" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 0.06)" />
-              <XAxis dataKey="day" stroke="oklch(0.68 0.03 250)" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="oklch(0.68 0.03 250)" fontSize={12} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="4 4" stroke="oklch(1 0 0 / 0.05)" vertical={false} />
+              <XAxis 
+                dataKey="day" 
+                stroke="oklch(0.7 0.02 250 / 0.4)" 
+                fontSize={11} 
+                tickLine={false} 
+                axisLine={false} 
+                dy={10}
+              />
+              <YAxis 
+                stroke="oklch(0.7 0.02 250 / 0.4)" 
+                fontSize={11} 
+                tickLine={false} 
+                axisLine={false} 
+              />
               <Tooltip
                 contentStyle={{
-                  background: "oklch(0.22 0.045 255)",
-                  border: "none",
+                  background: "oklch(0.16 0.025 255 / 0.8)",
+                  backdropFilter: "blur(12px)",
+                  border: "1px solid oklch(1 0 0 / 0.1)",
                   borderRadius: 16,
-                  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                  boxShadow: "0 10px 40px -10px oklch(0 0 0 / 0.5)",
+                  color: "white"
                 }}
+                itemStyle={{ color: "var(--primary)", fontWeight: "bold" }}
               />
               <Area
                 type="monotone"
                 dataKey="vendas"
-                stroke="oklch(0.82 0.18 90)"
-                strokeWidth={3}
+                stroke="var(--primary)"
+                strokeWidth={4}
                 fill="url(#g1)"
+                animationDuration={1500}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="glass rounded-2xl p-5 border-none shadow-sm">
-        <h3 className="mb-4 font-bold text-slate-800">Mais Vendidos</h3>
-        <div className="h-[260px] w-full">
+      <div className="premium-card p-6 border-white/5">
+        <div className="mb-6">
+          <h3 className="text-lg font-bold tracking-tight">Top Performance</h3>
+          <p className="text-[11px] text-muted-foreground/60">Produtos com maior giro hoje.</p>
+        </div>
+        <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={topData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 0.06)" vertical={false} />
+            <BarChart data={topData} layout="vertical" margin={{ left: -20 }}>
+              <CartesianGrid strokeDasharray="4 4" stroke="oklch(1 0 0 / 0.05)" horizontal={false} />
               <XAxis type="number" hide />
-              <YAxis type="category" dataKey="name" stroke="oklch(0.68 0.03 250)" fontSize={10} width={80} tickLine={false} axisLine={false} />
+              <YAxis 
+                type="category" 
+                dataKey="name" 
+                stroke="oklch(0.7 0.02 250 / 0.6)" 
+                fontSize={10} 
+                width={100} 
+                tickLine={false} 
+                axisLine={false} 
+              />
               <Tooltip
+                cursor={{ fill: 'oklch(1 0 0 / 0.05)' }}
                 contentStyle={{
-                  background: "oklch(0.22 0.045 255)",
-                  border: "none",
-                  borderRadius: 12,
+                  background: "oklch(0.16 0.025 255 / 0.8)",
+                  backdropFilter: "blur(12px)",
+                  border: "1px solid oklch(1 0 0 / 0.1)",
+                  borderRadius: 16,
                 }}
               />
-              <Bar dataKey="qty" fill="oklch(0.65 0.22 250)" radius={[0, 6, 6, 0]} />
+              <Bar 
+                dataKey="qty" 
+                fill="var(--accent)" 
+                radius={[0, 8, 8, 0]} 
+                barSize={20}
+                animationDuration={1500}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>

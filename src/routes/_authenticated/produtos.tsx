@@ -1,5 +1,6 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2, Loader2, Package, Tag, Hash, DollarSign, ArrowDownToLine, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,34 +24,46 @@ export const Route = createFileRoute("/_authenticated/produtos")({ component: Pr
 const ProductRow = React.memo(({ p, onEdit, onDelete }: { p: Product; onEdit: (p: Product) => void; onDelete: (id: string) => void }) => {
   const margin = p.sale_price > 0 ? ((p.sale_price - (p.cost_price || 0)) / p.sale_price) * 100 : 0;
   return (
-    <tr className="transition-colors hover:bg-card/30">
-      <td className="px-6 py-4">
-        <div className="font-semibold text-slate-800">{p.name}</div>
-        <div className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground/60">
+    <motion.tr 
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="group transition-colors hover:bg-white/5"
+    >
+      <td className="px-6 py-5">
+        <div className="font-bold tracking-tight text-foreground">{p.name}</div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
           {p.brand ?? "—"} · {p.category ?? "—"}
         </div>
       </td>
-      <td className="px-6 py-4">
-        <span className="bg-accent/5 px-2 py-1 rounded-md font-mono text-xs text-accent">
+      <td className="px-6 py-5">
+        <span className="bg-white/5 px-3 py-1.5 rounded-xl font-mono text-xs text-muted-foreground border border-white/5 group-hover:border-primary/20 group-hover:text-primary transition-colors">
           {p.internal_code ?? "—"}
         </span>
       </td>
-      <td className={cn("px-6 py-4 text-right font-bold", p.pista_qty < p.pista_min ? "text-destructive" : "text-accent")}>{p.pista_qty}</td>
-      <td className={cn("px-6 py-4 text-right font-bold", p.estoque_qty < p.estoque_min ? "text-destructive" : "")}>{p.estoque_qty}</td>
-      <td className="px-6 py-4 text-right font-medium">R$ {Number(p.cost_price).toFixed(2)}</td>
-      <td className="px-6 py-4 text-right font-bold text-accent">R$ {Number(p.sale_price).toFixed(2)}</td>
-      <td className="px-6 py-4 text-right">
-        <span className="bg-accent/10 px-2 py-1 rounded-full text-xs font-black text-accent">
+      <td className={cn("px-6 py-5 text-right font-black tabular-nums", p.pista_qty < p.pista_min ? "text-destructive" : "text-primary")}>
+        {p.pista_qty}
+      </td>
+      <td className={cn("px-6 py-5 text-right font-black tabular-nums", p.estoque_qty < p.estoque_min ? "text-destructive" : "text-foreground")}>
+        {p.estoque_qty}
+      </td>
+      <td className="px-6 py-5 text-right font-medium text-muted-foreground tabular-nums">
+        R$ {Number(p.cost_price).toFixed(2)}
+      </td>
+      <td className="px-6 py-5 text-right font-black text-primary tabular-nums">
+        R$ {Number(p.sale_price).toFixed(2)}
+      </td>
+      <td className="px-6 py-5 text-right">
+        <span className="bg-primary/10 px-3 py-1.5 rounded-xl text-xs font-black text-primary border border-primary/20">
           {margin.toFixed(0)}%
         </span>
       </td>
-      <td className="px-6 py-4">
-        <div className="flex justify-end gap-2">
-          <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-accent/10 hover:text-accent" onClick={() => onEdit(p)}><Pencil size={15} /></Button>
-          <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-destructive/10 hover:text-destructive" onClick={() => onDelete(p.id)}><Trash2 size={15} /></Button>
+      <td className="px-6 py-5">
+        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => onEdit(p)}><Pencil size={14} /></Button>
+          <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:bg-destructive/10" onClick={() => onDelete(p.id)}><Trash2 size={14} /></Button>
         </div>
       </td>
-    </tr>
+    </motion.tr>
   );
 });
 
@@ -60,43 +73,47 @@ const ProductCard = React.memo(({ p, onEdit, onDelete }: { p: Product; onEdit: (
   const lowPista = p.pista_qty < p.pista_min;
   const lowEstoque = p.estoque_qty < p.estoque_min;
   return (
-    <div className="glass rounded-2xl p-4 space-y-4 border-none shadow-sm active:scale-[0.98] transition-transform">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="premium-card p-5 space-y-5 border-white/5 active:scale-[0.98] transition-all"
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <div className="font-bold text-base leading-tight truncate">{p.name}</div>
-          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+          <div className="font-bold text-lg tracking-tight truncate">{p.name}</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">
             {p.brand ?? "S/M"} · {p.category ?? "S/C"}
           </div>
         </div>
         <div className="flex shrink-0 gap-1">
-          <Button size="icon" variant="ghost" className="h-10 w-10 bg-accent/5 rounded-xl text-accent" onClick={() => onEdit(p)}><Pencil size={16} /></Button>
-          <Button size="icon" variant="ghost" className="h-10 w-10 bg-destructive/5 rounded-xl text-destructive" onClick={() => onDelete(p.id)}><Trash2 size={16} /></Button>
+          <Button size="icon" variant="ghost" className="h-10 w-10 bg-white/5 rounded-xl" onClick={() => onEdit(p)}><Pencil size={14} /></Button>
+          <Button size="icon" variant="ghost" className="h-10 w-10 bg-destructive/10 rounded-xl text-destructive" onClick={() => onDelete(p.id)}><Trash2 size={14} /></Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-card/40 rounded-xl p-3 border border-border/20">
-          <div className="text-[9px] font-black uppercase text-muted-foreground/70 mb-1">Pista</div>
-          <div className={cn("text-lg font-black", lowPista ? "text-destructive" : "text-accent")}>
-            {p.pista_qty} <span className="text-[10px] text-muted-foreground/60 font-medium">/ {p.pista_min}</span>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+          <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-2">Pista</div>
+          <div className={cn("text-xl font-black tabular-nums", lowPista ? "text-destructive" : "text-primary")}>
+            {p.pista_qty} <span className="text-xs text-muted-foreground/30 font-bold">/ {p.pista_min}</span>
           </div>
         </div>
-        <div className="bg-card/40 rounded-xl p-3 border border-border/20">
-          <div className="text-[9px] font-black uppercase text-muted-foreground/70 mb-1">Estoque</div>
-          <div className={cn("text-lg font-black", lowEstoque ? "text-destructive" : "text-foreground")}>
-            {p.estoque_qty} <span className="text-[10px] text-muted-foreground/60 font-medium">/ {p.estoque_min}</span>
+        <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+          <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-2">Estoque</div>
+          <div className={cn("text-xl font-black tabular-nums", lowEstoque ? "text-destructive" : "text-foreground")}>
+            {p.estoque_qty} <span className="text-xs text-muted-foreground/30 font-bold">/ {p.estoque_min}</span>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-2 border-t border-border/10">
-        <div className="text-xs font-mono text-muted-foreground">{p.internal_code || "N/A"}</div>
+      <div className="flex items-center justify-between pt-4 border-t border-white/5">
+        <div className="px-2 py-1 rounded-lg bg-white/5 border border-white/5 font-mono text-[10px] text-muted-foreground/60">{p.internal_code || "N/A"}</div>
         <div className="text-right">
-          <div className="text-[9px] font-bold uppercase text-muted-foreground/70">Venda</div>
-          <div className="text-base font-black text-accent">R$ {Number(p.sale_price).toFixed(2)}</div>
+          <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/40">Preço Venda</div>
+          <div className="text-lg font-black text-primary tabular-nums">R$ {Number(p.sale_price).toFixed(2)}</div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 });
 
@@ -271,61 +288,66 @@ function ProdutosPage() {
   }, []);
 
   return (
-    <div className="space-y-[clamp(1rem,3vw,1.5rem)] pb-20 md:pb-0">
-      <PageHeader
-        title="Produtos"
-        description="Cadastro completo do catálogo"
-        action={
-          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
-            <DialogTrigger asChild>
-              <Button 
-                className="h-12 md:h-11 px-6 shadow-glow-accent transition-transform active:scale-95"
-                style={{ background: "var(--gradient-accent)", color: "oklch(0.18 0.04 255)" }}
-              >
-                <Plus size={18} className="mr-2" /> Novo produto
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl w-[95vw] rounded-2xl md:w-full">
-              <DialogHeader><DialogTitle className="text-[clamp(1.25rem,4vw,1.5rem)]">{editing ? "Editar produto" : "Novo produto"}</DialogTitle></DialogHeader>
-              <ProdutoForm initial={editing ?? undefined} onDone={() => setOpen(false)} />
-            </DialogContent>
-          </Dialog>
-        }
-      />
+    <div className="space-y-8 pb-20 md:pb-0">
+      <header className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-gradient">Catálogo</h1>
+          <p className="text-sm text-muted-foreground">Gerencie o portfólio de produtos e níveis de segurança.</p>
+        </div>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
+          <DialogTrigger asChild>
+            <Button size="lg" className="shadow-glow-primary">
+              <Plus size={20} className="mr-2" /> Novo Produto
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl w-[95vw] rounded-3xl md:w-full border-white/5 bg-background/95 backdrop-blur-2xl shadow-premium">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black tracking-tighter">
+                {editing ? "Refinar Produto" : "Novo Item"}
+              </DialogTitle>
+            </DialogHeader>
+            <ProdutoForm initial={editing ?? undefined} onDone={() => setOpen(false)} />
+          </DialogContent>
+        </Dialog>
+      </header>
 
-      <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-accent" size={18} />
+      <div className="relative max-w-md group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 transition-colors group-focus-within:text-primary" size={18} />
         <Input 
-          placeholder="Buscar por nome, código ou marca..." 
+          placeholder="Busca instantânea..." 
           value={search} 
           onChange={(e) => setSearch(e.target.value)} 
-          className="pl-11 h-12 md:h-11 max-w-md bg-card/50 border-border/40 focus:bg-card transition-all" 
+          className="pl-11 h-12 bg-white/5 border-white/5 focus:bg-white/10" 
         />
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center p-12">
-          <Loader2 className="animate-spin text-accent" size={32} />
+        <div className="flex items-center justify-center p-24">
+          <Loader2 className="animate-spin text-primary" size={48} />
         </div>
       ) : (
-        <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           {/* Desktop View: Table */}
-          <div className="hidden md:block glass overflow-hidden rounded-2xl border-none shadow-sm">
+          <div className="hidden md:block premium-card border-white/5 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-card/40 text-[10px] uppercase font-bold tracking-widest text-muted-foreground/70">
-                  <tr>
-                    <th className="px-6 py-4 text-left">Produto</th>
-                    <th className="px-6 py-4 text-left">Código</th>
-                    <th className="px-6 py-4 text-right">Pista</th>
-                    <th className="px-6 py-4 text-right">Estoque</th>
-                    <th className="px-6 py-4 text-right">Custo</th>
-                    <th className="px-6 py-4 text-right">Venda</th>
-                    <th className="px-6 py-4 text-right">Margem</th>
+                <thead>
+                  <tr className="border-b border-white/5 bg-white/[0.02]">
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Produto</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">ID Interno</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Pista</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Estoque</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Custo</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Venda</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Margem</th>
                     <th className="px-6 py-4"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/20">
+                <tbody className="divide-y divide-white/5">
                   {filtered.map((p) => (
                     <ProductRow key={p.id} p={p} onEdit={handleEdit} onDelete={handleDelete} />
                   ))}
@@ -335,19 +357,22 @@ function ProdutosPage() {
           </div>
 
           {/* Mobile View: Cards */}
-          <div className="grid gap-3 md:hidden">
+          <div className="grid gap-4 md:hidden">
             {filtered.map((p) => (
               <ProductCard key={p.id} p={p} onEdit={handleEdit} onDelete={handleDelete} />
             ))}
           </div>
 
           {filtered.length === 0 && (
-            <div className="glass rounded-2xl p-12 text-center text-muted-foreground border-none">
-              <Package size={48} className="mx-auto mb-4 opacity-20" />
-              <p>Nenhum produto cadastrado.</p>
+            <div className="premium-card p-24 text-center border-white/5">
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/5 border border-white/5 text-muted-foreground/20">
+                <Package size={40} />
+              </div>
+              <h3 className="text-xl font-bold tracking-tight">Nenhum item encontrado</h3>
+              <p className="mt-2 text-sm text-muted-foreground/60">Tente ajustar sua busca ou cadastrar um novo produto.</p>
             </div>
           )}
-        </>
+        </motion.div>
       )}
     </div>
   );
