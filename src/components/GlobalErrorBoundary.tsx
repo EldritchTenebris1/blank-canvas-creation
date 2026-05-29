@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ErrorBoundary } from "react-error-boundary";
+import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, RefreshCcw } from "lucide-react";
 
@@ -7,7 +7,7 @@ interface GlobalErrorBoundaryProps {
   children: React.ReactNode;
 }
 
-function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center bg-background p-6 text-center">
       <div className="mb-6 rounded-full bg-destructive/10 p-4 text-destructive">
@@ -25,7 +25,7 @@ function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetError
           Voltar para o início
         </Button>
       </div>
-      {process.env.NODE_ENV === 'development' && (
+      {process.env.NODE_ENV === 'development' && error instanceof Error && (
         <pre className="mt-8 max-w-full overflow-auto rounded-lg bg-muted p-4 text-left text-xs text-muted-foreground">
           {error.message}
           {error.stack}
