@@ -184,6 +184,14 @@
 
   .glow-primary { box-shadow: 0 0 20px var(--primary-glow); }
   .glow-accent { box-shadow: 0 0 20px var(--accent-glow); }
+  .shadow-glow { box-shadow: 0 0 15px var(--primary-glow); }
+  .shadow-glow-accent { box-shadow: 0 0 15px var(--accent-glow); }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, var(--accent), oklch(0.8 0.18 80));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
   @keyframes reveal {
     from { opacity: 0; transform: translateY(10px) scale(0.98); }
