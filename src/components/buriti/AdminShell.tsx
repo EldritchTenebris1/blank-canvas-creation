@@ -91,7 +91,7 @@ export function AdminShell() {
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary-glow)]"
+                  className="ml-auto h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--accent-glow)]"
                 />
               )}
             </Link>
