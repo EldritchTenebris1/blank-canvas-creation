@@ -22,7 +22,9 @@ interface RecentMovementsProps {
 }
 
 export function RecentMovements({ movements, products }: RecentMovementsProps) {
+  const navigate = useNavigate();
   const getProduct = (id: string) => products.find(p => p.id === id);
+
 
   const getTypeConfig = (type: string) => {
     switch (type) {
