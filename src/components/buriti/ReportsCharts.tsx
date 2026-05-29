@@ -165,14 +165,14 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
 function CustomTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border-none shadow-2xl rounded-2xl p-4 min-w-[150px] border border-slate-100">
-        {label && <p className="text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">{label}</p>}
-        <div className="space-y-2">
+      <div className="premium-glass rounded-2xl p-4 min-w-[180px] border-white/5 shadow-2xl backdrop-blur-xl animate-reveal">
+        {label && <p className="text-[10px] font-black uppercase text-accent mb-3 tracking-[0.2em]">{label}</p>}
+        <div className="space-y-2.5">
           {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-4">
-              <span className="text-[11px] font-bold text-slate-500 uppercase">{entry.name}:</span>
-              <span className="text-[11px] font-black text-slate-900">
-                {typeof entry.value === 'number' && entry.name.toLowerCase().includes('receita') || entry.name.toLowerCase().includes('lucro') || entry.name.toLowerCase().includes('revenue') || entry.name.toLowerCase().includes('profit') 
+            <div key={index} className="flex items-center justify-between gap-6">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-tight">{entry.name}:</span>
+              <span className="text-[11px] font-black text-foreground tabular-nums">
+                {typeof entry.value === 'number' && (entry.name.toLowerCase().includes('receita') || entry.name.toLowerCase().includes('lucro') || entry.name.toLowerCase().includes('revenue') || entry.name.toLowerCase().includes('profit'))
                   ? `R$ ${entry.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
                   : entry.value}
               </span>
