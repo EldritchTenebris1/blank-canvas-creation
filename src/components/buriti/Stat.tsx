@@ -11,17 +11,33 @@ interface StatProps {
 export function Stat({ label, value, icon: Icon, highlight }: StatProps) {
   return (
     <div className={cn(
-      "glass rounded-2xl p-5 border-none shadow-sm transition-all",
-      highlight && "bg-destructive/5 ring-1 ring-destructive/20"
+      "premium-card p-6 border-white/5",
+      highlight && "bg-destructive/10 border-destructive/20 shadow-[0_0_20px_oklch(var(--destructive)/0.1)]"
     )}>
-      <div className="flex items-center justify-between">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">{label}</div>
-        {Icon && <Icon size={18} className={highlight ? "text-destructive" : "text-accent"} />}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          {Icon && (
+            <div className={cn(
+              "p-2 rounded-xl bg-white/5 shadow-inner",
+              highlight ? "text-destructive" : "text-primary"
+            )}>
+              <Icon size={18} />
+            </div>
+          )}
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60">
+            {label}
+          </span>
+        </div>
+        {highlight && (
+          <div className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
+        )}
       </div>
       <div className={cn(
-        "mt-2 text-[clamp(1.5rem,4vw,2rem)] font-black tracking-tighter leading-none",
-        highlight ? "text-destructive" : "text-slate-800"
-      )}>{value}</div>
+        "text-3xl font-black tracking-tighter text-gradient leading-none",
+        highlight && "from-destructive to-destructive/60 bg-clip-text text-transparent"
+      )}>
+        {value}
+      </div>
     </div>
   );
 }
