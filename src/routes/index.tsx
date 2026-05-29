@@ -14,7 +14,7 @@ function Index() {
   React.useEffect(() => {
     if (loading) return;
     if (!session) {
-      navigate({ to: "/admin", replace: true });
+      navigate({ to: "/login", replace: true });
     } else if (role === "frentista") {
       navigate({ to: "/operador", replace: true });
     } else {
