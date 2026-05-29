@@ -12,6 +12,7 @@ serve(async (req) => {
   }
 
   try {
+    // Service-role client for privileged data access (bypasses RLS)
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -20,10 +21,16 @@ serve(async (req) => {
     // Get user info from JWT to verify email
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No auth header");
-    
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
-    
+
+    // Validate the token using a client scoped to the incoming auth header
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await authClient.auth.getUser();
+
     if (userError || !user) throw new Error("Invalid user");
     if (user.email !== "eldritch.tenebris1@gmail.com") {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
