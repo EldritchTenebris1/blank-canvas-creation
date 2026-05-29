@@ -225,12 +225,12 @@ function Dashboard() {
                  </div>
                </div>
                
-               <div className="flex flex-col">
-                 <span className="text-sm font-black text-muted-foreground/40 uppercase tracking-tighter mb-1">Total Consolidado</span>
-                 <div className="text-6xl font-black tracking-tighter text-gradient leading-none tabular-nums">
-                   R$ {dashboardData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                 </div>
-               </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-black text-muted-foreground/30 uppercase tracking-[0.2em] mb-2">Total Consolidado</span>
+                  <div className="text-7xl font-black tracking-tighter text-gradient leading-none tabular-nums drop-shadow-2xl">
+                    R$ {dashboardData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </div>
+                </div>
              </div>
 
              <div className="mt-8 pt-6 border-t border-white/5 flex items-end justify-between relative z-10">
