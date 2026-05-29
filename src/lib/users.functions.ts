@@ -24,7 +24,7 @@ export const listSystemUsersFn = createServerFn({ method: "GET" })
 
     const empMap = new Map<string, { name: string; code: string }>();
     for (const e of employees ?? []) {
-      if (e.user_id) empMap.set(e.user_id, { name: e.name, code: e.access_code });
+      if (e.user_id) empMap.set(e.user_id, { name: e.name, code: e.access_code ?? "—" });
     }
     const roleMap = new Map<string, string>();
     for (const r of allRoles ?? []) roleMap.set(r.user_id, r.role);

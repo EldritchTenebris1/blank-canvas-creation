@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Minus, Package2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/buriti/PageHeader";
@@ -16,6 +17,7 @@ type Product = {
 };
 
 function EstoquePage() {
+  const { user } = useAuth();
   const qc = useQueryClient();
   const [search, setSearch] = React.useState("");
   const [qtyMap, setQtyMap] = React.useState<Record<string, number>>({});
@@ -40,7 +42,7 @@ function EstoquePage() {
       .eq("id", p.id);
     if (error) return toast.error(error.message);
     await supabase.from("movements").insert({
-      product_id: p.id, type, quantity: Math.abs(delta), location: "estoque",
+      product_id: p.id, type, quantity: Math.abs(delta), location: "estoque", user_id: user?.id,
     });
     toast.success(type === "entrada" ? "Entrada registrada" : "Ajuste registrado");
     qc.invalidateQueries({ queryKey: ["products"] });

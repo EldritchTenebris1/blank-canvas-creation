@@ -38,7 +38,7 @@ function ConfigPage() {
     setSaving(true);
     const { error } = await supabase
       .from("app_settings")
-      .upsert({ key: "monthly_goal", value: v, updated_at: new Date().toISOString() });
+      .upsert({ key: "monthly_goal", value: String(v), updated_at: new Date().toISOString() });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Meta atualizada");

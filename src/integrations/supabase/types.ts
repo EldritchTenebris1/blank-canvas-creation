@@ -18,23 +18,44 @@ export type Database = {
         Row: {
           key: string
           updated_at: string
-          value: Json
+          value: string
         }
         Insert: {
           key: string
           updated_at?: string
-          value: Json
+          value: string
         }
         Update: {
           key?: string
           updated_at?: string
-          value?: Json
+          value?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
       employees: {
         Row: {
-          access_code: string
+          access_code: string | null
           active: boolean
           created_at: string
           id: string
@@ -42,7 +63,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          access_code: string
+          access_code?: string | null
           active?: boolean
           created_at?: string
           id?: string
@@ -50,7 +71,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          access_code?: string
+          access_code?: string | null
           active?: boolean
           created_at?: string
           id?: string
@@ -63,31 +84,28 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          location: string
-          notes: string | null
+          location: Database["public"]["Enums"]["stock_location"]
           product_id: string
           quantity: number
-          type: Database["public"]["Enums"]["movement_type"]
+          type: Database["public"]["Enums"]["transaction_type"]
           user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
-          location?: string
-          notes?: string | null
+          location: Database["public"]["Enums"]["stock_location"]
           product_id: string
           quantity: number
-          type: Database["public"]["Enums"]["movement_type"]
+          type: Database["public"]["Enums"]["transaction_type"]
           user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
-          location?: string
-          notes?: string | null
+          location?: Database["public"]["Enums"]["stock_location"]
           product_id?: string
           quantity?: number
-          type?: Database["public"]["Enums"]["movement_type"]
+          type?: Database["public"]["Enums"]["transaction_type"]
           user_id?: string | null
         }
         Relationships: [
@@ -105,7 +123,8 @@ export type Database = {
           barcode: string | null
           brand: string | null
           category: string | null
-          cost_price: number
+          category_id: string | null
+          cost_price: number | null
           created_at: string
           description: string | null
           estoque_min: number
@@ -117,14 +136,15 @@ export type Database = {
           pista_min: number
           pista_qty: number
           sale_price: number
-          supplier_id: string | null
+          supplier: string | null
           updated_at: string
         }
         Insert: {
           barcode?: string | null
           brand?: string | null
           category?: string | null
-          cost_price?: number
+          category_id?: string | null
+          cost_price?: number | null
           created_at?: string
           description?: string | null
           estoque_min?: number
@@ -135,15 +155,16 @@ export type Database = {
           name: string
           pista_min?: number
           pista_qty?: number
-          sale_price?: number
-          supplier_id?: string | null
+          sale_price: number
+          supplier?: string | null
           updated_at?: string
         }
         Update: {
           barcode?: string | null
           brand?: string | null
           category?: string | null
-          cost_price?: number
+          category_id?: string | null
+          cost_price?: number | null
           created_at?: string
           description?: string | null
           estoque_min?: number
@@ -155,57 +176,149 @@ export type Database = {
           pista_min?: number
           pista_qty?: number
           sale_price?: number
-          supplier_id?: string | null
+          supplier?: string | null
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "products_supplier_id_fkey"
-            columns: ["supplier_id"]
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: "suppliers"
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]
       }
-      suppliers: {
+      profiles: {
         Row: {
-          contact: string | null
+          access_code: string | null
           created_at: string
+          full_name: string | null
           id: string
-          name: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
         }
         Insert: {
-          contact?: string | null
+          access_code?: string | null
           created_at?: string
-          id?: string
-          name: string
+          full_name?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
         }
         Update: {
-          contact?: string | null
+          access_code?: string | null
           created_at?: string
+          full_name?: string | null
           id?: string
-          name?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
         }
         Relationships: []
       }
-      user_roles: {
+      stock_items: {
+        Row: {
+          id: string
+          location: Database["public"]["Enums"]["stock_location"]
+          min_quantity: number
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          id?: string
+          location: Database["public"]["Enums"]["stock_location"]
+          min_quantity?: number
+          product_id: string
+          quantity?: number
+        }
+        Update: {
+          id?: string
+          location?: Database["public"]["Enums"]["stock_location"]
+          min_quantity?: number
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
         Row: {
           created_at: string
+          from_location: Database["public"]["Enums"]["stock_location"] | null
           id: string
-          role: Database["public"]["Enums"]["app_role"]
+          notes: string | null
+          product_id: string
+          quantity: number
+          to_location: Database["public"]["Enums"]["stock_location"] | null
+          total_price: number | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          unit_price: number | null
           user_id: string
         }
         Insert: {
           created_at?: string
+          from_location?: Database["public"]["Enums"]["stock_location"] | null
           id?: string
-          role: Database["public"]["Enums"]["app_role"]
+          notes?: string | null
+          product_id: string
+          quantity: number
+          to_location?: Database["public"]["Enums"]["stock_location"] | null
+          total_price?: number | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          unit_price?: number | null
           user_id: string
         }
         Update: {
           created_at?: string
+          from_location?: Database["public"]["Enums"]["stock_location"] | null
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          notes?: string | null
+          product_id?: string
+          quantity?: number
+          to_location?: Database["public"]["Enums"]["stock_location"] | null
+          total_price?: number | null
+          type?: Database["public"]["Enums"]["transaction_type"]
+          unit_price?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
           user_id?: string
         }
         Relationships: []
@@ -215,17 +328,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "admin" | "frentista"
-      movement_type: "venda" | "entrada" | "reposicao" | "ajuste"
+      stock_location: "pista" | "principal" | "estoque"
+      transaction_type: "venda" | "entrada" | "reposicao" | "ajuste"
+      user_role: "frentista" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -353,8 +461,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "frentista"],
-      movement_type: ["venda", "entrada", "reposicao", "ajuste"],
+      stock_location: ["pista", "principal", "estoque"],
+      transaction_type: ["venda", "entrada", "reposicao", "ajuste"],
+      user_role: ["frentista", "admin"],
     },
   },
 } as const
