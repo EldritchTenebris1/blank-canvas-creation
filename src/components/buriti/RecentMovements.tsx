@@ -1,6 +1,8 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useNavigate } from "@tanstack/react-router";
+
 import { ArrowUpRight, ArrowDownLeft, RefreshCcw, Package, Activity, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/hooks/use-products";
