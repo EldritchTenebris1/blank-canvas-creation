@@ -50,72 +50,106 @@ export function AdminShell() {
   }, [path]);
 
   const NavList = ({ compact = false }: { compact?: boolean }) => (
-    <nav className="flex-1 space-y-1 px-3 py-2">
-      {items.map((item) => {
+    <nav className="flex-1 space-y-1 px-4 py-4">
+      {items.map((item, idx) => {
         const active = path.startsWith(item.to);
         const Icon = item.icon;
         return (
-          <Link
+          <motion.div
             key={item.to}
-            to={item.to}
-            className={cn(
-              "group relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all min-h-[48px]",
-              active
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
-            )}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: idx * 0.05, duration: 0.3 }}
           >
-            {active && (
-              <span
-                className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full"
-                style={{ background: "var(--gradient-accent)" }}
+            <Link
+              to={item.to}
+              className={cn(
+                "group relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all min-h-[48px]",
+                active
+                  ? "bg-primary/10 text-primary shadow-[inset_0_1px_1px_oklch(1_0_0/0.1)]"
+                  : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground",
+              )}
+            >
+              {active && (
+                <motion.span
+                  layoutId="nav-active"
+                  className="absolute inset-0 rounded-xl border border-primary/20 bg-primary/5 shadow-[0_0_20px_oklch(var(--primary)/0.05)]"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <Icon 
+                size={20} 
+                className={cn(
+                  "relative z-10 shrink-0 transition-transform duration-300 group-hover:scale-110", 
+                  active && "text-primary"
+                )} 
               />
-            )}
-            <Icon size={18} className={cn("shrink-0", active && "text-accent")} />
-            {!compact && <span className="truncate">{item.label}</span>}
-          </Link>
+              {!compact && (
+                <span className="relative z-10 truncate tracking-tight">{item.label}</span>
+              )}
+              {active && !compact && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary-glow)]"
+                />
+              )}
+            </Link>
+          </motion.div>
         );
       })}
     </nav>
   );
 
   return (
-    <div className="flex min-h-screen w-full bg-background text-foreground">
+    <div className="flex min-h-screen w-full bg-background selection:bg-primary/20 selection:text-primary">
       {/* Desktop Sidebar */}
-      <aside
+      <motion.aside
+        animate={{ width: collapsed ? 84 : 280 }}
         className={cn(
-          "relative hidden flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300 ease-out md:flex",
-          collapsed ? "w-[76px]" : "w-[260px]",
+          "relative hidden flex-col border-r border-sidebar-border bg-sidebar/50 backdrop-blur-xl md:flex",
         )}
       >
-        <div className="flex h-[72px] items-center px-4">
-          {collapsed ? (
-            <div
-              className="grid h-10 w-10 place-items-center rounded-xl shadow-glow-accent"
-              style={{ background: "var(--gradient-accent)" }}
-            >
-              <Fuel size={20} className="text-[oklch(0.18_0.04_255)]" strokeWidth={2.5} />
-            </div>
-          ) : (
-            <BuritiLogo size="md" />
-          )}
+        <div className="flex h-20 items-center px-6">
+          <AnimatePresence mode="wait">
+            {collapsed ? (
+              <motion.div
+                key="collapsed"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-glow"
+              >
+                <Fuel size={20} strokeWidth={2.5} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="expanded"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+              >
+                <BuritiLogo size="md" />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <NavList compact={collapsed} />
 
-        <div className="border-t border-sidebar-border p-3">
+        <div className="mt-auto p-4">
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-sidebar-foreground/50 transition-all hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
           >
             <ChevronLeft
               size={18}
-              className={cn("transition-transform", collapsed && "rotate-180")}
+              className={cn("transition-transform duration-500", collapsed && "rotate-180")}
             />
-            {!collapsed && <span>Recolher</span>}
+            {!collapsed && <span>Recolher Menu</span>}
           </button>
         </div>
-      </aside>
+      </motion.aside>
 
       {/* Mobile drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
