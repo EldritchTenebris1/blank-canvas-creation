@@ -125,6 +125,7 @@ export default function DashboardCharts({ daysData, topData }: DashboardChartsPr
               />
               <Bar 
                 dataKey="qty" 
+                name="Quantidade"
                 fill="var(--accent)" 
                 radius={[0, 10, 10, 0]} 
                 barSize={16}
