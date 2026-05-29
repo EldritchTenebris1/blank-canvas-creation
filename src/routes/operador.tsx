@@ -66,16 +66,26 @@ function OperadorPage() {
   });
 
   const { data: goal = 0 } = useQuery({
-    queryKey: ["frentista-goal"],
+    queryKey: ["frentista-goal", user?.id],
     queryFn: async () => {
+      if (!user) return 0;
       const { data } = await supabase
+        .from("employees")
+        .select("monthly_goal")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      
+      if (data?.monthly_goal) return Number(data.monthly_goal);
+
+      // Fallback para meta global se a individual for 0
+      const { data: globalGoal } = await supabase
         .from("app_settings")
         .select("value")
         .eq("key", "monthly_goal")
         .maybeSingle();
-      return Number(data?.value ?? 0);
+      return Number(globalGoal?.value ?? 0);
     },
-    enabled: role === "frentista",
+    enabled: !!user && role === "frentista",
     refetchInterval: 30000,
   });
 
