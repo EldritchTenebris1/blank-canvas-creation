@@ -1,6 +1,6 @@
 import { Fuel } from "lucide-react";
 
-export function BuritiLogo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
+export function BuritiLogo({ size = "md", name }: { size?: "sm" | "md" | "lg"; name?: string }) {
   const sizes = {
     sm: { wrap: "h-8 w-8", icon: 16, text: "text-sm" },
     md: { wrap: "h-10 w-10", icon: 20, text: "text-base" },
@@ -21,7 +21,7 @@ export function BuritiLogo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
       </div>
       <div className="leading-tight">
         <div className={`${s.text} font-bold tracking-tight text-white`}>
-          Posto <span className="gradient-text">Buriti</span>
+          {name || "Posto Buriti"}
         </div>
         <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-accent/80">
           Padrão Ipiranga
