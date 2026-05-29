@@ -16,7 +16,7 @@ function ConfigPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   
-  const { data: settings = {}, isLoading } = useQuery({
+  const { data: settings = {}, isLoading: loadingSettings } = useQuery({
     queryKey: ["app-settings"],
     queryFn: async () => {
       const { data } = await supabase.from("app_settings").select("*");
@@ -24,7 +24,18 @@ function ConfigPage() {
     },
   });
 
+  const { data: profile, isLoading: loadingProfile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
   const [formState, setFormState] = React.useState<Record<string, string>>({});
+  const [profileName, setProfileName] = React.useState("");
   const [saving, setSaving] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -32,6 +43,12 @@ function ConfigPage() {
       setFormState(prev => ({ ...settings, ...prev }));
     }
   }, [settings]);
+
+  React.useEffect(() => {
+    if (profile?.full_name) {
+      setProfileName(profile.full_name);
+    }
+  }, [profile]);
 
   async function saveSetting(key: string, value: string) {
     setSaving(key);
@@ -45,6 +62,24 @@ function ConfigPage() {
       toast.success("Configuração atualizada");
       qc.invalidateQueries({ queryKey: ["app-settings"] });
       if (key === "monthly_goal") qc.invalidateQueries({ queryKey: ["frentista-goal"] });
+      if (key === "station_name") qc.invalidateQueries({ queryKey: ["app-setting", "station_name"] });
+    }
+    setSaving(null);
+  }
+
+  async function saveProfile() {
+    if (!user) return;
+    setSaving("profile");
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: profileName, updated_at: new Date().toISOString() })
+      .eq("id", user.id);
+    
+    if (error) {
+      toast.error("Erro ao salvar perfil: " + error.message);
+    } else {
+      toast.success("Perfil atualizado");
+      qc.invalidateQueries({ queryKey: ["profile", user.id] });
     }
     setSaving(null);
   }
@@ -53,7 +88,7 @@ function ConfigPage() {
     setFormState(prev => ({ ...prev, [key]: value }));
   };
 
-  if (isLoading) {
+  if (loadingSettings || loadingProfile) {
     return (
       <div className="flex h-[400px] items-center justify-center">
         <Loader2 className="animate-spin text-accent" size={32} />
@@ -65,7 +100,30 @@ function ConfigPage() {
     <div className="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
       <PageHeader title="Configurações" description="Gerencie as preferências e informações do sistema" />
       
-      <div className="grid gap-6">
+      <div className="grid gap-6 pb-20">
+        <Section icon={User} title="Seu Perfil" description="Como você aparece no sistema">
+          <div className="grid gap-4">
+            <div className="grid gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome Completo</label>
+              <Input 
+                value={profileName} 
+                onChange={(e) => setProfileName(e.target.value)}
+                placeholder="Seu nome completo"
+                className="bg-background/50 border-border/40 focus:border-accent/50"
+              />
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button 
+                onClick={saveProfile} 
+                disabled={saving !== null}
+                className="bg-accent hover:bg-accent/90 text-white min-w-[120px]"
+              >
+                {saving === "profile" ? <Loader2 className="animate-spin" size={16} /> : "Salvar Perfil"}
+              </Button>
+            </div>
+          </div>
+        </Section>
+
         <Section icon={Target} title="Meta de Vendas" description="Meta mensal exibida no painel do frentista">
           <div className="grid gap-4 sm:grid-cols-[1fr_auto] items-end">
             <div className="grid gap-1.5">
@@ -82,7 +140,7 @@ function ConfigPage() {
             </div>
             <Button 
               onClick={() => saveSetting("monthly_goal", formState.monthly_goal)} 
-              disabled={saving === "monthly_goal"}
+              disabled={saving !== null}
               className="bg-accent hover:bg-accent/90 text-white min-w-[100px]"
             >
               {saving === "monthly_goal" ? <Loader2 className="animate-spin" size={16} /> : "Salvar Meta"}
@@ -132,29 +190,6 @@ function ConfigPage() {
                 className="bg-accent hover:bg-accent/90 text-white min-w-[120px]"
               >
                 {saving ? <Loader2 className="animate-spin" size={16} /> : "Salvar Informações"}
-              </Button>
-            </div>
-          </div>
-        </Section>
-
-        <Section icon={User} title="Seu Perfil" description="Como você aparece no sistema">
-          <div className="grid gap-4">
-            <div className="grid gap-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome Completo</label>
-              <Input 
-                value={profileName} 
-                onChange={(e) => setProfileName(e.target.value)}
-                placeholder="Seu nome completo"
-                className="bg-background/50 border-border/40 focus:border-accent/50"
-              />
-            </div>
-            <div className="flex justify-end pt-2">
-              <Button 
-                onClick={saveProfile} 
-                disabled={saving === "profile"}
-                className="bg-accent hover:bg-accent/90 text-white min-w-[120px]"
-              >
-                {saving === "profile" ? <Loader2 className="animate-spin" size={16} /> : "Salvar Perfil"}
               </Button>
             </div>
           </div>
