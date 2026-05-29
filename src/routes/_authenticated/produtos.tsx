@@ -73,43 +73,47 @@ const ProductCard = React.memo(({ p, onEdit, onDelete }: { p: Product; onEdit: (
   const lowPista = p.pista_qty < p.pista_min;
   const lowEstoque = p.estoque_qty < p.estoque_min;
   return (
-    <div className="glass rounded-2xl p-4 space-y-4 border-none shadow-sm active:scale-[0.98] transition-transform">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="premium-card p-5 space-y-5 border-white/5 active:scale-[0.98] transition-all"
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <div className="font-bold text-base leading-tight truncate">{p.name}</div>
-          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+          <div className="font-bold text-lg tracking-tight truncate">{p.name}</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50 mt-1">
             {p.brand ?? "S/M"} · {p.category ?? "S/C"}
           </div>
         </div>
         <div className="flex shrink-0 gap-1">
-          <Button size="icon" variant="ghost" className="h-10 w-10 bg-accent/5 rounded-xl text-accent" onClick={() => onEdit(p)}><Pencil size={16} /></Button>
-          <Button size="icon" variant="ghost" className="h-10 w-10 bg-destructive/5 rounded-xl text-destructive" onClick={() => onDelete(p.id)}><Trash2 size={16} /></Button>
+          <Button size="icon" variant="ghost" className="h-10 w-10 bg-white/5 rounded-xl" onClick={() => onEdit(p)}><Pencil size={14} /></Button>
+          <Button size="icon" variant="ghost" className="h-10 w-10 bg-destructive/10 rounded-xl text-destructive" onClick={() => onDelete(p.id)}><Trash2 size={14} /></Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-card/40 rounded-xl p-3 border border-border/20">
-          <div className="text-[9px] font-black uppercase text-muted-foreground/70 mb-1">Pista</div>
-          <div className={cn("text-lg font-black", lowPista ? "text-destructive" : "text-accent")}>
-            {p.pista_qty} <span className="text-[10px] text-muted-foreground/60 font-medium">/ {p.pista_min}</span>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+          <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-2">Pista</div>
+          <div className={cn("text-xl font-black tabular-nums", lowPista ? "text-destructive" : "text-primary")}>
+            {p.pista_qty} <span className="text-xs text-muted-foreground/30 font-bold">/ {p.pista_min}</span>
           </div>
         </div>
-        <div className="bg-card/40 rounded-xl p-3 border border-border/20">
-          <div className="text-[9px] font-black uppercase text-muted-foreground/70 mb-1">Estoque</div>
-          <div className={cn("text-lg font-black", lowEstoque ? "text-destructive" : "text-foreground")}>
-            {p.estoque_qty} <span className="text-[10px] text-muted-foreground/60 font-medium">/ {p.estoque_min}</span>
+        <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+          <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-2">Estoque</div>
+          <div className={cn("text-xl font-black tabular-nums", lowEstoque ? "text-destructive" : "text-foreground")}>
+            {p.estoque_qty} <span className="text-xs text-muted-foreground/30 font-bold">/ {p.estoque_min}</span>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-2 border-t border-border/10">
-        <div className="text-xs font-mono text-muted-foreground">{p.internal_code || "N/A"}</div>
+      <div className="flex items-center justify-between pt-4 border-t border-white/5">
+        <div className="px-2 py-1 rounded-lg bg-white/5 border border-white/5 font-mono text-[10px] text-muted-foreground/60">{p.internal_code || "N/A"}</div>
         <div className="text-right">
-          <div className="text-[9px] font-bold uppercase text-muted-foreground/70">Venda</div>
-          <div className="text-base font-black text-accent">R$ {Number(p.sale_price).toFixed(2)}</div>
+          <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/40">Preço Venda</div>
+          <div className="text-lg font-black text-primary tabular-nums">R$ {Number(p.sale_price).toFixed(2)}</div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 });
 
