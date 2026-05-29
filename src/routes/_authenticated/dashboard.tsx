@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import * as React from "react";
+import { motion } from "framer-motion";
 import {
   Package,
   Fuel,
@@ -10,6 +11,7 @@ import {
   Users,
   Warehouse,
   Loader2,
+  ArrowRight,
 } from "lucide-react";
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
