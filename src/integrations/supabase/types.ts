@@ -80,6 +80,68 @@ export type Database = {
         }
         Relationships: []
       }
+      fuel_pumps: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fuel_tanks: {
+        Row: {
+          capacity: number
+          created_at: string
+          current_volume: number
+          id: string
+          name: string
+          product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          capacity: number
+          created_at?: string
+          current_volume?: number
+          id?: string
+          name: string
+          product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          current_volume?: number
+          id?: string
+          name?: string
+          product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fuel_tanks_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movements: {
         Row: {
           created_at: string
@@ -215,6 +277,45 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      pump_nozzles: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          pump_id: string | null
+          tank_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          pump_id?: string | null
+          tank_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          pump_id?: string | null
+          tank_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pump_nozzles_pump_id_fkey"
+            columns: ["pump_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_pumps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pump_nozzles_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_tanks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stock_items: {
         Row: {
