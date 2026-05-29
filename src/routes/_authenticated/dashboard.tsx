@@ -164,12 +164,6 @@ function Dashboard() {
         <Stat label="Estoque Galpão" value={String(dashboardData.totalEstoque)} icon={Warehouse} />
         <Stat label="Vendas Hoje" value={String(dashboardData.salesToday)} icon={ShoppingCart} />
         <Stat label="Lucro Hoje" value={`R$ ${dashboardData.profitToday.toFixed(2)}`} icon={TrendingUp} />
-        <Stat 
-          label="Alertas Críticos" 
-          value={String(dashboardData.lowStock)} 
-          icon={AlertTriangle} 
-          highlight={dashboardData.lowStock > 0} 
-        />
         <Stat label="Catálogo" value={String(products.length)} icon={Package} />
       </div>
 
@@ -184,56 +178,6 @@ function Dashboard() {
           </React.Suspense>
         </div>
 
-        <div className="premium-card p-6 border-white/5">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold tracking-tight">Alertas de Estoque</h3>
-              <p className="text-[11px] text-muted-foreground">Itens abaixo da margem de segurança.</p>
-            </div>
-            <div className="rounded-full bg-destructive/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-destructive border border-destructive/20">
-              {dashboardData.lowStock} Críticos
-            </div>
-          </div>
-          
-          {dashboardData.lowProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="mb-4 rounded-2xl bg-success/10 p-4 text-success border border-success/20">
-                <Package size={32} />
-              </div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Tudo sob controle. ✓
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {dashboardData.lowProducts.map((p) => (
-                <motion.div
-                  key={p.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="group flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:bg-white/10"
-                >
-                  <div className="min-w-0">
-                    <div className="truncate font-bold tracking-tight">{p.name}</div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
-                      Cód. {p.internal_code ?? "—"}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="text-lg font-black text-destructive leading-none">{p.pista_qty}</div>
-                      <div className="text-[9px] font-bold uppercase text-muted-foreground/40">Qtd</div>
-                    </div>
-                    <ArrowRight size={14} className="text-muted-foreground/20" />
-                  </div>
-                </motion.div>
-              ))}
-              <Button variant="outline" className="w-full mt-4 rounded-xl border-dashed">
-                Ver Relatório Completo
-              </Button>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
