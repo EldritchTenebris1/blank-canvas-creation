@@ -115,6 +115,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.02)' }} />
                 <Bar 
                   dataKey="revenue" 
+                  name="Receita"
                   fill="oklch(0.65 0.2 250)" 
                   radius={[0, 10, 10, 0]} 
                   barSize={20}
