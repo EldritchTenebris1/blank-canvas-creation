@@ -30,6 +30,12 @@ export function RootComponent() {
                   <Link to="/transactions"><Receipt className="w-4 h-4" /> Transações</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/attendant" className="text-orange-600 font-bold"><User className="w-4 h-4" /> Frentista</Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
             </SidebarMenu>
           </SidebarContent>
         </Sidebar>
