@@ -227,7 +227,7 @@ function Dashboard() {
                
                 <div className="flex flex-col">
                   <span className="text-xs font-black text-muted-foreground/30 uppercase tracking-[0.2em] mb-2">Total Consolidado</span>
-                  <div className="text-7xl font-black tracking-tighter text-gradient leading-none tabular-nums drop-shadow-2xl">
+                  <div className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-gradient leading-none tabular-nums drop-shadow-2xl break-words">
                     R$ {dashboardData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
                 </div>
