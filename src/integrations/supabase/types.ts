@@ -32,6 +32,36 @@ export type Database = {
         }
         Relationships: []
       }
+      backups: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_path: string
+          id: string
+          name: string
+          size_bytes: number | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_path: string
+          id?: string
+          name: string
+          size_bytes?: number | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_path?: string
+          id?: string
+          name?: string
+          size_bytes?: number | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
