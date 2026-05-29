@@ -53,6 +53,33 @@ export type Database = {
         }
         Relationships: []
       }
+      employees: {
+        Row: {
+          access_code: string | null
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          access_code?: string | null
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          access_code?: string | null
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       movements: {
         Row: {
           created_at: string
@@ -61,7 +88,7 @@ export type Database = {
           product_id: string
           quantity: number
           type: Database["public"]["Enums"]["transaction_type"]
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -70,7 +97,7 @@ export type Database = {
           product_id: string
           quantity: number
           type: Database["public"]["Enums"]["transaction_type"]
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -79,7 +106,7 @@ export type Database = {
           product_id?: string
           quantity?: number
           type?: Database["public"]["Enums"]["transaction_type"]
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -304,7 +331,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      stock_location: "pista" | "principal"
+      stock_location: "pista" | "principal" | "estoque"
       transaction_type: "venda" | "entrada" | "reposicao" | "ajuste"
       user_role: "frentista" | "admin"
     }
@@ -434,7 +461,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      stock_location: ["pista", "principal"],
+      stock_location: ["pista", "principal", "estoque"],
       transaction_type: ["venda", "entrada", "reposicao", "ajuste"],
       user_role: ["frentista", "admin"],
     },
