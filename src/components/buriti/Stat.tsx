@@ -17,9 +17,10 @@ interface StatProps {
 export function Stat({ label, value, icon: Icon, highlight, trend, description }: StatProps) {
   return (
     <motion.div 
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 400, damping: 10 }}
       className={cn(
-        "premium-card p-6 border-white/5 relative overflow-hidden group transition-all duration-300",
+        "premium-card p-6 border-white/5 relative overflow-hidden group transition-all duration-500",
         highlight && "bg-destructive/10 border-destructive/20 shadow-[0_0_20px_oklch(var(--destructive)/0.1)]"
       )}
     >
