@@ -40,7 +40,7 @@ function EstoquePage() {
       .eq("id", p.id);
     if (error) return toast.error(error.message);
     await supabase.from("movements").insert({
-      product_id: p.id, type, quantity: Math.abs(delta), location: "estoque",
+      product_id: p.id, type, quantity: Math.abs(delta), location: "estoque", user_id: user?.id,
     });
     toast.success(type === "entrada" ? "Entrada registrada" : "Ajuste registrado");
     qc.invalidateQueries({ queryKey: ["products"] });
