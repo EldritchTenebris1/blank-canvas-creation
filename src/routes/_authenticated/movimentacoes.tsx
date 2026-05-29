@@ -50,21 +50,22 @@ function MovimentacoesPage() {
   return (
     <div>
       <PageHeader title="Movimentações" description="Histórico completo de entradas, saídas e vendas" />
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-2 premium-glass p-2 rounded-2xl border-white/5">
         {(["todos", "venda", "entrada", "ajuste", "reposicao"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setFilter(t)}
-            className={`rounded-full border px-4 py-1.5 text-xs font-medium uppercase tracking-wider transition ${
+            className={`rounded-xl px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
               filter === t
-                ? "border-accent bg-accent text-[oklch(0.18_0.04_255)]"
-                : "border-border/60 text-muted-foreground hover:bg-card/50"
+                ? "bg-accent text-accent-foreground shadow-glow-accent scale-105"
+                : "text-muted-foreground/40 hover:text-muted-foreground hover:bg-white/5"
             }`}
           >
             {t === "todos" ? "Todos" : TYPE_META[t].label}
           </button>
         ))}
       </div>
+
       <div className="glass overflow-x-auto rounded-2xl">
         <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-card/40 text-xs uppercase tracking-wider text-muted-foreground">
