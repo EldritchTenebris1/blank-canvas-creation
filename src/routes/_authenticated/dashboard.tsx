@@ -233,8 +233,8 @@ function Dashboard() {
                 </div>
              </div>
 
-             <div className="mt-8 pt-6 border-t border-white/5 flex items-end justify-between relative z-10">
-               <div className="flex flex-col gap-4 flex-1 mr-8">
+             <div className="mt-8 pt-6 border-t border-white/5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between relative z-10">
+               <div className="flex flex-col gap-4 flex-1 sm:mr-8">
                  <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
                    <span>Performance de Estoque</span>
                    <span className="text-primary">98% Otimizado</span>
