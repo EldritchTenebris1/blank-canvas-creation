@@ -1,9 +1,10 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ArrowUpRight, ArrowDownLeft, RefreshCcw, Package, User } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, RefreshCcw, Package, Activity, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/hooks/use-products";
+import { motion } from "framer-motion";
 
 interface Movement {
   id: string;
@@ -24,77 +25,97 @@ export function RecentMovements({ movements, products }: RecentMovementsProps) {
   const getTypeConfig = (type: string) => {
     switch (type) {
       case "venda":
-        return { icon: ArrowUpRight, color: "text-green-500", bg: "bg-green-500/10", label: "Venda" };
+        return { icon: ArrowUpRight, color: "text-success", bg: "bg-success/10", border: "border-success/20", label: "Venda" };
       case "entrada":
-        return { icon: ArrowDownLeft, color: "text-blue-500", bg: "bg-blue-500/10", label: "Entrada" };
+        return { icon: ArrowDownLeft, color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", label: "Entrada" };
       case "saida":
-        return { icon: ArrowUpRight, color: "text-orange-500", bg: "bg-orange-500/10", label: "Saída" };
+        return { icon: ArrowUpRight, color: "text-secondary", bg: "bg-secondary/10", border: "border-secondary/20", label: "Saída" };
       default:
-        return { icon: RefreshCcw, color: "text-slate-400", bg: "bg-slate-400/10", label: "Ajuste" };
+        return { icon: RefreshCcw, color: "text-muted-foreground/40", bg: "bg-white/5", border: "border-white/10", label: "Ajuste" };
     }
   };
 
-  const recentItems = movements.slice(0, 6);
+  const recentItems = movements.slice(0, 8);
 
   return (
-    <div className="premium-card p-6 border-white/5 h-full">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-bold tracking-tight">Atividades Recentes</h3>
-          <p className="text-[11px] text-muted-foreground/60">Últimas movimentações de estoque.</p>
+    <div className="premium-card p-1 border-white/5 h-full bg-card/30 flex flex-col">
+      <div className="p-6 border-b border-white/5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+            <Activity size={18} strokeWidth={2.5} />
+          </div>
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/80 leading-none mb-1.5">Fluxo Operacional</h3>
+            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/40 font-bold uppercase tracking-widest">
+              <Clock size={10} />
+              Tempo Real
+            </div>
+          </div>
         </div>
-        <div className="p-2 rounded-xl bg-white/5">
-          <RefreshCcw size={16} className="text-muted-foreground/40" />
-        </div>
+        <div className="h-2 w-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_oklch(var(--success))]" />
       </div>
 
-      <div className="space-y-4">
+      <div className="flex-1 p-4 space-y-3 overflow-y-auto max-h-[600px] scrollbar-hide">
         {recentItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center opacity-20">
-            <Package size={40} className="mb-2" />
-            <p className="text-xs font-bold uppercase tracking-widest">Sem movimentações</p>
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="p-4 rounded-3xl bg-white/5 mb-4 text-muted-foreground/10">
+              <Package size={48} />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/20">Aguardando Movimentação</p>
           </div>
         ) : (
-          recentItems.map((m) => {
+          recentItems.map((m, idx) => {
             const product = getProduct(m.product_id);
             const config = getTypeConfig(m.type);
             const Icon = config.icon;
 
             return (
-              <div key={m.id} className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-white/5 transition-colors">
-                <div className={cn("p-2 rounded-xl shrink-0", config.bg, config.color)}>
-                  <Icon size={18} />
+              <motion.div 
+                key={m.id}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                className="group flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all border border-transparent hover:border-white/5"
+              >
+                <div className={cn(
+                  "h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110", 
+                  config.bg, 
+                  config.color,
+                  config.border
+                )}>
+                  <Icon size={20} strokeWidth={2.5} />
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-bold text-sm truncate leading-tight group-hover:text-primary transition-colors">
-                      {product?.name ?? "Produto não encontrado"}
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="font-black text-sm truncate leading-tight tracking-tight group-hover:text-primary transition-colors">
+                      {product?.name ?? "Item não identificado"}
                     </p>
-                    <span className="text-[10px] font-bold text-muted-foreground/40 whitespace-nowrap">
+                    <span className="text-[10px] font-black text-muted-foreground/20 tabular-nums uppercase">
                       {format(new Date(m.created_at), "HH:mm", { locale: ptBR })}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={cn("text-[10px] font-black uppercase tracking-wider", config.color)}>
+                  <div className="flex items-center gap-2">
+                    <span className={cn("text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-md border", config.bg, config.color, config.border)}>
                       {config.label}
                     </span>
-                    <span className="text-[10px] text-muted-foreground/40">•</span>
-                    <span className="text-[10px] font-medium text-muted-foreground/60">
-                      {m.quantity} {m.quantity === 1 ? 'unidade' : 'unidades'}
+                    <span className="text-[10px] font-bold text-muted-foreground/60 tabular-nums">
+                      {m.quantity.toLocaleString('pt-BR')} {m.quantity === 1 ? 'UN' : 'UNS'}
                     </span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })
         )}
       </div>
 
       {recentItems.length > 0 && (
-        <button className="w-full mt-6 py-3 rounded-xl border border-white/5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 hover:text-primary hover:border-primary/20 hover:bg-primary/5 transition-all">
-          Ver Histórico Completo
-        </button>
+        <div className="p-4 mt-auto border-t border-white/5">
+          <button className="w-full py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 hover:text-primary transition-all shadow-inner">
+            Auditoria Completa
+          </button>
+        </div>
       )}
     </div>
   );

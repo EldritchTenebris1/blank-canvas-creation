@@ -120,10 +120,10 @@ export function AdminShell() {
       <motion.aside
         animate={{ width: collapsed ? 84 : 280 }}
         className={cn(
-          "relative hidden flex-col border-r border-sidebar-border bg-sidebar/50 backdrop-blur-xl md:flex",
+          "relative hidden flex-col border-r border-sidebar-border bg-sidebar/40 backdrop-blur-3xl md:flex",
         )}
       >
-        <div className="flex h-20 items-center px-6">
+        <div className="flex h-24 items-center px-6">
           <AnimatePresence mode="wait">
             {collapsed ? (
               <motion.div
@@ -131,9 +131,9 @@ export function AdminShell() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-glow"
+                className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-glow"
               >
-                <Fuel size={20} strokeWidth={2.5} />
+                <Fuel size={24} strokeWidth={2.5} />
               </motion.div>
             ) : (
               <motion.div
@@ -150,15 +150,18 @@ export function AdminShell() {
 
         <NavList compact={collapsed} />
 
-        <div className="mt-auto p-4">
+        <div className="mt-auto p-6">
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-sidebar-foreground/50 transition-all hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-xs font-black uppercase tracking-widest text-sidebar-foreground/40 transition-all hover:bg-sidebar-accent/50 hover:text-sidebar-foreground border border-transparent hover:border-white/5"
           >
-            <ChevronLeft
-              size={18}
-              className={cn("transition-transform duration-500", collapsed && "rotate-180")}
-            />
+            <div className="p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
+              <ChevronLeft
+                size={16}
+                strokeWidth={3}
+                className={cn("transition-transform duration-500", collapsed && "rotate-180")}
+              />
+            </div>
             {!collapsed && <span>Recolher Menu</span>}
           </button>
         </div>
@@ -166,68 +169,69 @@ export function AdminShell() {
 
       {/* Mobile drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="flex w-[260px] flex-col border-sidebar-border bg-sidebar p-0">
-          <SheetTitle className="sr-only">Menu</SheetTitle>
-          <div className="flex h-[72px] items-center px-4">
+        <SheetContent side="left" className="flex w-[280px] flex-col border-sidebar-border bg-sidebar/95 backdrop-blur-2xl p-0">
+          <SheetTitle className="sr-only">Navegação Principal</SheetTitle>
+          <div className="flex h-24 items-center px-6">
             <BuritiLogo size="md" name={stationName} />
           </div>
           <NavList />
         </SheetContent>
       </Sheet>
 
-      {/* Main */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      {/* Main Container */}
+      <div className="flex min-w-0 flex-1 flex-col relative">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between gap-4 border-b border-white/5 bg-background/40 px-4 backdrop-blur-2xl sm:px-8">
-          <div className="flex items-center gap-4 min-w-0">
+        <header className="sticky top-0 z-40 flex h-[88px] items-center justify-between gap-4 border-b border-white/5 bg-background/60 px-4 backdrop-blur-2xl sm:px-10">
+          <div className="flex items-center gap-6 min-w-0">
             <Button
               variant="ghost"
               size="icon"
-              className="h-11 w-11 shrink-0 rounded-2xl border border-white/10 bg-white/5 md:hidden"
+              className="h-12 w-12 shrink-0 rounded-2xl border border-white/10 bg-white/5 md:hidden"
               onClick={() => setMobileOpen(true)}
             >
               <Menu size={20} />
             </Button>
+            
             <div className="min-w-0">
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
-                <div className="h-1 w-1 rounded-full bg-accent animate-pulse" />
-                {stationName} ERP
+              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">
+                <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_oklch(var(--accent))]" />
+                {stationName} ERP • v2.0
               </div>
-              <div className="text-gradient truncate text-xl font-bold tracking-tight sm:text-2xl">
+              <div className="text-gradient truncate text-2xl font-black tracking-tighter sm:text-3xl italic uppercase">
                 {current?.label ?? "Painel"}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4">
-            <NotificationsMenu />
-            
+          <div className="flex items-center gap-4 sm:gap-6">
             <div className="relative hidden xl:block group">
               <Search
                 size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/50 transition-colors group-focus-within:text-primary"
+                className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/30 transition-all group-focus-within:text-primary group-focus-within:scale-110"
               />
               <Input
-                placeholder="Pesquisa inteligente..."
-                className="h-12 w-[320px] rounded-2xl border-white/5 bg-white/5 pl-11 shadow-inner backdrop-blur-md transition-all focus:w-[400px] focus:bg-white/10 focus:ring-primary/20"
+                placeholder="Busca global avançada..."
+                className="h-12 w-[300px] rounded-2xl border-white/5 bg-white/5 pl-12 shadow-inner backdrop-blur-md transition-all focus:w-[420px] focus:bg-white/8 focus:ring-primary/20 border-white/10"
               />
-              <kbd className="absolute right-4 top-1/2 -translate-y-1/2 hidden h-6 select-none items-center gap-1 rounded border border-white/10 bg-white/5 px-1.5 font-mono text-[10px] font-medium text-muted-foreground/40 sm:flex">
-                ⌘K
-              </kbd>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden select-none items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-1 font-mono text-[9px] font-black text-muted-foreground/40 xl:flex">
+                <span className="opacity-50 text-[11px]">⌘</span> K
+              </div>
             </div>
             
+            <NotificationsMenu />
             
+            <div className="hidden h-10 w-px bg-white/5 lg:block" />
             
-            <div className="hidden items-center gap-4 rounded-2xl border border-white/5 bg-white/5 px-4 py-2 hover:bg-white/10 transition-colors lg:flex">
+            <div className="hidden items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 hover:bg-white/10 transition-all lg:flex group cursor-pointer shadow-inner">
               <div className="relative">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-glow">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/60 text-sm font-black text-primary-foreground shadow-glow group-hover:scale-110 transition-transform">
                   {user?.email?.[0].toUpperCase() ?? "A"}
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
+                <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-background bg-success shadow-[0_0_8px_oklch(var(--success))]" />
               </div>
               <div className="hidden xl:block">
-                <div className="text-xs font-bold text-foreground tracking-tight">Administrador</div>
-                <div className="max-w-[120px] truncate text-[11px] text-muted-foreground">
+                <div className="text-[11px] font-black text-foreground tracking-widest uppercase">Sistema Admin</div>
+                <div className="max-w-[140px] truncate text-[11px] font-bold text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">
                   {user?.email}
                 </div>
               </div>
@@ -236,28 +240,30 @@ export function AdminShell() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-11 w-11 shrink-0 rounded-2xl border border-white/5 bg-white/5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="h-12 w-12 shrink-0 rounded-2xl border border-white/5 bg-white/5 text-muted-foreground/40 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all group shadow-inner"
               onClick={async () => {
                 await signOut();
                 navigate({ to: "/admin" });
               }}
             >
-              <LogOut size={20} />
+              <LogOut size={20} className="group-hover:-translate-x-0.5 transition-transform" />
             </Button>
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-4 sm:p-8">
+        <main className="flex-1 overflow-x-hidden p-6 sm:p-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            key={path}
+            initial={{ opacity: 0, y: 15, scale: 0.99 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
             <Outlet />
           </motion.div>
         </main>
       </div>
     </div>
+
   );
 }
 

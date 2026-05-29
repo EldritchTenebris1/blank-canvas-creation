@@ -18,6 +18,9 @@ import {
   BarChart3,
   Calendar,
   History,
+  ArrowUpRight,
+  ShieldCheck,
+  Zap,
 } from "lucide-react";
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
@@ -36,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function Dashboard() {
   const navigate = useNavigate();
   const { data: products = [], isLoading: loadingProducts } = useProducts();
-  const { data: movements = [], isLoading: loadingMovements } = useMovements(30); // Get more days for better context
+  const { data: movements = [], isLoading: loadingMovements } = useMovements(30);
 
   const { data: stationName } = useQuery({
     queryKey: ["app-setting", "station_name"],
@@ -142,137 +145,182 @@ function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-24">
-        <Loader2 className="animate-spin text-accent" size={48} />
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin text-primary" size={48} />
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/40 animate-pulse">
+            Sincronizando Dados...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-12 animate-reveal">
       <header className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-2xl bg-primary/10 text-primary">
-              <BarChart3 size={24} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-glow">
+              <Zap size={24} fill="currentColor" className="opacity-80" />
             </div>
-            <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-gradient uppercase italic">
-              Dashboard
-            </h1>
+            <div>
+              <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-gradient uppercase italic">
+                Painel de Controle
+              </h1>
+              <p className="text-xs text-muted-foreground/60 font-black uppercase tracking-widest flex items-center gap-2 mt-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                SISTEMA OPERACIONAL ATIVO • {stationName}
+              </p>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground/60 font-medium ml-12">
-            Bem-vindo ao {stationName}. Aqui está o resumo do seu negócio.
-          </p>
         </div>
         
         <div className="flex items-center gap-3">
           <Button 
             onClick={() => navigate({ to: "/produtos" })}
             variant="outline" 
-            className="rounded-2xl border-white/5 bg-white/5 hover:bg-white/10 text-xs font-bold uppercase tracking-widest gap-2 h-11"
+            className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-widest gap-2 h-12 px-6 shadow-inner"
           >
-            <Plus size={16} />
-            Novo Produto
+            <Plus size={16} strokeWidth={3} />
+            Gerenciar Inventário
+          </Button>
+          <Button 
+            onClick={() => navigate({ to: "/relatorios" })}
+            className="rounded-2xl bg-accent text-accent-foreground hover:opacity-90 shadow-glow-accent text-xs font-black uppercase tracking-widest gap-2 h-12 px-6"
+          >
+            <BarChart3 size={16} strokeWidth={3} />
+            Relatórios
           </Button>
         </div>
       </header>
 
-      {/* Main Stats Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Main Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
+        {/* Large Feature Card: Patrimonio */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:col-span-2 lg:col-span-2"
+          className="md:col-span-2 lg:col-span-7"
         >
-          <div className="premium-card h-full p-8 flex flex-col justify-between group overflow-hidden relative">
-             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all group-hover:scale-110 rotate-12 translate-x-4 -translate-y-4">
-               <DollarSign size={180} className="text-primary" />
+          <div className="premium-card h-full p-8 flex flex-col justify-between group overflow-hidden relative min-h-[320px]">
+             {/* Decorative Elements */}
+             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700 group-hover:scale-110 group-hover:rotate-6">
+               <DollarSign size={240} className="text-primary" />
              </div>
              
-             <div>
-               <div className="flex items-center gap-3 mb-6">
-                 <div className="p-2.5 rounded-2xl bg-primary text-primary-foreground shadow-glow transition-transform group-hover:rotate-12">
-                   <TrendingUp size={20} />
+             <div className="relative z-10">
+               <div className="flex items-center gap-3 mb-8">
+                 <div className="p-3 rounded-2xl bg-primary text-primary-foreground shadow-glow transition-all duration-500 group-hover:rotate-12 group-hover:scale-110">
+                   <ShieldCheck size={24} strokeWidth={2.5} />
                  </div>
                  <div className="flex flex-col">
-                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 leading-none mb-1">
-                     Patrimônio em Estoque
+                   <span className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/50 leading-none mb-1.5">
+                     Ativo Circulante
                    </span>
-                   <span className="text-xs font-bold text-primary">Custo Total Acumulado</span>
+                   <span className="text-xs font-bold text-primary flex items-center gap-1.5">
+                     Patrimônio Total em Estoque
+                     <ArrowUpRight size={14} className="opacity-50" />
+                   </span>
                  </div>
                </div>
                
-               <div className="text-5xl font-black tracking-tighter text-gradient leading-none mb-2">
-                 R$ {dashboardData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+               <div className="flex flex-col">
+                 <span className="text-sm font-black text-muted-foreground/40 uppercase tracking-tighter mb-1">Total Consolidado</span>
+                 <div className="text-6xl font-black tracking-tighter text-gradient leading-none tabular-nums">
+                   R$ {dashboardData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                 </div>
                </div>
-               <p className="text-xs text-muted-foreground/60 font-medium">
-                 Baseado nos preços de custo e quantidades atuais.
-               </p>
              </div>
 
-             <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
-               <div className="flex items-center gap-4 flex-1 mr-6">
-                 <div className="h-1.5 flex-1 rounded-full bg-white/5 overflow-hidden">
+             <div className="mt-8 pt-6 border-t border-white/5 flex items-end justify-between relative z-10">
+               <div className="flex flex-col gap-4 flex-1 mr-8">
+                 <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                   <span>Performance de Estoque</span>
+                   <span className="text-primary">98% Otimizado</span>
+                 </div>
+                 <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden p-0.5 border border-white/5">
                    <motion.div 
                      initial={{ width: 0 }}
-                     animate={{ width: "100%" }}
-                     transition={{ duration: 1.5, ease: "easeOut" }}
-                     className="h-full bg-gradient-to-r from-primary/40 to-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]" 
+                     animate={{ width: "98%" }}
+                     transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+                     className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary shadow-[0_0_15px_oklch(var(--primary)/0.5)]" 
                    />
                  </div>
                </div>
-               <div className="flex flex-col items-end">
-                 <span className="text-[10px] font-black text-primary uppercase tracking-tighter">Saudável</span>
-                 <span className="text-[10px] text-muted-foreground/40 font-bold uppercase">Status</span>
+               <div className="flex flex-col items-end shrink-0">
+                 <div className="flex items-center gap-2 mb-1">
+                   <span className="text-[10px] font-black text-success uppercase tracking-tighter">Saudável</span>
+                   <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
+                 </div>
+                 <span className="text-[10px] text-muted-foreground/30 font-bold uppercase tracking-widest">Status da Operação</span>
                </div>
              </div>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:col-span-2 gap-4">
+        {/* Medium Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:col-span-5 gap-5">
           <Stat 
             label="Vendas Hoje" 
             value={String(dashboardData.salesToday)} 
             icon={ShoppingCart}
             trend={dashboardData.salesTrend}
-            description="Itens vendidos hoje"
+            description="Volume de itens vendidos"
           />
           <Stat 
-            label="Lucro Estimado" 
+            label="Lucro Bruto" 
             value={`R$ ${dashboardData.profitToday.toFixed(2)}`} 
             icon={TrendingUp}
             trend={dashboardData.profitTrend}
-            description="Lucro bruto do dia"
+            description="Margem estimada do dia"
           />
           <Stat 
             label="Estoque Pista" 
             value={String(dashboardData.totalPista)} 
             icon={Fuel} 
-            description="Total de galões/litros"
+            description="Disponibilidade imediata"
           />
           <Stat 
             label="Estoque Galpão" 
             value={String(dashboardData.totalEstoque)} 
             icon={Warehouse} 
-            description="Total em armazenamento"
+            description="Reserva de contingência"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8 space-y-8">
           {/* Chart Section */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
+            className="premium-card p-1 border-white/5 bg-card/30"
           >
+            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-white/5 text-muted-foreground">
+                  <BarChart3 size={18} />
+                </div>
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/80">Fluxo de Vendas (7 Dias)</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-muted-foreground">
+                  <Calendar size={12} />
+                  Última Semana
+                </div>
+              </div>
+            </div>
             <React.Suspense fallback={
-              <div className="premium-card rounded-3xl h-[450px] flex items-center justify-center border-white/5">
+              <div className="h-[400px] flex items-center justify-center">
                 <Loader2 className="animate-spin text-primary/20" size={32} />
               </div>
             }>
-              <DashboardCharts daysData={dashboardData.daysData} topData={dashboardData.top} />
+              <div className="p-6">
+                <DashboardCharts daysData={dashboardData.daysData} topData={dashboardData.top} />
+              </div>
             </React.Suspense>
           </motion.div>
 
@@ -281,43 +329,57 @@ function Dashboard() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="premium-card p-6 border-destructive/20 bg-destructive/5 relative overflow-hidden"
+              className="premium-card p-6 border-destructive/30 bg-destructive/5 relative overflow-hidden ring-1 ring-destructive/10"
             >
-              <div className="absolute top-0 right-0 p-6 opacity-10">
-                <AlertTriangle size={80} className="text-destructive" />
+              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10">
+                <AlertTriangle size={120} className="text-destructive" />
               </div>
               
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 rounded-xl bg-destructive text-destructive-foreground shadow-[0_0_15px_rgba(var(--destructive-rgb),0.5)]">
-                  <AlertTriangle size={20} />
+              <div className="flex items-center gap-4 mb-8 relative z-10">
+                <div className="p-3 rounded-2xl bg-destructive text-destructive-foreground shadow-[0_0_20px_oklch(var(--destructive)/0.4)]">
+                  <AlertTriangle size={24} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold tracking-tight text-destructive">Alertas de Estoque Crítico</h3>
-                  <p className="text-[11px] text-destructive/60 font-bold uppercase tracking-widest">
-                    {dashboardData.lowStockCount} {dashboardData.lowStockCount === 1 ? 'produto precisa' : 'produtos precisam'} de atenção
+                  <h3 className="text-xl font-black tracking-tight text-destructive uppercase italic">Ação Necessária</h3>
+                  <p className="text-[11px] text-destructive/50 font-black uppercase tracking-widest flex items-center gap-2">
+                    <span className="h-1 w-1 rounded-full bg-destructive animate-pulse" />
+                    {dashboardData.lowStockCount} {dashboardData.lowStockCount === 1 ? 'produto atingiu o nível crítico' : 'produtos atingiram o nível crítico'}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10">
                 {dashboardData.lowStockProducts.map((p) => (
-                  <div key={p.id} className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:border-destructive/30 transition-colors">
-                    <p className="font-bold text-sm truncate mb-2">{p.name}</p>
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-muted-foreground font-bold uppercase">Atual</span>
-                      <span className="text-destructive font-black">{p.pista_qty + p.estoque_qty} un</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px] mt-1">
-                      <span className="text-muted-foreground font-bold uppercase">Mínimo</span>
-                      <span className="text-muted-foreground/60 font-black">{p.pista_min + p.estoque_min} un</span>
+                  <div key={p.id} className="bg-white/5 rounded-2xl p-5 border border-white/10 hover:border-destructive/40 transition-all hover:bg-white/10 group">
+                    <p className="font-black text-sm truncate mb-3 group-hover:text-destructive transition-colors">{p.name}</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-[10px]">
+                        <span className="text-muted-foreground/40 font-black uppercase tracking-widest">Nível Atual</span>
+                        <span className="text-destructive font-black tabular-nums">{p.pista_qty + p.estoque_qty} un</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                        <div 
+                          className="h-full bg-destructive/40" 
+                          style={{ width: `${Math.min(100, ((p.pista_qty + p.estoque_qty) / (p.pista_min + p.estoque_min)) * 100)}%` }} 
+                        />
+                      </div>
+                      <div className="flex justify-between items-center text-[10px]">
+                        <span className="text-muted-foreground/40 font-black uppercase tracking-widest">Limite Mínimo</span>
+                        <span className="text-muted-foreground/60 font-black tabular-nums">{p.pista_min + p.estoque_min} un</span>
+                      </div>
                     </div>
                   </div>
                 ))}
                 
                 {dashboardData.lowStockCount > 3 && (
-                  <button className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 hover:border-white/20 hover:bg-white/5 transition-all text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 gap-1">
-                    <Plus size={16} />
-                    Ver mais {dashboardData.lowStockCount - 3}
+                  <button 
+                    onClick={() => navigate({ to: "/produtos" })}
+                    className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 hover:border-white/30 hover:bg-white/5 transition-all text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 gap-3 group"
+                  >
+                    <div className="p-2 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
+                      <ArrowRight size={20} />
+                    </div>
+                    Ver todos ({dashboardData.lowStockCount})
                   </button>
                 )}
               </div>
@@ -330,7 +392,7 @@ function Dashboard() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="h-full"
+          className="lg:col-span-4 h-full"
         >
           <RecentMovements 
             movements={dashboardData.allMovements} 
