@@ -102,20 +102,32 @@ function RelatoriosPage() {
 
   const handleExport = () => {
     try {
-      const csvContent = "data:text/csv;charset=utf-8," 
-        + "Data,Produto,Quantidade,Preço Unitário,Total\n"
-        + movements.filter(m => m.type === "venda").map(m => {
-            const p = productMap[m.product_id];
-            return `${new Date(m.created_at).toLocaleDateString()},${p?.name},${m.quantity},${p?.sale_price},${m.quantity * Number(p?.sale_price ?? 0)}`;
-          }).join("\n");
+      const headers = ["Data", "Produto", "Quantidade", "Preço Unitário", "Total"];
+      const rows = movements
+        .filter(m => m.type === "venda")
+        .map(m => {
+          const p = productMap[m.product_id];
+          return [
+            new Date(m.created_at).toLocaleDateString(),
+            p?.name || "",
+            m.quantity,
+            p?.sale_price || 0,
+            m.quantity * Number(p?.sale_price || 0)
+          ].join(",");
+        });
       
-      const encodedUri = encodeURI(csvContent);
+      const csvContent = [headers.join(","), ...rows].join("\n");
+      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
+      link.setAttribute("href", url);
       link.setAttribute("download", `relatorio_ipiranga_${days}d.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
       toast.success("Relatório exportado com sucesso");
     } catch (e) {
       toast.error("Erro ao exportar relatório");
