@@ -157,7 +157,7 @@ function RelatoriosPage() {
         title="Relatórios de Performance"
         description="Análise detalhada de vendas, lucros e movimentação"
         action={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex premium-glass p-1 rounded-xl border-white/5">
               {[7, 30, 90].map((d) => (
                 <button
