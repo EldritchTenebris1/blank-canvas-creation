@@ -153,12 +153,14 @@ function Dashboard() {
         <Stat label="Estoque Pista" value={String(dashboardData.totalPista)} icon={Fuel} />
         <Stat label="Estoque Galpão" value={String(dashboardData.totalEstoque)} icon={Warehouse} />
         <Stat label="Vendas Hoje" value={String(dashboardData.salesToday)} icon={ShoppingCart} />
+        <Stat label="Lucro Hoje" value={`R$ ${dashboardData.profitToday.toFixed(2)}`} icon={TrendingUp} />
         <Stat 
           label="Alertas Críticos" 
           value={String(dashboardData.lowStock)} 
           icon={AlertTriangle} 
           highlight={dashboardData.lowStock > 0} 
         />
+        <Stat label="Catálogo" value={String(products.length)} icon={Package} />
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
