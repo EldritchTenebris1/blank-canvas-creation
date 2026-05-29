@@ -75,6 +75,7 @@ export default function DashboardCharts({ daysData, topData }: DashboardChartsPr
               <Area
                 type="monotone"
                 dataKey="vendas"
+                name="Vendas"
                 stroke="var(--primary)"
                 strokeWidth={4}
                 fill="url(#g1)"
