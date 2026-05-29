@@ -168,7 +168,7 @@ function RelatoriosPage() {
             </div>
             <button 
               onClick={handleExport}
-              className="flex items-center gap-2 bg-slate-900 text-white rounded-xl px-4 py-2 text-[10px] uppercase font-black tracking-widest hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200"
+              className="flex items-center gap-2 bg-primary text-primary-foreground rounded-xl px-5 py-2.5 text-[10px] uppercase font-black tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20 active:scale-95"
             >
               <Download size={14} />
               Exportar
