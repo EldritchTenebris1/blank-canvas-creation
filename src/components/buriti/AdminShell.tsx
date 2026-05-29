@@ -165,71 +165,81 @@ export function AdminShell() {
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-[64px] items-center justify-between gap-2 border-b border-border/50 bg-background/60 px-3 backdrop-blur-xl sm:h-[72px] sm:gap-4 sm:px-6">
-          <div className="flex items-center gap-2 min-w-0">
+        <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between gap-4 border-b border-white/5 bg-background/40 px-4 backdrop-blur-2xl sm:px-8">
+          <div className="flex items-center gap-4 min-w-0">
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 shrink-0 rounded-xl border border-border/60 bg-card/50 md:hidden"
+              className="h-11 w-11 shrink-0 rounded-2xl border border-white/10 bg-white/5 md:hidden"
               onClick={() => setMobileOpen(true)}
-              aria-label="Abrir menu"
             >
-              <Menu size={18} />
+              <Menu size={20} />
             </Button>
             <div className="min-w-0">
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Posto Buriti
-            </div>
-            <div className="truncate text-base font-semibold tracking-tight sm:text-lg">
-              {current?.label ?? "Painel"}
-            </div>
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
+                <div className="h-1 w-1 rounded-full bg-primary" />
+                Posto Buriti ERP
+              </div>
+              <div className="text-gradient truncate text-xl font-bold tracking-tight sm:text-2xl">
+                {current?.label ?? "Painel"}
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="relative hidden lg:block">
+
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="relative hidden xl:block group">
               <Search
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/50 transition-colors group-focus-within:text-primary"
               />
               <Input
-                placeholder="Buscar produto, código..."
-                className="h-10 w-[240px] border-border/60 bg-card/50 pl-9 backdrop-blur xl:w-[280px]"
+                placeholder="Pesquisa inteligente..."
+                className="h-12 w-[320px] rounded-2xl border-white/5 bg-white/5 pl-11 shadow-inner backdrop-blur-md transition-all focus:w-[400px] focus:bg-white/10 focus:ring-primary/20"
               />
+              <kbd className="absolute right-4 top-1/2 -translate-y-1/2 hidden h-6 select-none items-center gap-1 rounded border border-white/10 bg-white/5 px-1.5 font-mono text-[10px] font-medium text-muted-foreground/40 sm:flex">
+                ⌘K
+              </kbd>
             </div>
+            
             <NotificationsBell />
-            <div className="hidden items-center gap-3 rounded-xl border border-border/60 bg-card/50 px-3 py-1.5 lg:flex">
-              <div
-                className="grid h-8 w-8 place-items-center rounded-lg text-xs font-bold text-primary-foreground"
-                style={{ background: "var(--gradient-primary)" }}
-              >
-                {user?.email?.[0].toUpperCase() ?? "A"}
+            
+            <div className="hidden items-center gap-4 rounded-2xl border border-white/5 bg-white/5 px-4 py-2 hover:bg-white/10 transition-colors lg:flex">
+              <div className="relative">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-glow">
+                  {user?.email?.[0].toUpperCase() ?? "A"}
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
               </div>
-              <div className="leading-tight">
-                <div className="text-xs text-muted-foreground">Administrador</div>
-                <div className="max-w-[160px] truncate text-sm font-medium">
+              <div className="hidden xl:block">
+                <div className="text-xs font-bold text-foreground tracking-tight">Administrador</div>
+                <div className="max-w-[120px] truncate text-[11px] text-muted-foreground">
                   {user?.email}
                 </div>
               </div>
             </div>
+
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 shrink-0 rounded-xl border border-border/60 bg-card/50"
+              className="h-11 w-11 shrink-0 rounded-2xl border border-white/5 bg-white/5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
               onClick={async () => {
                 await signOut();
                 navigate({ to: "/admin" });
               }}
-              title="Sair"
             >
-              <LogOut size={18} />
+              <LogOut size={20} />
             </Button>
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-3 sm:p-6">
-          <div className="animate-float-up">
+        <main className="flex-1 overflow-auto p-4 sm:p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
             <Outlet />
-          </div>
+          </motion.div>
         </main>
       </div>
     </div>
