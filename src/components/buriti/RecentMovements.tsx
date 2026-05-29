@@ -1,6 +1,8 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useNavigate } from "@tanstack/react-router";
+
 import { ArrowUpRight, ArrowDownLeft, RefreshCcw, Package, Activity, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/hooks/use-products";
@@ -20,7 +22,9 @@ interface RecentMovementsProps {
 }
 
 export function RecentMovements({ movements, products }: RecentMovementsProps) {
+  const navigate = useNavigate();
   const getProduct = (id: string) => products.find(p => p.id === id);
+
 
   const getTypeConfig = (type: string) => {
     switch (type) {
@@ -112,9 +116,13 @@ export function RecentMovements({ movements, products }: RecentMovementsProps) {
 
       {recentItems.length > 0 && (
         <div className="p-4 mt-auto border-t border-white/5">
-          <button className="w-full py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 hover:text-primary transition-all shadow-inner">
+          <button 
+            onClick={() => navigate({ to: "/movimentacoes" })}
+            className="w-full py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 hover:text-primary transition-all shadow-inner"
+          >
             Auditoria Completa
           </button>
+
         </div>
       )}
     </div>

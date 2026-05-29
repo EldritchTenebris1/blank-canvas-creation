@@ -50,77 +50,93 @@ function MovimentacoesPage() {
   return (
     <div>
       <PageHeader title="Movimentações" description="Histórico completo de entradas, saídas e vendas" />
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-2 premium-glass p-2 rounded-2xl border-white/5">
         {(["todos", "venda", "entrada", "ajuste", "reposicao"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setFilter(t)}
-            className={`rounded-full border px-4 py-1.5 text-xs font-medium uppercase tracking-wider transition ${
+            className={`rounded-xl px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
               filter === t
-                ? "border-accent bg-accent text-[oklch(0.18_0.04_255)]"
-                : "border-border/60 text-muted-foreground hover:bg-card/50"
+                ? "bg-accent text-accent-foreground shadow-glow-accent scale-105"
+                : "text-muted-foreground/40 hover:text-muted-foreground hover:bg-white/5"
             }`}
           >
             {t === "todos" ? "Todos" : TYPE_META[t].label}
           </button>
         ))}
       </div>
-      <div className="glass overflow-x-auto rounded-2xl">
-        <table className="w-full min-w-[760px] text-sm">
-          <thead className="bg-card/40 text-xs uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3 text-left">Tipo</th>
-              <th className="px-4 py-3 text-left">Produto</th>
-              <th className="px-4 py-3 text-right">Quantidade</th>
-              <th className="px-4 py-3 text-left">Local</th>
-              <th className="px-4 py-3 text-left">Responsável</th>
-              <th className="px-4 py-3 text-right">Data</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((m) => {
-              const meta = TYPE_META[m.type];
-              const Icon = meta.icon;
-              const product = productMap[m.product_id];
-              const author = m.user_id ? users[m.user_id] : null;
-              return (
-                <tr key={m.id} className="border-t border-border/40 hover:bg-card/30">
-                  <td className="px-4 py-3">
-                    <div className={`inline-flex items-center gap-2 ${meta.color}`}>
-                      <Icon size={14} /> <span className="font-medium">{meta.label}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="font-medium">{product?.name ?? "—"}</div>
-                    <div className="text-xs text-muted-foreground">{product?.brand ?? ""}</div>
-                  </td>
-                  <td className="px-4 py-3 text-right font-semibold">{m.quantity}</td>
-                  <td className="px-4 py-3 text-xs uppercase text-muted-foreground">{m.location}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2 text-xs">
-                      <UserCircle size={14} className="text-muted-foreground" />
-                      <div>
-                        <div className="font-medium text-foreground">{author?.name ?? "Sistema"}</div>
-                        {author?.role && (
-                          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                            {author.role === "admin" ? "Administrador" : "Frentista"}
-                          </div>
-                        )}
+
+      <div className="premium-card overflow-hidden border-white/5">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead>
+              <tr className="border-b border-white/5 bg-white/[0.02]">
+                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Tipo</th>
+                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Produto</th>
+                <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Quantidade</th>
+                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Local</th>
+                <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Responsável</th>
+                <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Data</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.02]">
+              {filtered.map((m) => {
+                const meta = TYPE_META[m.type];
+                const Icon = meta.icon;
+                const product = productMap[m.product_id];
+                const author = m.user_id ? users[m.user_id] : null;
+                return (
+                  <tr key={m.id} className="group hover:bg-white/[0.02] transition-colors">
+                    <td className="px-6 py-4">
+                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border border-current/10 bg-current/5 ${meta.color} text-[10px] font-black uppercase tracking-widest`}>
+                        <Icon size={12} strokeWidth={3} /> {meta.label}
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-right text-xs text-muted-foreground">
-                    {new Date(m.created_at).toLocaleString("pt-BR")}
-                  </td>
-                </tr>
-              );
-            })}
-            {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-sm text-muted-foreground">Sem movimentações.</td></tr>
-            )}
-          </tbody>
-        </table>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="font-black text-sm tracking-tight text-foreground group-hover:text-primary transition-colors">{product?.name ?? "—"}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30">{product?.brand ?? ""}</div>
+                    </td>
+                    <td className="px-6 py-4 text-right font-black tabular-nums text-foreground">{m.quantity}</td>
+                    <td className="px-6 py-4">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 bg-white/5 px-2 py-1 rounded-md">
+                        {m.location}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-muted-foreground/40">
+                          <UserCircle size={18} />
+                        </div>
+                        <div>
+                          <div className="text-xs font-black text-foreground uppercase tracking-tight">{author?.name ?? "Sistema"}</div>
+                          {author?.role && (
+                            <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/30 italic">
+                              {author.role === "admin" ? "Administrador" : "Frentista"}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right text-[11px] font-bold tabular-nums text-muted-foreground/40">
+                      {new Date(m.created_at).toLocaleString("pt-BR", {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </td>
+                  </tr>
+                );
+              })}
+              {filtered.length === 0 && (
+                <tr><td colSpan={6} className="px-6 py-12 text-center text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/20 italic">Sem movimentações.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
     </div>
   );
 }
