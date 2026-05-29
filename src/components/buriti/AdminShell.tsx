@@ -226,7 +226,7 @@ export function AdminShell() {
                 className="h-12 w-[300px] rounded-2xl border-white/5 bg-white/5 pl-12 shadow-inner backdrop-blur-md transition-all focus:w-[420px] focus:bg-white/8 focus:ring-primary/20 border-white/10"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden select-none items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-1 font-mono text-[9px] font-black text-muted-foreground/40 xl:flex">
-                <span className="opacity-50 text-[11px]">⌘</span> K
+                <span className="opacity-50 text-[11px]">CTRL</span> K
               </div>
             </div>
             
