@@ -261,9 +261,100 @@ function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: 
   );
 }
 
+function CategoryManagementDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { data: categories = [], save, remove, isSaving } = useCategories();
+  const [newCategory, setNewCategory] = React.useState("");
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editValue, setEditValue] = React.useState("");
+
+  const handleAdd = async () => {
+    if (!newCategory.trim()) return;
+    await save({ payload: { name: newCategory.trim() } });
+    setNewCategory("");
+  };
+
+  const handleUpdate = async (id: string) => {
+    if (!editValue.trim()) return;
+    await save({ payload: { name: editValue.trim() }, id });
+    setEditingId(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Excluir esta categoria?")) return;
+    await remove(id);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md w-[95vw] rounded-3xl border-white/5 bg-background/95 backdrop-blur-2xl shadow-premium">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-black tracking-tighter">Categorias</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6 pt-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Nova categoria..."
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              className="h-11 bg-background/50 border-border/50"
+            />
+            <Button onClick={handleAdd} disabled={isSaving} size="icon" className="shrink-0 h-11 w-11">
+              <Plus size={20} />
+            </Button>
+          </div>
+
+          <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2">
+            {categories.map((c) => (
+              <div key={c.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 group">
+                {editingId === c.id ? (
+                  <div className="flex flex-1 gap-2 mr-2">
+                    <Input
+                      autoFocus
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleUpdate(c.id)}
+                      className="h-9 bg-background/50 border-border/50"
+                    />
+                    <Button size="sm" onClick={() => handleUpdate(c.id)} disabled={isSaving}>OK</Button>
+                  </div>
+                ) : (
+                  <span className="font-medium text-sm pl-2">{c.name}</span>
+                )}
+                <div className="flex gap-1">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={() => {
+                      setEditingId(c.id);
+                      setEditValue(c.name);
+                    }}
+                  >
+                    <Pencil size={12} />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                    onClick={() => handleDelete(c.id)}
+                  >
+                    <Trash2 size={12} />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ProdutosPage() {
   const [editing, setEditing] = React.useState<Product | null>(null);
   const [open, setOpen] = React.useState(false);
+  const [catOpen, setCatOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const { data: products = [], remove, isLoading } = useProducts();
 
@@ -294,22 +385,29 @@ function ProdutosPage() {
           <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-gradient">Catálogo</h1>
           <p className="text-sm text-muted-foreground">Gerencie o portfólio de produtos e níveis de segurança.</p>
         </div>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
-          <DialogTrigger asChild>
-            <Button size="lg" className="shadow-glow-primary">
-              <Plus size={20} className="mr-2" /> Novo Produto
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl w-[95vw] rounded-3xl md:w-full border-white/5 bg-background/95 backdrop-blur-2xl shadow-premium">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-black tracking-tighter">
-                {editing ? "Refinar Produto" : "Novo Item"}
-              </DialogTitle>
-            </DialogHeader>
-            <ProdutoForm initial={editing ?? undefined} onDone={() => setOpen(false)} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="lg" onClick={() => setCatOpen(true)} className="border-white/5 bg-white/5">
+            <Settings2 size={20} className="mr-2" /> Categorias
+          </Button>
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="shadow-glow-primary">
+                <Plus size={20} className="mr-2" /> Novo Produto
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl w-[95vw] rounded-3xl md:w-full border-white/5 bg-background/95 backdrop-blur-2xl shadow-premium">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-black tracking-tighter">
+                  {editing ? "Refinar Produto" : "Novo Item"}
+                </DialogTitle>
+              </DialogHeader>
+              <ProdutoForm initial={editing ?? undefined} onDone={() => setOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </header>
+
+      <CategoryManagementDialog open={catOpen} onOpenChange={setCatOpen} />
 
       <div className="relative max-w-md group">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 transition-colors group-focus-within:text-primary" size={18} />
