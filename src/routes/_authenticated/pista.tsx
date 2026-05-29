@@ -96,7 +96,7 @@ function PistaPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {pumps.map((pump) => (
-                <FuelPumpCard key={pump.id} pump={pump} />
+                <FuelPumpCard key={pump.id} pump={pump as any} />
               ))}
               {pumps.length === 0 && !loadingPumps && (
                 <div className="glass col-span-full py-12 text-center text-muted-foreground rounded-2xl border-dashed">
@@ -112,7 +112,7 @@ function PistaPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {tanks.map((tank) => (
-                <FuelTankCard key={tank.id} tank={tank} />
+                <FuelTankCard key={tank.id} tank={tank as any} />
               ))}
               {tanks.length === 0 && !loadingTanks && (
                 <div className="glass col-span-full py-12 text-center text-muted-foreground rounded-2xl border-dashed">
