@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import * as React from "react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Package,
   Fuel,
@@ -28,6 +30,14 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function Dashboard() {
   const { data: products = [], isLoading: loadingProducts } = useProducts();
   const { data: movements = [], isLoading: loadingMovements } = useMovements(7); // Last 7 days for the chart
+
+  const { data: stationName } = useQuery({
+    queryKey: ["app-setting", "station_name"],
+    queryFn: async () => {
+      const { data } = await supabase.from("app_settings").select("value").eq("key", "station_name").maybeSingle();
+      return data?.value || "Posto Buriti";
+    }
+  });
 
   const dashboardData = React.useMemo(() => {
     const totalPista = products.reduce((s, p) => s + p.pista_qty, 0);
@@ -101,7 +111,7 @@ function Dashboard() {
             Visão Geral
           </h1>
           <p className="text-sm text-muted-foreground">
-            Monitoramento em tempo real do Posto Buriti.
+            Monitoramento em tempo real do {stationName}.
           </p>
         </div>
         <div className="flex items-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-1 px-3">
