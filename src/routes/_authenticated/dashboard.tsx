@@ -165,11 +165,11 @@ function Dashboard() {
               <Zap size={24} fill="currentColor" className="opacity-80" />
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-gradient uppercase italic">
+              <h1 className="text-4xl font-black tracking-tighter sm:text-5xl text-gradient uppercase italic leading-[0.9]">
                 Painel de Controle
               </h1>
-              <p className="text-xs text-muted-foreground/60 font-black uppercase tracking-widest flex items-center gap-2 mt-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+              <p className="text-[11px] text-muted-foreground/60 font-black uppercase tracking-[0.2em] flex items-center gap-2 mt-2">
+                <span className="h-2 w-2 rounded-full bg-success animate-pulse shadow-[0_0_10px_oklch(var(--success))]" />
                 SISTEMA OPERACIONAL ATIVO • {stationName}
               </p>
             </div>
@@ -180,16 +180,16 @@ function Dashboard() {
           <Button 
             onClick={() => navigate({ to: "/produtos" })}
             variant="outline" 
-            className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-widest gap-2 h-12 px-6 shadow-inner"
+            className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-[0.2em] gap-2 h-14 px-8 shadow-inner transition-all hover:scale-105 active:scale-95"
           >
-            <Plus size={16} strokeWidth={3} />
+            <Plus size={18} strokeWidth={3} />
             Gerenciar Inventário
           </Button>
           <Button 
             onClick={() => navigate({ to: "/relatorios" })}
-            className="rounded-2xl bg-accent text-accent-foreground hover:opacity-90 shadow-glow-accent text-xs font-black uppercase tracking-widest gap-2 h-12 px-6"
+            className="rounded-2xl bg-accent text-accent-foreground hover:brightness-110 shadow-glow-accent text-xs font-black uppercase tracking-[0.2em] gap-2 h-14 px-8 transition-all hover:scale-105 active:scale-95"
           >
-            <BarChart3 size={16} strokeWidth={3} />
+            <BarChart3 size={18} strokeWidth={3} />
             Relatórios
           </Button>
         </div>
@@ -203,10 +203,10 @@ function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="md:col-span-2 lg:col-span-7"
         >
-          <div className="premium-card h-full p-8 flex flex-col justify-between group overflow-hidden relative min-h-[320px]">
+          <div className="premium-card h-full p-8 flex flex-col justify-between group overflow-hidden relative min-h-[340px] border-primary/20 bg-primary/5">
              {/* Decorative Elements */}
-             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700 group-hover:scale-110 group-hover:rotate-6">
-               <DollarSign size={240} className="text-primary" />
+             <div className="absolute -top-20 -right-20 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700 group-hover:scale-110 group-hover:rotate-12 pointer-events-none">
+               <DollarSign size={400} className="text-primary" />
              </div>
              
              <div className="relative z-10">
@@ -225,12 +225,12 @@ function Dashboard() {
                  </div>
                </div>
                
-               <div className="flex flex-col">
-                 <span className="text-sm font-black text-muted-foreground/40 uppercase tracking-tighter mb-1">Total Consolidado</span>
-                 <div className="text-6xl font-black tracking-tighter text-gradient leading-none tabular-nums">
-                   R$ {dashboardData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                 </div>
-               </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-black text-muted-foreground/30 uppercase tracking-[0.2em] mb-2">Total Consolidado</span>
+                  <div className="text-7xl font-black tracking-tighter text-gradient leading-none tabular-nums drop-shadow-2xl">
+                    R$ {dashboardData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </div>
+                </div>
              </div>
 
              <div className="mt-8 pt-6 border-t border-white/5 flex items-end justify-between relative z-10">
@@ -297,17 +297,17 @@ function Dashboard() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="premium-card p-1 border-white/5 bg-card/30"
+            className="premium-card p-1 border-white/5 bg-card/30 group"
           >
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-white/5 text-muted-foreground">
                   <BarChart3 size={18} />
                 </div>
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/80">Fluxo de Vendas (7 Dias)</h3>
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-accent">Fluxo de Vendas (7 Dias)</h3>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-muted-foreground">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
                   <Calendar size={12} />
                   Última Semana
                 </div>
@@ -335,15 +335,15 @@ function Dashboard() {
                 <AlertTriangle size={120} className="text-destructive" />
               </div>
               
-              <div className="flex items-center gap-4 mb-8 relative z-10">
-                <div className="p-3 rounded-2xl bg-destructive text-destructive-foreground shadow-[0_0_20px_oklch(var(--destructive)/0.4)]">
-                  <AlertTriangle size={24} strokeWidth={2.5} />
+              <div className="flex items-center gap-5 mb-10 relative z-10">
+                <div className="p-4 rounded-2xl bg-destructive text-destructive-foreground shadow-[0_0_30px_oklch(var(--destructive)/0.5)] animate-pulse">
+                  <AlertTriangle size={28} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black tracking-tight text-destructive uppercase italic">Ação Necessária</h3>
-                  <p className="text-[11px] text-destructive/50 font-black uppercase tracking-widest flex items-center gap-2">
-                    <span className="h-1 w-1 rounded-full bg-destructive animate-pulse" />
-                    {dashboardData.lowStockCount} {dashboardData.lowStockCount === 1 ? 'produto atingiu o nível crítico' : 'produtos atingiram o nível crítico'}
+                  <h3 className="text-2xl font-black tracking-tight text-destructive uppercase italic leading-none mb-2">Ação Crítica Necessária</h3>
+                  <p className="text-[12px] text-destructive/60 font-black uppercase tracking-[0.25em] flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-ping" />
+                    {dashboardData.lowStockCount} {dashboardData.lowStockCount === 1 ? 'item com ruptura de estoque' : 'itens com ruptura de estoque'}
                   </p>
                 </div>
               </div>
