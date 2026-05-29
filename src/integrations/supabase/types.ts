@@ -14,7 +14,199 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          barcode: string | null
+          brand: string | null
+          category_id: string | null
+          cost_price: number | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          internal_code: string | null
+          name: string
+          selling_price: number
+          supplier: string | null
+          updated_at: string
+        }
+        Insert: {
+          barcode?: string | null
+          brand?: string | null
+          category_id?: string | null
+          cost_price?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          internal_code?: string | null
+          name: string
+          selling_price: number
+          supplier?: string | null
+          updated_at?: string
+        }
+        Update: {
+          barcode?: string | null
+          brand?: string | null
+          category_id?: string | null
+          cost_price?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          internal_code?: string | null
+          name?: string
+          selling_price?: number
+          supplier?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          access_code: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          access_code?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          access_code?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      stock_items: {
+        Row: {
+          id: string
+          location: Database["public"]["Enums"]["stock_location"]
+          min_quantity: number
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          id?: string
+          location: Database["public"]["Enums"]["stock_location"]
+          min_quantity?: number
+          product_id: string
+          quantity?: number
+        }
+        Update: {
+          id?: string
+          location?: Database["public"]["Enums"]["stock_location"]
+          min_quantity?: number
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          created_at: string
+          from_location: Database["public"]["Enums"]["stock_location"] | null
+          id: string
+          notes: string | null
+          product_id: string
+          quantity: number
+          to_location: Database["public"]["Enums"]["stock_location"] | null
+          total_price: number | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          unit_price: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_location?: Database["public"]["Enums"]["stock_location"] | null
+          id?: string
+          notes?: string | null
+          product_id: string
+          quantity: number
+          to_location?: Database["public"]["Enums"]["stock_location"] | null
+          total_price?: number | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          unit_price?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          from_location?: Database["public"]["Enums"]["stock_location"] | null
+          id?: string
+          notes?: string | null
+          product_id?: string
+          quantity?: number
+          to_location?: Database["public"]["Enums"]["stock_location"] | null
+          total_price?: number | null
+          type?: Database["public"]["Enums"]["transaction_type"]
+          unit_price?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +215,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      stock_location: "pista" | "principal"
+      transaction_type: "venda" | "entrada" | "reposicao" | "ajuste"
+      user_role: "frentista" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +344,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      stock_location: ["pista", "principal"],
+      transaction_type: ["venda", "entrada", "reposicao", "ajuste"],
+      user_role: ["frentista", "admin"],
+    },
   },
 } as const
