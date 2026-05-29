@@ -217,7 +217,7 @@ function Kpi({ label, value, icon: Icon, trend, isAccent }: { label: string; val
         </div>
       </div>
       <div>
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1">{label}</h3>
+        <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">{label}</h3>
         <div className={`text-2xl font-black tracking-tighter ${isAccent ? 'text-accent' : 'text-slate-900'}`}>{value}</div>
       </div>
       <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2">
