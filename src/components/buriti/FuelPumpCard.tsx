@@ -3,8 +3,13 @@ import { Droplet, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type FuelPump = Database["public"]["Tables"]["fuel_pumps"]["Row"] & {
-  nozzles?: (Database["public"]["Tables"]["pump_nozzles"]["Row"] & {
-    tank?: { product?: { name: string } };
+  nozzles?: ({
+    created_at: string;
+    id: string;
+    label: string;
+    pump_id: string | null;
+    tank_id: string | null;
+    tank?: { product?: { name: string } | null } | null;
   })[];
 };
 
@@ -26,7 +31,7 @@ export function FuelPumpCard({ pump }: FuelPumpCardProps) {
   };
 
   return (
-    <div className="glass rounded-2xl p-5 border-l-4 border-l-accent">
+    <div className="glass rounded-2xl p-5 border-l-4 border-l-accent shadow-xl border-white/20">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-accent/10 text-accent rounded-xl">
@@ -41,12 +46,12 @@ export function FuelPumpCard({ pump }: FuelPumpCardProps) {
 
       <div className="grid grid-cols-2 gap-3">
         {pump.nozzles?.map((nozzle) => (
-          <div key={nozzle.id} className="p-3 bg-white/5 rounded-xl border border-white/10 hover:border-accent/30 transition-colors">
+          <div key={nozzle.id} className="p-3 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 hover:border-accent/50 transition-all group">
             <div className="flex items-center gap-2 mb-1">
-              <Droplet size={14} className="text-accent" />
+              <Droplet size={14} className="text-accent group-hover:scale-110 transition-transform" />
               <span className="text-[10px] font-bold text-muted-foreground uppercase">Bico {nozzle.label}</span>
             </div>
-            <p className="text-xs font-semibold truncate">
+            <p className="text-xs font-bold truncate text-slate-700">
               {nozzle.tank?.product?.name || "Indisponível"}
             </p>
           </div>
