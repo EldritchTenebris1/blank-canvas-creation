@@ -1,15 +1,14 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, Loader2, Package, Tag, Hash, DollarSign, ArrowDownToLine, Search } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { z } from "zod";
+import { useProducts, productSchema, type Product } from "@/hooks/use-products";
+import { useCategories } from "@/hooks/use-categories";
 import {
   Select,
   SelectContent,
@@ -21,62 +20,113 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/produtos")({ component: ProdutosPage });
 
-const productSchema = z.object({
-  name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres").max(100),
-  category: z.string().nullable(),
-  internal_code: z.string().nullable(),
-  sale_price: z.coerce.number().min(0, "O preço de venda não pode ser negativo"),
-  cost_price: z.coerce.number().min(0, "O preço de custo não pode ser negativo"),
-  pista_min: z.coerce.number().min(0, "O mínimo na pista não pode ser negativo"),
-  estoque_min: z.coerce.number().min(0, "O mínimo no estoque não pode ser negativo"),
+const ProductRow = React.memo(({ p, onEdit, onDelete }: { p: Product; onEdit: (p: Product) => void; onDelete: (id: string) => void }) => {
+  const margin = p.sale_price > 0 ? ((p.sale_price - (p.cost_price || 0)) / p.sale_price) * 100 : 0;
+  return (
+    <tr className="transition-colors hover:bg-card/30">
+      <td className="px-6 py-4">
+        <div className="font-semibold text-slate-800">{p.name}</div>
+        <div className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground/60">
+          {p.brand ?? "—"} · {p.category ?? "—"}
+        </div>
+      </td>
+      <td className="px-6 py-4">
+        <span className="bg-accent/5 px-2 py-1 rounded-md font-mono text-xs text-accent">
+          {p.internal_code ?? "—"}
+        </span>
+      </td>
+      <td className={cn("px-6 py-4 text-right font-bold", p.pista_qty < p.pista_min ? "text-destructive" : "text-accent")}>{p.pista_qty}</td>
+      <td className={cn("px-6 py-4 text-right font-bold", p.estoque_qty < p.estoque_min ? "text-destructive" : "")}>{p.estoque_qty}</td>
+      <td className="px-6 py-4 text-right font-medium">R$ {Number(p.cost_price).toFixed(2)}</td>
+      <td className="px-6 py-4 text-right font-bold text-accent">R$ {Number(p.sale_price).toFixed(2)}</td>
+      <td className="px-6 py-4 text-right">
+        <span className="bg-accent/10 px-2 py-1 rounded-full text-xs font-black text-accent">
+          {margin.toFixed(0)}%
+        </span>
+      </td>
+      <td className="px-6 py-4">
+        <div className="flex justify-end gap-2">
+          <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-accent/10 hover:text-accent" onClick={() => onEdit(p)}><Pencil size={15} /></Button>
+          <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-destructive/10 hover:text-destructive" onClick={() => onDelete(p.id)}><Trash2 size={15} /></Button>
+        </div>
+      </td>
+    </tr>
+  );
 });
 
-type Product = z.infer<typeof productSchema> & {
-  id: string;
-  brand: string | null;
-  barcode: string | null;
-  description: string | null;
-  pista_qty: number;
-  estoque_qty: number;
-};
+ProductRow.displayName = "ProductRow";
+
+const ProductCard = React.memo(({ p, onEdit, onDelete }: { p: Product; onEdit: (p: Product) => void; onDelete: (id: string) => void }) => {
+  const lowPista = p.pista_qty < p.pista_min;
+  const lowEstoque = p.estoque_qty < p.estoque_min;
+  return (
+    <div className="glass rounded-2xl p-4 space-y-4 border-none shadow-sm active:scale-[0.98] transition-transform">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="font-bold text-base leading-tight truncate">{p.name}</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+            {p.brand ?? "S/M"} · {p.category ?? "S/C"}
+          </div>
+        </div>
+        <div className="flex shrink-0 gap-1">
+          <Button size="icon" variant="ghost" className="h-10 w-10 bg-accent/5 rounded-xl text-accent" onClick={() => onEdit(p)}><Pencil size={16} /></Button>
+          <Button size="icon" variant="ghost" className="h-10 w-10 bg-destructive/5 rounded-xl text-destructive" onClick={() => onDelete(p.id)}><Trash2 size={16} /></Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-card/40 rounded-xl p-3 border border-border/20">
+          <div className="text-[9px] font-black uppercase text-muted-foreground/70 mb-1">Pista</div>
+          <div className={cn("text-lg font-black", lowPista ? "text-destructive" : "text-accent")}>
+            {p.pista_qty} <span className="text-[10px] text-muted-foreground/60 font-medium">/ {p.pista_min}</span>
+          </div>
+        </div>
+        <div className="bg-card/40 rounded-xl p-3 border border-border/20">
+          <div className="text-[9px] font-black uppercase text-muted-foreground/70 mb-1">Estoque</div>
+          <div className={cn("text-lg font-black", lowEstoque ? "text-destructive" : "text-foreground")}>
+            {p.estoque_qty} <span className="text-[10px] text-muted-foreground/60 font-medium">/ {p.estoque_min}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-2 border-t border-border/10">
+        <div className="text-xs font-mono text-muted-foreground">{p.internal_code || "N/A"}</div>
+        <div className="text-right">
+          <div className="text-[9px] font-bold uppercase text-muted-foreground/70">Venda</div>
+          <div className="text-base font-black text-accent">R$ {Number(p.sale_price).toFixed(2)}</div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+ProductCard.displayName = "ProductCard";
 
 function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: () => void }) {
   const [f, setF] = React.useState<Partial<Product>>(
     initial ?? { pista_min: 5, estoque_min: 10, cost_price: 0, sale_price: 0 },
   );
-  const [loading, setLoading] = React.useState(false);
-  const qc = useQueryClient();
+  const { save, isSaving } = useProducts();
+  const { data: categories = [] } = useCategories();
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const { data } = await supabase.from("categories").select("name").order("name");
-      return data || [];
-    },
-  });
-
-  async function save() {
+  async function handleSave() {
     const result = productSchema.safeParse(f);
     if (!result.success) {
       return toast.error(result.error.errors[0].message);
     }
 
-    setLoading(true);
-    const data = result.data;
     const payload = {
-      ...data,
+      ...result.data,
       brand: f.brand ?? null,
       barcode: f.barcode ?? null,
     };
 
-    const { error } = initial?.id
-      ? await supabase.from("products").update(payload).eq("id", initial.id)
-      : await supabase.from("products").insert(payload);
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Produto salvo com sucesso");
-    qc.invalidateQueries({ queryKey: ["products"] });
-    onDone();
+    try {
+      await save({ payload, id: initial?.id });
+      onDone();
+    } catch (e) {
+      // Error handled by mutation
+    }
   }
 
   return (
@@ -183,47 +233,42 @@ function ProdutoForm({ initial, onDone }: { initial?: Partial<Product>; onDone: 
       </div>
 
       <Button
-        onClick={save}
-        disabled={loading}
+        onClick={handleSave}
+        disabled={isSaving}
         className="w-full h-12 text-base font-bold shadow-lg shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
         style={{ background: "var(--gradient-accent)", color: "oklch(0.18 0.04 255)" }}
       >
-        {loading ? <Loader2 className="animate-spin" /> : initial ? "Atualizar Produto" : "Cadastrar Produto"}
+        {isSaving ? <Loader2 className="animate-spin" /> : initial ? "Atualizar Produto" : "Cadastrar Produto"}
       </Button>
     </div>
   );
 }
 
-
 function ProdutosPage() {
   const [editing, setEditing] = React.useState<Product | null>(null);
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const qc = useQueryClient();
+  const { data: products = [], remove, isLoading } = useProducts();
 
-  const { data: products = [] } = useQuery({
-    queryKey: ["products"],
-    queryFn: async () => {
-      const { data } = await supabase.from("products").select("*").order("name");
-      return (data ?? []) as Product[];
-    },
-    refetchInterval: 5000,
-  });
+  const filtered = React.useMemo(() => {
+    const s = search.toLowerCase();
+    return products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(s) ||
+        p.internal_code?.toLowerCase().includes(s) ||
+        p.brand?.toLowerCase().includes(s),
+    );
+  }, [products, search]);
 
-  const filtered = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.internal_code?.toLowerCase().includes(search.toLowerCase()) ||
-      p.brand?.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  async function remove(id: string) {
+  const handleDelete = React.useCallback(async (id: string) => {
     if (!confirm("Excluir este produto?")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Excluído");
-    qc.invalidateQueries({ queryKey: ["products"] });
-  }
+    await remove(id);
+  }, [remove]);
+
+  const handleEdit = React.useCallback((p: Product) => {
+    setEditing(p);
+    setOpen(true);
+  }, []);
 
   return (
     <div className="space-y-[clamp(1rem,3vw,1.5rem)] pb-20 md:pb-0">
@@ -258,113 +303,51 @@ function ProdutosPage() {
         />
       </div>
 
-      {/* Desktop View: Table */}
-      <div className="hidden md:block glass overflow-hidden rounded-2xl border-none shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-card/40 text-[10px] uppercase font-bold tracking-widest text-muted-foreground/70">
-              <tr>
-                <th className="px-6 py-4 text-left">Produto</th>
-                <th className="px-6 py-4 text-left">Código</th>
-                <th className="px-6 py-4 text-right">Pista</th>
-                <th className="px-6 py-4 text-right">Estoque</th>
-                <th className="px-6 py-4 text-right">Custo</th>
-                <th className="px-6 py-4 text-right">Venda</th>
-                <th className="px-6 py-4 text-right">Margem</th>
-                <th className="px-6 py-4"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/20">
-              {filtered.map((p) => {
-                const margin = p.sale_price > 0 ? ((p.sale_price - p.cost_price) / p.sale_price) * 100 : 0;
-                return (
-                  <tr key={p.id} className="transition-colors hover:bg-card/30">
-                    <td className="px-6 py-4">
-                      <div className="font-semibold text-slate-800">{p.name}</div>
-                      <div className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground/60">
-                        {p.brand ?? "—"} · {p.category ?? "—"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="bg-accent/5 px-2 py-1 rounded-md font-mono text-xs text-accent">
-                        {p.internal_code ?? "—"}
-                      </span>
-                    </td>
-                    <td className={`px-6 py-4 text-right font-bold ${p.pista_qty < p.pista_min ? "text-destructive" : "text-accent"}`}>{p.pista_qty}</td>
-                    <td className={`px-6 py-4 text-right font-bold ${p.estoque_qty < p.estoque_min ? "text-destructive" : ""}`}>{p.estoque_qty}</td>
-                    <td className="px-6 py-4 text-right font-medium">R$ {Number(p.cost_price).toFixed(2)}</td>
-                    <td className="px-6 py-4 text-right font-bold text-accent">R$ {Number(p.sale_price).toFixed(2)}</td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="bg-accent/10 px-2 py-1 rounded-full text-xs font-black text-accent">
-                        {margin.toFixed(0)}%
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2">
-                        <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-accent/10 hover:text-accent" onClick={() => { setEditing(p); setOpen(true); }}><Pencil size={15} /></Button>
-                        <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-destructive/10 hover:text-destructive" onClick={() => remove(p.id)}><Trash2 size={15} /></Button>
-                      </div>
-                    </td>
+      {isLoading ? (
+        <div className="flex items-center justify-center p-12">
+          <Loader2 className="animate-spin text-accent" size={32} />
+        </div>
+      ) : (
+        <>
+          {/* Desktop View: Table */}
+          <div className="hidden md:block glass overflow-hidden rounded-2xl border-none shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-card/40 text-[10px] uppercase font-bold tracking-widest text-muted-foreground/70">
+                  <tr>
+                    <th className="px-6 py-4 text-left">Produto</th>
+                    <th className="px-6 py-4 text-left">Código</th>
+                    <th className="px-6 py-4 text-right">Pista</th>
+                    <th className="px-6 py-4 text-right">Estoque</th>
+                    <th className="px-6 py-4 text-right">Custo</th>
+                    <th className="px-6 py-4 text-right">Venda</th>
+                    <th className="px-6 py-4 text-right">Margem</th>
+                    <th className="px-6 py-4"></th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Mobile View: Cards */}
-      <div className="grid gap-3 md:hidden">
-        {filtered.map((p) => {
-          const lowPista = p.pista_qty < p.pista_min;
-          const lowEstoque = p.estoque_qty < p.estoque_min;
-          return (
-            <div key={p.id} className="glass rounded-2xl p-4 space-y-4 border-none shadow-sm active:scale-[0.98] transition-transform">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="font-bold text-base leading-tight truncate">{p.name}</div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
-                    {p.brand ?? "S/M"} · {p.category ?? "S/C"}
-                  </div>
-                </div>
-                <div className="flex shrink-0 gap-1">
-                  <Button size="icon" variant="ghost" className="h-10 w-10 bg-accent/5 rounded-xl text-accent" onClick={() => { setEditing(p); setOpen(true); }}><Pencil size={16} /></Button>
-                  <Button size="icon" variant="ghost" className="h-10 w-10 bg-destructive/5 rounded-xl text-destructive" onClick={() => remove(p.id)}><Trash2 size={16} /></Button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-card/40 rounded-xl p-3 border border-border/20">
-                  <div className="text-[9px] font-black uppercase text-muted-foreground/70 mb-1">Pista</div>
-                  <div className={cn("text-lg font-black", lowPista ? "text-destructive" : "text-accent")}>
-                    {p.pista_qty} <span className="text-[10px] text-muted-foreground/60 font-medium">/ {p.pista_min}</span>
-                  </div>
-                </div>
-                <div className="bg-card/40 rounded-xl p-3 border border-border/20">
-                  <div className="text-[9px] font-black uppercase text-muted-foreground/70 mb-1">Estoque</div>
-                  <div className={cn("text-lg font-black", lowEstoque ? "text-destructive" : "text-foreground")}>
-                    {p.estoque_qty} <span className="text-[10px] text-muted-foreground/60 font-medium">/ {p.estoque_min}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-border/10">
-                <div className="text-xs font-mono text-muted-foreground">{p.internal_code || "N/A"}</div>
-                <div className="text-right">
-                  <div className="text-[9px] font-bold uppercase text-muted-foreground/70">Venda</div>
-                  <div className="text-base font-black text-accent">R$ {Number(p.sale_price).toFixed(2)}</div>
-                </div>
-              </div>
+                </thead>
+                <tbody className="divide-y divide-border/20">
+                  {filtered.map((p) => (
+                    <ProductRow key={p.id} p={p} onEdit={handleEdit} onDelete={handleDelete} />
+                  ))}
+                </tbody>
+              </table>
             </div>
-          );
-        })}
-      </div>
+          </div>
 
-      {filtered.length === 0 && (
-        <div className="glass rounded-2xl p-12 text-center text-muted-foreground border-none">
-          <Package size={48} className="mx-auto mb-4 opacity-20" />
-          <p>Nenhum produto cadastrado.</p>
-        </div>
+          {/* Mobile View: Cards */}
+          <div className="grid gap-3 md:hidden">
+            {filtered.map((p) => (
+              <ProductCard key={p.id} p={p} onEdit={handleEdit} onDelete={handleDelete} />
+            ))}
+          </div>
+
+          {filtered.length === 0 && (
+            <div className="glass rounded-2xl p-12 text-center text-muted-foreground border-none">
+              <Package size={48} className="mx-auto mb-4 opacity-20" />
+              <p>Nenhum produto cadastrado.</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
