@@ -207,6 +207,11 @@ function ConfigPage() {
           </div>
         </Section>
 
+        <Section icon={ShieldCheck} title="Verificação em Duas Etapas (2FA)" description="Exija um código de um app autenticador ao entrar">
+          <TwoFactorSetup />
+        </Section>
+
+
 
         <Section icon={Palette} title="Aparência" description="Personalize a interface do sistema">
           <div className="grid gap-2">
