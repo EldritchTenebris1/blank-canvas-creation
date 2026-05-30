@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { useAuth } from "@/lib/auth";
+import { TwoFactorSetup } from "@/components/buriti/TwoFactorSetup";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
