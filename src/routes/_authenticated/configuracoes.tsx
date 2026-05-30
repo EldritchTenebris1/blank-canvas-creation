@@ -1,12 +1,13 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Building2, Bell, Shield, Palette, Target, Loader2, User } from "lucide-react";
+import { Building2, Bell, Shield, ShieldCheck, Palette, Target, Loader2, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { useAuth } from "@/lib/auth";
+import { TwoFactorSetup } from "@/components/buriti/TwoFactorSetup";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -206,6 +207,11 @@ function ConfigPage() {
             </Button>
           </div>
         </Section>
+
+        <Section icon={ShieldCheck} title="Verificação em Duas Etapas (2FA)" description="Exija um código de um app autenticador ao entrar">
+          <TwoFactorSetup />
+        </Section>
+
 
 
         <Section icon={Palette} title="Aparência" description="Personalize a interface do sistema">
