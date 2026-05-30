@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Building2, Bell, Shield, Palette, Target, Loader2, User } from "lucide-react";
+import { Building2, Bell, Shield, ShieldCheck, Palette, Target, Loader2, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
