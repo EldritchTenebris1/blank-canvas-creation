@@ -29,7 +29,7 @@ export function TwoFactorSetup() {
   async function startEnroll() {
     setBusy(true);
     // Limpa fatores não verificados pendentes para evitar erro de duplicidade
-    const pending = (factors ?? []).filter((f) => f.status === "unverified");
+    const pending = (factors ?? []).filter((f) => (f.status as string) === "unverified");
     for (const f of pending) {
       await supabase.auth.mfa.unenroll({ factorId: f.id });
     }
