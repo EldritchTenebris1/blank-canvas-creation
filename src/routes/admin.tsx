@@ -19,7 +19,14 @@ function AdminLogin() {
   const [password, setPassword] = React.useState("");
   const [show, setShow] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [mfaFactorId, setMfaFactorId] = React.useState<string | null>(null);
+  const [mfaCode, setMfaCode] = React.useState("");
   const navigate = useNavigate();
+
+  async function goToPanel() {
+    toast.success("Bem-vindo, administrador");
+    navigate({ to: "/dashboard", replace: true });
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,10 +35,43 @@ function AdminLogin() {
     }
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setLoading(false);
+      return toast.error("Credenciais inválidas");
+    }
+    // Verifica se a conta exige 2FA
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.nextLevel === "aal2" && aal.nextLevel !== aal.currentLevel) {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const totp = factors?.totp?.find((f) => f.status === "verified");
+      setLoading(false);
+      if (totp) {
+        setMfaFactorId(totp.id);
+        return;
+      }
+    }
     setLoading(false);
-    if (error) return toast.error("Credenciais inválidas");
-    toast.success("Bem-vindo, administrador");
-    navigate({ to: "/dashboard", replace: true });
+    await goToPanel();
+  }
+
+  async function verifyMfa(e: React.FormEvent) {
+    e.preventDefault();
+    if (!mfaFactorId) return;
+    if (!/^\d{6}$/.test(mfaCode)) return toast.error("Digite o código de 6 dígitos");
+    setLoading(true);
+    const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: mfaFactorId });
+    if (chErr) {
+      setLoading(false);
+      return toast.error("Erro: " + chErr.message);
+    }
+    const { error } = await supabase.auth.mfa.verify({
+      factorId: mfaFactorId,
+      challengeId: ch.id,
+      code: mfaCode,
+    });
+    setLoading(false);
+    if (error) return toast.error("Código inválido. Tente novamente.");
+    await goToPanel();
   }
 
   return (
