@@ -235,8 +235,8 @@ function OperadorPage() {
           </div>
 
           <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
-            <MiniStat icon={DollarSign} label="Mês" value={`R$ ${monthRevenue.toFixed(0)}`} tone="accent" />
-            <MiniStat icon={TrendingUp} label="Hoje" value={`R$ ${todayRevenue.toFixed(0)}`} tone="primary" />
+            <MiniStat icon={DollarSign} label="Mês" value={`R$ ${monthRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} tone="accent" />
+            <MiniStat icon={TrendingUp} label="Hoje" value={`R$ ${todayRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} tone="primary" />
             <MiniStat icon={ShoppingCart} label="Unid." value={String(monthUnits)} tone="muted" />
           </div>
 
