@@ -67,10 +67,19 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                   dy={10}
                 />
                 <YAxis 
+                  yAxisId="left"
                   tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700 }} 
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(val) => `R$${val >= 1000 ? (val/1000).toFixed(0) + 'k' : val}`}
+                />
+                <YAxis 
+                  yAxisId="right"
+                  orientation="right"
+                  tick={{ fill: "rgba(255,255,255,0.15)", fontSize: 9, fontWeight: 600 }} 
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(val) => `${val}%`}
                 />
                 <Tooltip 
                   content={<CustomTooltip />}
