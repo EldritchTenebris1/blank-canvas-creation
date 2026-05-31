@@ -188,7 +188,7 @@ function RelatoriosPage() {
         sheet.cell(`B${row}`).value(p.name);
         sheet.cell(`C${row}`).value(p.qty).style({ horizontalAlignment: "center" });
         sheet.cell(`D${row}`).value(p.revenue).style({ numberFormat: '"R$" #,##0.00' });
-        sheet.cell(`E${row}`).value(p.revenue / totalRevenue).style({ numberFormat: "0.0%" });
+        sheet.cell(`E${row}`).value(totalRevenue > 0 ? p.revenue / totalRevenue : 0).style({ numberFormat: "0.0%" });
       });
 
       // --- 4. Histórico Detalhado (Aba Separada) ---
