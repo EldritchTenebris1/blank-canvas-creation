@@ -236,9 +236,11 @@ function CustomTooltip({ active, payload, label }: any) {
             <div key={index} className="flex items-center justify-between gap-6">
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-tight">{entry.name}:</span>
               <span className="text-[11px] font-black text-foreground tabular-nums">
-                {typeof entry.value === 'number' && (entry.name.toLowerCase().includes('receita') || entry.name.toLowerCase().includes('lucro') || entry.name.toLowerCase().includes('revenue') || entry.name.toLowerCase().includes('profit'))
-                  ? `R$ ${entry.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
-                  : entry.value}
+                {typeof entry.value === 'number' && entry.name.toLowerCase().includes('margem')
+                  ? `${entry.value.toFixed(1)}%`
+                  : typeof entry.value === 'number' && (entry.name.toLowerCase().includes('receita') || entry.name.toLowerCase().includes('lucro') || entry.name.toLowerCase().includes('revenue') || entry.name.toLowerCase().includes('profit'))
+                    ? `R$ ${entry.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
+                    : entry.value}
               </span>
             </div>
           ))}
