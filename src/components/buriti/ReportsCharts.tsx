@@ -126,11 +126,11 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
           </div>
         </div>
 
-        {/* Category Share */}
+        {/* Category Share & Detailed Stats */}
         <div className="premium-card p-6 animate-reveal" style={{ animationDelay: "300ms" }}>
           <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Share por Categoria</h3>
-          <div className="h-[300px] w-full flex flex-col items-center justify-center">
-            <ResponsiveContainer width="100%" height="70%">
+          <div className="h-[250px] w-full flex flex-col items-center justify-center">
+            <ResponsiveContainer width="100%" height="80%">
               <PieChart>
                 <Pie 
                   data={byCategory} 
@@ -156,6 +156,45 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Bottom Detailed Table for Top Products */}
+        <div className="premium-card p-6 lg:col-span-3 animate-reveal overflow-x-auto" style={{ animationDelay: "400ms" }}>
+          <h3 className="mb-6 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Top Produtos Detalhado</h3>
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-white/5">
+                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Produto</th>
+                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right">Qtd</th>
+                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right">Receita</th>
+                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right">Participação</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {topProducts.map((p, i) => {
+                const totalRevenue = topProducts.reduce((sum, item) => sum + item.revenue, 0);
+                const share = (p.revenue / totalRevenue) * 100;
+                return (
+                  <tr key={i} className="group hover:bg-white/[0.02] transition-colors">
+                    <td className="py-4 text-[11px] font-bold text-foreground">{p.name}</td>
+                    <td className="py-4 text-[11px] font-black text-right tabular-nums text-muted-foreground">{p.qty.toLocaleString('pt-BR')}</td>
+                    <td className="py-4 text-[11px] font-black text-right tabular-nums text-accent">R$ {p.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className="py-4 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <div className="w-16 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                          <div 
+                            className="h-full bg-primary" 
+                            style={{ width: `${share}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] font-black text-muted-foreground/40 w-8">{share.toFixed(0)}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
