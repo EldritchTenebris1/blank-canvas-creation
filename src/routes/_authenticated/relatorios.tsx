@@ -5,8 +5,6 @@ import { PageHeader } from "@/components/buriti/PageHeader";
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
 import { toast } from "sonner";
-import XlsxPopulate from "xlsx-populate";
-import { saveAs } from "file-saver";
 
 // Lazy load heavy chart components
 const ReportsCharts = React.lazy(() => import("@/components/buriti/ReportsCharts"));
@@ -124,6 +122,10 @@ function RelatoriosPage() {
   const handleExportExcel = async () => {
     const loadingToast = toast.loading("Gerando Excel profissional...");
     try {
+      const [{ default: XlsxPopulate }, { saveAs }] = await Promise.all([
+        import("xlsx-populate/browser/xlsx-populate.min.js"),
+        import("file-saver"),
+      ]);
       const workbook = await XlsxPopulate.fromBlankAsync();
       const sheet = workbook.sheet(0);
       sheet.name("Dashboard de Performance");
@@ -264,7 +266,14 @@ function RelatoriosPage() {
 
       const csvContent = "\uFEFF" + rows.map(r => r.map(escapeCell).join(SEP)).join("\n");
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      saveAs(blob, `vendas_buriti_${days}dias.csv`);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `vendas_buriti_${days}dias.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       toast.success("CSV exportado!");
     } catch (e) {
       toast.error("Erro no CSV");
