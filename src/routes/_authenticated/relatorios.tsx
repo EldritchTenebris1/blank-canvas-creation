@@ -42,12 +42,12 @@ function RelatoriosPage() {
     const previous = calculateMetrics(previousSales);
 
     // Evolution data (daily)
-    const evolutionMap: Record<string, { date: string; revenue: number; profit: number }> = {};
+    const evolutionMap: Record<string, { date: string; revenue: number; profit: number; margin: number }> = {};
     // Initialize last X days
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 86400000);
       const key = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-      evolutionMap[key] = { date: key, revenue: 0, profit: 0 };
+      evolutionMap[key] = { date: key, revenue: 0, profit: 0, margin: 0 };
     }
 
     for (const m of currentSales) {
@@ -60,6 +60,12 @@ function RelatoriosPage() {
         evolutionMap[key].profit += (rev - cost);
       }
     }
+    
+    // Calculate margins
+    Object.values(evolutionMap).forEach(day => {
+      day.margin = day.revenue > 0 ? (day.profit / day.revenue) * 100 : 0;
+    });
+
     const evolution = Object.values(evolutionMap);
 
     // Top produtos
