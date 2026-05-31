@@ -254,7 +254,7 @@ function RelatoriosPage() {
           rows.push([
             new Date(m.created_at).toLocaleDateString("pt-BR"),
             p?.name || "",
-            m.quantity,
+            String(m.quantity),
             price.toFixed(2).replace('.', ','),
             (m.quantity * price).toFixed(2).replace('.', ','),
             cost.toFixed(2).replace('.', ','),
