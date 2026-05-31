@@ -1,10 +1,12 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { TrendingUp, DollarSign, Package, Award, Loader2, Download, ArrowUpRight, ArrowDownRight, Calendar, Activity } from "lucide-react";
+import { TrendingUp, DollarSign, Package, Award, Loader2, Download, ArrowUpRight, ArrowDownRight, Calendar, Activity, FileSpreadsheet } from "lucide-react";
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
 import { toast } from "sonner";
+import XlsxPopulate from "xlsx-populate";
+import { saveAs } from "file-saver";
 
 // Lazy load heavy chart components
 const ReportsCharts = React.lazy(() => import("@/components/buriti/ReportsCharts"));
@@ -119,92 +121,153 @@ function RelatoriosPage() {
     };
   }, [movements, productMap, days]);
 
-  const handleExport = () => {
+  const handleExportExcel = async () => {
+    const loadingToast = toast.loading("Gerando Excel profissional...");
     try {
-      const SEP = ","; // Standard CSV separator for better compatibility
-      const escapeCell = (value: string | number) => {
-        const str = String(value ?? "");
-        if (str.includes(SEP) || str.includes('"') || str.includes("\n")) {
-          return `"${str.replace(/"/g, '""')}"`;
+      const workbook = await XlsxPopulate.fromBlankAsync();
+      const sheet = workbook.sheet(0);
+      sheet.name("Dashboard de Performance");
+
+      // --- Estilização Base ---
+      const titleStyle = { bold: true, fontSize: 18, fontColor: "003366", horizontalAlignment: "center" };
+      const headerStyle = { bold: true, fill: "003366", fontColor: "ffffff", horizontalAlignment: "center", border: true };
+      const kpiLabelStyle = { bold: true, fontSize: 12, fontColor: "666666" };
+      const kpiValueStyle = { bold: true, fontSize: 16, fontColor: "003366" };
+
+      // --- 1. Título ---
+      sheet.range("B2:H2").merged(true).value("RELATÓRIO DE PERFORMANCE - AUTO POSTO BURITI").style(titleStyle);
+      sheet.cell("B3").value(`Gerado em: ${new Date().toLocaleString("pt-BR")}`);
+      sheet.cell("B4").value(`Período de análise: últimos ${days} dias`);
+
+      // --- 2. Bloco de KPIs (Dashboard Visual) ---
+      const kpis = [
+        { label: "Receita Total", value: reportData.metrics.current.revenue, trend: reportData.metrics.trends.revenue },
+        { label: "Lucro Líquido", value: reportData.metrics.current.profit, trend: reportData.metrics.trends.profit },
+        { label: "Ticket Médio", value: reportData.metrics.current.avgTicket, trend: reportData.metrics.trends.avgTicket },
+        { label: "Transações", value: reportData.metrics.current.count, trend: reportData.metrics.trends.count },
+        { label: "Margem Média", value: (reportData.metrics.current.revenue > 0 ? (reportData.metrics.current.profit / reportData.metrics.current.revenue) * 100 : 0) / 100, trend: reportData.metrics.trends.margin, isPercent: true }
+      ];
+
+      let col = 2; // Começa na coluna B
+      kpis.forEach((kpi) => {
+        const charCol = String.fromCharCode(64 + col);
+        const charColEnd = String.fromCharCode(64 + col + 1);
+        sheet.range(`${charCol}6:${charColEnd}6`).merged(true).value(kpi.label).style(kpiLabelStyle);
+        
+        const valueCell = sheet.cell(`${charCol}7`);
+        valueCell.value(kpi.value).style(kpiValueStyle);
+        if (kpi.label.includes("Receita") || kpi.label.includes("Lucro") || kpi.label.includes("Ticket")) {
+          valueCell.style({ numberFormat: '"R$" #,##0.00' });
+        } else if (kpi.isPercent) {
+          valueCell.style({ numberFormat: "0.0%" });
         }
-        return str;
-      };
-      const formatMoney = (n: number) =>
-        n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false });
 
-      const sections = [];
+        const trendCell = sheet.cell(`${charCol}8`);
+        const trendVal = kpi.trend / 100;
+        trendCell.value(trendVal).style({ 
+          numberFormat: '↑ 0.0%;[Red]↓ 0.0%',
+          fontColor: kpi.trend >= 0 ? "008000" : "FF0000",
+          fontSize: 10,
+          bold: true
+        });
 
-      // 1. Header & Summary
-      sections.push(["RELATÓRIO DE PERFORMANCE - BURITI"].map(escapeCell).join(SEP));
-      sections.push([`Periodo: ${days} dias`, `Gerado em: ${new Date().toLocaleString("pt-BR")}`].map(escapeCell).join(SEP));
-      sections.push([]);
-
-      // 2. KPIs
-      sections.push(["KPIs PRINCIPAIS"].map(escapeCell).join(SEP));
-      sections.push(["Métrica", "Valor Atual", "Evolução %"].map(escapeCell).join(SEP));
-      sections.push(["Receita Total", formatMoney(reportData.metrics.current.revenue), `${reportData.metrics.trends.revenue.toFixed(2)}%`].map(escapeCell).join(SEP));
-      sections.push(["Lucro Líquido", formatMoney(reportData.metrics.current.profit), `${reportData.metrics.trends.profit.toFixed(2)}%`].map(escapeCell).join(SEP));
-      sections.push(["Ticket Médio", formatMoney(reportData.metrics.current.avgTicket), `${reportData.metrics.trends.avgTicket.toFixed(2)}%`].map(escapeCell).join(SEP));
-      sections.push(["Transações", reportData.metrics.current.count, `${reportData.metrics.trends.count.toFixed(2)}%`].map(escapeCell).join(SEP));
-      sections.push([]);
-
-      // 3. Top Products
-      sections.push(["TOP PRODUTOS (POR RECEITA)"].map(escapeCell).join(SEP));
-      sections.push(["Produto", "Quantidade", "Receita Total"].map(escapeCell).join(SEP));
-      reportData.topProducts.forEach(p => {
-        sections.push([p.name, p.qty, formatMoney(p.revenue)].map(escapeCell).join(SEP));
+        col += 2;
       });
-      sections.push([]);
 
-      // 4. Sales Evolution (Chart-like data)
-      sections.push(["EVOLUÇÃO DIÁRIA"].map(escapeCell).join(SEP));
-      sections.push(["Data", "Receita", "Lucro", "Margem %"].map(escapeCell).join(SEP));
-      reportData.evolution.forEach(ev => {
-        sections.push([ev.date, formatMoney(ev.revenue), formatMoney(ev.profit), `${ev.margin.toFixed(2)}%`].map(escapeCell).join(SEP));
+      // --- 3. Top Produtos ---
+      sheet.cell("B11").value("RANKING DE PRODUTOS").style({ bold: true, fontSize: 14 });
+      const prodHeaderRow = 12;
+      sheet.cell(`B${prodHeaderRow}`).value("Produto").style(headerStyle);
+      sheet.cell(`C${prodHeaderRow}`).value("Quantidade").style(headerStyle);
+      sheet.cell(`D${prodHeaderRow}`).value("Receita").style(headerStyle);
+      sheet.cell(`E${prodHeaderRow}`).value("Participação").style(headerStyle);
+
+      reportData.topProducts.forEach((p, i) => {
+        const row = prodHeaderRow + 1 + i;
+        const totalRevenue = reportData.topProducts.reduce((sum, item) => sum + item.revenue, 0);
+        sheet.cell(`B${row}`).value(p.name);
+        sheet.cell(`C${row}`).value(p.qty).style({ horizontalAlignment: "center" });
+        sheet.cell(`D${row}`).value(p.revenue).style({ numberFormat: '"R$" #,##0.00' });
+        sheet.cell(`E${row}`).value(p.revenue / totalRevenue).style({ numberFormat: "0.0%" });
       });
-      sections.push([]);
 
-      // 5. Raw Data
-      sections.push(["HISTÓRICO DETALHADO DE VENDAS"].map(escapeCell).join(SEP));
-      sections.push(["Data", "Produto", "Categoria", "Quantidade", "Preço Unitário", "Total", "Lucro Unitário"].map(escapeCell).join(SEP));
-      
-      const rawRows = movements
+      // --- 4. Histórico Detalhado (Aba Separada) ---
+      const detailSheet = workbook.addSheet("Dados Detalhados");
+      const detHeader = ["Data", "Produto", "Categoria", "Quantidade", "Preço Venda", "Custo Unitário", "Total Venda", "Lucro Bruto"];
+      detHeader.forEach((h, i) => {
+        detailSheet.cell(1, i + 1).value(h).style(headerStyle);
+      });
+
+      movements
         .filter(m => m.type === "venda")
-        .map(m => {
+        .forEach((m, i) => {
+          const row = i + 2;
           const p = productMap[m.product_id];
           const price = Number(p?.sale_price || 0);
           const cost = Number(p?.cost_price || 0);
-          return [
+          
+          detailSheet.cell(row, 1).value(new Date(m.created_at)).style({ numberFormat: "dd/mm/yyyy" });
+          detailSheet.cell(row, 2).value(p?.name || "N/A");
+          detailSheet.cell(row, 3).value(p?.category || "Diversos");
+          detailSheet.cell(row, 4).value(m.quantity);
+          detailSheet.cell(row, 5).value(price).style({ numberFormat: '"R$" #,##0.00' });
+          detailSheet.cell(row, 6).value(cost).style({ numberFormat: '"R$" #,##0.00' });
+          detailSheet.cell(row, 7).value(m.quantity * price).style({ numberFormat: '"R$" #,##0.00' });
+          detailSheet.cell(row, 8).value(m.quantity * (price - cost)).style({ numberFormat: '"R$" #,##0.00' });
+        });
+
+      // Auto-ajuste de colunas
+      [sheet, detailSheet].forEach(s => {
+        for (let i = 1; i <= 10; i++) s.column(i).width(20);
+      });
+
+      const blob = await workbook.outputAsync();
+      saveAs(blob, `Relatorio_Performance_Buriti_${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.xlsx`);
+      
+      toast.dismiss(loadingToast);
+      toast.success("Excel Profissional gerado com sucesso!");
+    } catch (error) {
+      console.error(error);
+      toast.dismiss(loadingToast);
+      toast.error("Erro ao gerar Excel premium");
+    }
+  };
+
+  const handleExportCSV = () => {
+    try {
+      const SEP = ";"; // Separador ponto e vírgula para melhor abertura direta no Excel BR
+      const escapeCell = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+      
+      const rows = [
+        ["RELATÓRIO DE VENDAS - AUTO POSTO BURITI"],
+        [`Período: ${days} dias`, `Exportado em: ${new Date().toLocaleString("pt-BR")}`],
+        [],
+        ["Data", "Produto", "Quantidade", "Preço", "Total", "Custo", "Lucro"],
+      ];
+
+      movements
+        .filter(m => m.type === "venda")
+        .forEach(m => {
+          const p = productMap[m.product_id];
+          const price = Number(p?.sale_price || 0);
+          const cost = Number(p?.cost_price || 0);
+          rows.push([
             new Date(m.created_at).toLocaleDateString("pt-BR"),
             p?.name || "",
-            p?.category || "N/A",
             m.quantity,
-            formatMoney(price),
-            formatMoney(m.quantity * price),
-            formatMoney(price - cost),
-          ].map(escapeCell).join(SEP);
+            price.toFixed(2).replace('.', ','),
+            (m.quantity * price).toFixed(2).replace('.', ','),
+            cost.toFixed(2).replace('.', ','),
+            (m.quantity * (price - cost)).toFixed(2).replace('.', ',')
+          ]);
         });
-      
-      sections.push(...rawRows);
 
-      const csvContent = sections.join("\n");
-      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      
-      const today = new Date();
-      const dateStr = today.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }).replace(/\//g, "-");
-
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `relatorio_buriti_profissional_${dateStr}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      toast.success("Relatório profissional exportado!");
+      const csvContent = "\uFEFF" + rows.map(r => r.map(escapeCell).join(SEP)).join("\n");
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      saveAs(blob, `vendas_buriti_${days}dias.csv`);
+      toast.success("CSV exportado!");
     } catch (e) {
-      toast.error("Erro ao exportar relatório");
+      toast.error("Erro no CSV");
     }
   };
 
@@ -225,13 +288,22 @@ function RelatoriosPage() {
                 >{d} dias</button>
               ))}
             </div>
-            <button 
-              onClick={handleExport}
-              className="flex items-center gap-2 bg-primary text-primary-foreground rounded-xl px-5 py-2.5 text-[10px] uppercase font-black tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20 active:scale-95"
-            >
-              <Download size={14} />
-              Exportar
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={handleExportCSV}
+                className="flex items-center gap-2 bg-slate-800 text-white rounded-xl px-4 py-2.5 text-[10px] uppercase font-black tracking-widest hover:bg-slate-700 transition-all active:scale-95"
+              >
+                <Download size={14} />
+                CSV
+              </button>
+              <button 
+                onClick={handleExportExcel}
+                className="flex items-center gap-2 bg-emerald-600 text-white rounded-xl px-5 py-2.5 text-[10px] uppercase font-black tracking-widest hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+              >
+                <FileSpreadsheet size={14} />
+                EXCEL PREMIUM
+              </button>
+            </div>
           </div>
         }
       />
