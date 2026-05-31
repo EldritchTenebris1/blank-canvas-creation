@@ -30,14 +30,18 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-accent/80">Evolução de Vendas</h3>
               <p className="text-[10px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-tight">Comparativo entre receita e lucro no período</p>
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[oklch(0.65_0.2_250)]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.65_0.2_250)]" />
                 <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Receita</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[oklch(0.85_0.18_90)]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.85_0.18_90)]" />
                 <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Lucro</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.7_0.2_25)]" />
+                <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Margem %</span>
               </div>
             </div>
           </div>
