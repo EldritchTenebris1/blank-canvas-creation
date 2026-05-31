@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { TrendingUp, DollarSign, Package, Award, Loader2, Download, ArrowUpRight, ArrowDownRight, Calendar } from "lucide-react";
+import { TrendingUp, DollarSign, Package, Award, Loader2, Download, ArrowUpRight, ArrowDownRight, Calendar, Activity } from "lucide-react";
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
