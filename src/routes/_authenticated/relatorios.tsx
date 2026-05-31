@@ -103,12 +103,35 @@ function RelatoriosPage() {
             ? ((current.profit / current.revenue) - (previous.profit / previous.revenue)) * 100 
             : 0
         }
-      }, 
-      topProducts, 
-      byCategory, 
-      evolution 
-    };
-  }, [movements, productMap, days]);
+      // Scatter data for correlation analysis
+      const scatterData = topProducts.map(p => ({
+        name: p.name,
+        qty: p.qty,
+        revenue: p.revenue,
+        avgPrice: p.qty > 0 ? p.revenue / p.qty : 0
+      }));
+
+      return { 
+        metrics: {
+          current,
+          previous,
+          trends: {
+            revenue: previous.revenue > 0 ? ((current.revenue - previous.revenue) / previous.revenue) * 100 : 0,
+            profit: previous.profit > 0 ? ((current.profit - previous.profit) / previous.profit) * 100 : 0,
+            units: previous.units > 0 ? ((current.units - previous.units) / previous.units) * 100 : 0,
+            count: previous.count > 0 ? ((current.count - previous.count) / previous.count) * 100 : 0,
+            avgTicket: previous.avgTicket > 0 ? ((current.avgTicket - previous.avgTicket) / previous.avgTicket) * 100 : 0,
+            margin: previous.revenue > 0 && current.revenue > 0 
+              ? ((current.profit / current.revenue) - (previous.profit / previous.revenue)) * 100 
+              : 0
+          }
+        }, 
+        topProducts, 
+        byCategory, 
+        evolution,
+        scatterData
+      };
+    }, [movements, productMap, days]);
 
   const handleExport = () => {
     try {
