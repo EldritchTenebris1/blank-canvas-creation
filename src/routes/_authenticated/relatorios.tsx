@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { TrendingUp, DollarSign, Package, Award, Loader2, Download, ArrowUpRight, ArrowDownRight, Calendar } from "lucide-react";
+import { TrendingUp, DollarSign, Package, Award, Loader2, Download, ArrowUpRight, ArrowDownRight, Calendar, Activity } from "lucide-react";
 import { PageHeader } from "@/components/buriti/PageHeader";
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
@@ -33,19 +33,21 @@ function RelatoriosPage() {
       const cost = sales.reduce((s, m) => s + (Number(productMap[m.product_id]?.cost_price ?? 0)) * m.quantity, 0);
       const profit = revenue - cost;
       const units = sales.reduce((s, m) => s + m.quantity, 0);
-      return { revenue, profit, units };
+      const count = sales.length;
+      const avgTicket = count > 0 ? revenue / count : 0;
+      return { revenue, profit, units, count, avgTicket };
     };
 
     const current = calculateMetrics(currentSales);
     const previous = calculateMetrics(previousSales);
 
     // Evolution data (daily)
-    const evolutionMap: Record<string, { date: string; revenue: number; profit: number }> = {};
+    const evolutionMap: Record<string, { date: string; revenue: number; profit: number; margin: number }> = {};
     // Initialize last X days
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 86400000);
       const key = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-      evolutionMap[key] = { date: key, revenue: 0, profit: 0 };
+      evolutionMap[key] = { date: key, revenue: 0, profit: 0, margin: 0 };
     }
 
     for (const m of currentSales) {
@@ -58,6 +60,12 @@ function RelatoriosPage() {
         evolutionMap[key].profit += (rev - cost);
       }
     }
+    
+    // Calculate margins
+    Object.values(evolutionMap).forEach(day => {
+      day.margin = day.revenue > 0 ? (day.profit / day.revenue) * 100 : 0;
+    });
+
     const evolution = Object.values(evolutionMap);
 
     // Top produtos
@@ -89,6 +97,8 @@ function RelatoriosPage() {
           revenue: previous.revenue > 0 ? ((current.revenue - previous.revenue) / previous.revenue) * 100 : 0,
           profit: previous.profit > 0 ? ((current.profit - previous.profit) / previous.profit) * 100 : 0,
           units: previous.units > 0 ? ((current.units - previous.units) / previous.units) * 100 : 0,
+          count: previous.count > 0 ? ((current.count - previous.count) / previous.count) * 100 : 0,
+          avgTicket: previous.avgTicket > 0 ? ((current.avgTicket - previous.avgTicket) / previous.avgTicket) * 100 : 0,
           margin: previous.revenue > 0 && current.revenue > 0 
             ? ((current.profit / current.revenue) - (previous.profit / previous.revenue)) * 100 
             : 0
@@ -184,7 +194,7 @@ function RelatoriosPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <Kpi 
               label="Receita Total" 
               value={`R$ ${reportData.metrics.current.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} 
@@ -197,6 +207,18 @@ function RelatoriosPage() {
               icon={TrendingUp} 
               trend={reportData.metrics.trends.profit}
               isAccent
+            />
+            <Kpi 
+              label="Ticket Médio" 
+              value={`R$ ${reportData.metrics.current.avgTicket.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} 
+              icon={Award} 
+              trend={reportData.metrics.trends.avgTicket}
+            />
+            <Kpi 
+              label="Transações" 
+              value={reportData.metrics.current.count.toLocaleString("pt-BR")} 
+              icon={Activity} 
+              trend={reportData.metrics.trends.count}
             />
             <Kpi 
               label="Itens Vendidos" 
@@ -233,33 +255,33 @@ function Kpi({ label, value, icon: Icon, trend, isAccent }: { label: string; val
   const isPositive = trend >= 0;
   
   return (
-    <div className="premium-card p-6 group animate-reveal">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`p-3 rounded-2xl transition-all duration-300 ${
+    <div className="premium-card p-4 sm:p-5 group animate-reveal">
+      <div className="flex items-center justify-between mb-3">
+        <div className={`p-2.5 rounded-xl transition-all duration-300 ${
           isAccent 
             ? "bg-accent/10 text-accent group-hover:bg-accent group-hover:text-accent-foreground" 
             : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
         }`}>
-          <Icon size={20} />
+          <Icon size={18} />
         </div>
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-tight ${
+        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tight ${
           isPositive 
             ? 'bg-emerald-500/10 text-emerald-500' 
             : 'bg-rose-500/10 text-rose-500'
         }`}>
-          {isPositive ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
+          {isPositive ? <ArrowUpRight size={12} strokeWidth={3} /> : <ArrowDownRight size={12} strokeWidth={3} />}
           {Math.abs(trend).toFixed(1)}%
         </div>
       </div>
       <div>
-        <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60 mb-1.5">{label}</h3>
-        <div className={`text-3xl font-black tracking-tighter transition-transform duration-300 group-hover:scale-[1.02] origin-left ${
+        <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60 mb-1">{label}</h3>
+        <div className={`text-xl sm:text-2xl font-black tracking-tighter transition-transform duration-300 group-hover:scale-[1.02] origin-left truncate ${
           isAccent ? 'text-accent drop-shadow-[0_0_10px_var(--accent-glow)]' : 'text-foreground'
         }`}>
           {value}
         </div>
       </div>
-      <div className="mt-5 pt-4 border-t border-white/5 flex items-center gap-2">
+      <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2">
         <div className="p-1 rounded-md bg-white/5 text-muted-foreground/30">
           <Calendar size={10} />
         </div>

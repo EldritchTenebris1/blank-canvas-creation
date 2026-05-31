@@ -30,14 +30,18 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-accent/80">Evolução de Vendas</h3>
               <p className="text-[10px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-tight">Comparativo entre receita e lucro no período</p>
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[oklch(0.65_0.2_250)]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.65_0.2_250)]" />
                 <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Receita</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[oklch(0.85_0.18_90)]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.85_0.18_90)]" />
                 <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Lucro</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[oklch(0.7_0.2_25)]" />
+                <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Margem %</span>
               </div>
             </div>
           </div>
@@ -63,16 +67,26 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                   dy={10}
                 />
                 <YAxis 
+                  yAxisId="left"
                   tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700 }} 
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(val) => `R$${val >= 1000 ? (val/1000).toFixed(0) + 'k' : val}`}
+                />
+                <YAxis 
+                  yAxisId="right"
+                  orientation="right"
+                  tick={{ fill: "rgba(255,255,255,0.15)", fontSize: 9, fontWeight: 600 }} 
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(val) => `${val}%`}
                 />
                 <Tooltip 
                   content={<CustomTooltip />}
                   cursor={{ stroke: 'oklch(0.65 0.2 250)', strokeWidth: 1, strokeDasharray: '4 4' }}
                 />
                 <Area 
+                  yAxisId="left"
                   type="monotone" 
                   dataKey="revenue" 
                   name="Receita"
@@ -83,6 +97,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                   animationDuration={1500}
                 />
                 <Area 
+                  yAxisId="left"
                   type="monotone" 
                   dataKey="profit" 
                   name="Lucro"
@@ -91,6 +106,16 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                   fillOpacity={1} 
                   fill="url(#colorProfit)" 
                   animationDuration={2000}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="margin"
+                  name="Margem"
+                  stroke="oklch(0.7 0.2 25)"
+                  strokeWidth={2}
+                  dot={false}
+                  strokeDasharray="5 5"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -126,11 +151,11 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
           </div>
         </div>
 
-        {/* Category Share */}
+        {/* Category Share & Detailed Stats */}
         <div className="premium-card p-6 animate-reveal" style={{ animationDelay: "300ms" }}>
           <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Share por Categoria</h3>
-          <div className="h-[300px] w-full flex flex-col items-center justify-center">
-            <ResponsiveContainer width="100%" height="70%">
+          <div className="h-[250px] w-full flex flex-col items-center justify-center">
+            <ResponsiveContainer width="100%" height="80%">
               <PieChart>
                 <Pie 
                   data={byCategory} 
@@ -157,6 +182,45 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
             </div>
           </div>
         </div>
+
+        {/* Bottom Detailed Table for Top Products */}
+        <div className="premium-card p-6 lg:col-span-3 animate-reveal overflow-x-auto" style={{ animationDelay: "400ms" }}>
+          <h3 className="mb-6 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Top Produtos Detalhado</h3>
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-white/5">
+                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Produto</th>
+                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right">Qtd</th>
+                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right">Receita</th>
+                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right">Participação</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {topProducts.map((p, i) => {
+                const totalRevenue = topProducts.reduce((sum, item) => sum + item.revenue, 0);
+                const share = (p.revenue / totalRevenue) * 100;
+                return (
+                  <tr key={i} className="group hover:bg-white/[0.02] transition-colors">
+                    <td className="py-4 text-[11px] font-bold text-foreground">{p.name}</td>
+                    <td className="py-4 text-[11px] font-black text-right tabular-nums text-muted-foreground">{p.qty.toLocaleString('pt-BR')}</td>
+                    <td className="py-4 text-[11px] font-black text-right tabular-nums text-accent">R$ {p.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className="py-4 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <div className="w-16 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                          <div 
+                            className="h-full bg-primary" 
+                            style={{ width: `${share}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] font-black text-muted-foreground/40 w-8">{share.toFixed(0)}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -172,9 +236,11 @@ function CustomTooltip({ active, payload, label }: any) {
             <div key={index} className="flex items-center justify-between gap-6">
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-tight">{entry.name}:</span>
               <span className="text-[11px] font-black text-foreground tabular-nums">
-                {typeof entry.value === 'number' && (entry.name.toLowerCase().includes('receita') || entry.name.toLowerCase().includes('lucro') || entry.name.toLowerCase().includes('revenue') || entry.name.toLowerCase().includes('profit'))
-                  ? `R$ ${entry.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
-                  : entry.value}
+                {typeof entry.value === 'number' && entry.name.toLowerCase().includes('margem')
+                  ? `${entry.value.toFixed(1)}%`
+                  : typeof entry.value === 'number' && (entry.name.toLowerCase().includes('receita') || entry.name.toLowerCase().includes('lucro') || entry.name.toLowerCase().includes('revenue') || entry.name.toLowerCase().includes('profit'))
+                    ? `R$ ${entry.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
+                    : entry.value}
               </span>
             </div>
           ))}
