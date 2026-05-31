@@ -122,6 +122,10 @@ function RelatoriosPage() {
   const handleExportExcel = async () => {
     const loadingToast = toast.loading("Gerando Excel profissional...");
     try {
+      const [{ default: XlsxPopulate }, { saveAs }] = await Promise.all([
+        import("xlsx-populate/browser/xlsx-populate.min.js"),
+        import("file-saver"),
+      ]);
       const workbook = await XlsxPopulate.fromBlankAsync();
       const sheet = workbook.sheet(0);
       sheet.name("Dashboard de Performance");
