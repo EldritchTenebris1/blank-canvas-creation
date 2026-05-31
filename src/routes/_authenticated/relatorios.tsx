@@ -217,7 +217,7 @@ function RelatoriosPage() {
             <Kpi 
               label="Transações" 
               value={reportData.metrics.current.count.toLocaleString("pt-BR")} 
-              icon={Calendar} 
+              icon={Activity} 
               trend={reportData.metrics.trends.count}
             />
             <Kpi 
