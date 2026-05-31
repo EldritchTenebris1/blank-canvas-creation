@@ -20,12 +20,12 @@ interface ChartsProps {
   scatterData?: any[];
 }
 
-export default function Charts({ topProducts, byCategory, evolution }: ChartsProps) {
+export default function Charts({ topProducts, byCategory, evolution, scatterData = [] }: ChartsProps) {
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Evolution Chart - Revenue & Profit over time */}
-        <div className="premium-card p-6 lg:col-span-3 overflow-hidden animate-reveal" style={{ animationDelay: "100ms" }}>
+      <div className="grid gap-6 lg:grid-cols-6">
+        {/* Main Evolution Chart */}
+        <div className="premium-card p-6 lg:col-span-4 overflow-hidden animate-reveal" style={{ animationDelay: "100ms" }}>
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-accent/80">Evolução de Vendas</h3>
