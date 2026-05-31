@@ -123,8 +123,41 @@ export default function Charts({ topProducts, byCategory, evolution, scatterData
           </div>
         </div>
 
-        {/* Top Products */}
+        {/* Correlation Chart */}
         <div className="premium-card p-6 lg:col-span-2 animate-reveal" style={{ animationDelay: "200ms" }}>
+          <div className="mb-8">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-accent/80">Correlação: Qtd vs Receita</h3>
+            <p className="text-[10px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-tight">Análise de volume por ticket</p>
+          </div>
+          <div className="h-[350px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis 
+                  type="number" 
+                  dataKey="qty" 
+                  name="Quantidade" 
+                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+                  axisLine={false}
+                />
+                <YAxis 
+                  type="number" 
+                  dataKey="revenue" 
+                  name="Receita" 
+                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+                  axisLine={false}
+                  tickFormatter={(val) => `R$${val >= 1000 ? (val/1000).toFixed(0) + 'k' : val}`}
+                />
+                <ZAxis type="number" dataKey="avgPrice" range={[50, 400]} name="Preço Médio" />
+                <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+                <Scatter name="Produtos" data={scatterData} fill="oklch(0.85 0.18 90)" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Top Products Bar Chart */}
+        <div className="premium-card p-6 lg:col-span-3 animate-reveal" style={{ animationDelay: "300ms" }}>
           <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Performance por Produto</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
