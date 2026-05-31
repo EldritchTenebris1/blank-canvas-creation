@@ -89,6 +89,14 @@ function RelatoriosPage() {
     }
     const byCategory = Object.entries(catMap).map(([name, value]) => ({ name, value: Math.round(value) }));
 
+    // Scatter data for correlation analysis
+    const scatterData = topProducts.map(p => ({
+      name: p.name,
+      qty: p.qty,
+      revenue: p.revenue,
+      avgPrice: p.qty > 0 ? p.revenue / p.qty : 0
+    }));
+
     return { 
       metrics: {
         current,
@@ -106,7 +114,8 @@ function RelatoriosPage() {
       }, 
       topProducts, 
       byCategory, 
-      evolution 
+      evolution,
+      scatterData
     };
   }, [movements, productMap, days]);
 
@@ -243,6 +252,7 @@ function RelatoriosPage() {
               topProducts={reportData.topProducts} 
               byCategory={reportData.byCategory} 
               evolution={reportData.evolution} 
+              scatterData={reportData.scatterData}
             />
           </React.Suspense>
         </div>

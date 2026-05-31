@@ -1,8 +1,8 @@
 import * as React from "react";
 import { 
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, 
-  CartesianGrid, PieChart, Pie, Cell, Legend, LineChart, Line,
-  AreaChart, Area
+  CartesianGrid, PieChart, Pie, Cell, LineChart, Line,
+  AreaChart, Area, ScatterChart, Scatter, ZAxis
 } from "recharts";
 
 const COLORS = [
@@ -17,14 +17,15 @@ interface ChartsProps {
   topProducts: any[];
   byCategory: any[];
   evolution: any[];
+  scatterData?: any[];
 }
 
-export default function Charts({ topProducts, byCategory, evolution }: ChartsProps) {
+export default function Charts({ topProducts, byCategory, evolution, scatterData = [] }: ChartsProps) {
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Evolution Chart - Revenue & Profit over time */}
-        <div className="premium-card p-6 lg:col-span-3 overflow-hidden animate-reveal" style={{ animationDelay: "100ms" }}>
+      <div className="grid gap-6 lg:grid-cols-6">
+        {/* Main Evolution Chart */}
+        <div className="premium-card p-6 lg:col-span-4 overflow-hidden animate-reveal" style={{ animationDelay: "100ms" }}>
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-accent/80">Evolução de Vendas</h3>
@@ -122,8 +123,41 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
           </div>
         </div>
 
-        {/* Top Products */}
+        {/* Correlation Chart */}
         <div className="premium-card p-6 lg:col-span-2 animate-reveal" style={{ animationDelay: "200ms" }}>
+          <div className="mb-8">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-accent/80">Correlação: Qtd vs Receita</h3>
+            <p className="text-[10px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-tight">Análise de volume por ticket</p>
+          </div>
+          <div className="h-[350px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis 
+                  type="number" 
+                  dataKey="qty" 
+                  name="Quantidade" 
+                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+                  axisLine={false}
+                />
+                <YAxis 
+                  type="number" 
+                  dataKey="revenue" 
+                  name="Receita" 
+                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+                  axisLine={false}
+                  tickFormatter={(val) => `R$${val >= 1000 ? (val/1000).toFixed(0) + 'k' : val}`}
+                />
+                <ZAxis type="number" dataKey="avgPrice" range={[50, 400]} name="Preço Médio" />
+                <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+                <Scatter name="Produtos" data={scatterData} fill="oklch(0.85 0.18 90)" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Top Products Bar Chart */}
+        <div className="premium-card p-6 lg:col-span-3 animate-reveal" style={{ animationDelay: "300ms" }}>
           <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Performance por Produto</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -151,41 +185,64 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
           </div>
         </div>
 
-        {/* Category Share & Detailed Stats */}
-        <div className="premium-card p-6 animate-reveal" style={{ animationDelay: "300ms" }}>
-          <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Share por Categoria</h3>
-          <div className="h-[250px] w-full flex flex-col items-center justify-center">
-            <ResponsiveContainer width="100%" height="80%">
-              <PieChart>
-                <Pie 
-                  data={byCategory} 
-                  dataKey="value" 
-                  nameKey="name" 
-                  cx="50%" 
-                  cy="50%" 
-                  outerRadius={80} 
-                  innerRadius={60}
-                  paddingAngle={5}
-                >
-                  {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 w-full px-4">
-              {byCategory.slice(0, 4).map((cat, i) => (
-                <div key={cat.name} className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <span className="text-[10px] font-bold uppercase truncate text-muted-foreground/80">{cat.name}</span>
-                </div>
-              ))}
+        {/* Category Share */}
+        <div className="premium-card p-6 lg:col-span-3 animate-reveal" style={{ animationDelay: "400ms" }}>
+          <h3 className="mb-8 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Distribuição por Categoria</h3>
+          <div className="h-[300px] w-full flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="w-full md:w-1/2 h-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie 
+                    data={byCategory} 
+                    dataKey="value" 
+                    nameKey="name" 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius={100} 
+                    innerRadius={70}
+                    paddingAngle={5}
+                    stroke="none"
+                  >
+                    {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="w-full md:w-1/2 grid grid-cols-1 gap-y-3">
+              {byCategory.map((cat, i) => {
+                const total = byCategory.reduce((acc, c) => acc + c.value, 0);
+                const percent = (cat.value / total) * 100;
+                return (
+                  <div key={cat.name} className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-tight">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                        <span className="text-muted-foreground">{cat.name}</span>
+                      </div>
+                      <span className="text-foreground">R$ {cat.value.toLocaleString('pt-BR')} ({percent.toFixed(0)}%)</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
+                      <div 
+                        className="h-full transition-all duration-1000" 
+                        style={{ width: `${percent}%`, backgroundColor: COLORS[i % COLORS.length] }} 
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Bottom Detailed Table for Top Products */}
-        <div className="premium-card p-6 lg:col-span-3 animate-reveal overflow-x-auto" style={{ animationDelay: "400ms" }}>
-          <h3 className="mb-6 text-xs font-black uppercase tracking-[0.2em] text-accent/80">Top Produtos Detalhado</h3>
+        {/* Bottom Detailed Table */}
+        <div className="premium-card p-6 lg:col-span-6 animate-reveal overflow-x-auto" style={{ animationDelay: "500ms" }}>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-accent/80">Inteligência de Mix de Produtos</h3>
+              <p className="text-[10px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-tight">Análise profunda de rentabilidade e volume</p>
+            </div>
+          </div>
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/5">
