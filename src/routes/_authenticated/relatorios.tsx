@@ -33,7 +33,9 @@ function RelatoriosPage() {
       const cost = sales.reduce((s, m) => s + (Number(productMap[m.product_id]?.cost_price ?? 0)) * m.quantity, 0);
       const profit = revenue - cost;
       const units = sales.reduce((s, m) => s + m.quantity, 0);
-      return { revenue, profit, units };
+      const count = sales.length;
+      const avgTicket = count > 0 ? revenue / count : 0;
+      return { revenue, profit, units, count, avgTicket };
     };
 
     const current = calculateMetrics(currentSales);
