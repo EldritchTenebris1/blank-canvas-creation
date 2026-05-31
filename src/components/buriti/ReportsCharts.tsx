@@ -86,6 +86,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                   cursor={{ stroke: 'oklch(0.65 0.2 250)', strokeWidth: 1, strokeDasharray: '4 4' }}
                 />
                 <Area 
+                  yAxisId="left"
                   type="monotone" 
                   dataKey="revenue" 
                   name="Receita"
@@ -96,6 +97,7 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                   animationDuration={1500}
                 />
                 <Area 
+                  yAxisId="left"
                   type="monotone" 
                   dataKey="profit" 
                   name="Lucro"
@@ -104,6 +106,16 @@ export default function Charts({ topProducts, byCategory, evolution }: ChartsPro
                   fillOpacity={1} 
                   fill="url(#colorProfit)" 
                   animationDuration={2000}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="margin"
+                  name="Margem"
+                  stroke="oklch(0.7 0.2 25)"
+                  strokeWidth={2}
+                  dot={false}
+                  strokeDasharray="5 5"
                 />
               </AreaChart>
             </ResponsiveContainer>
