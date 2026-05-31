@@ -5,8 +5,6 @@ import { PageHeader } from "@/components/buriti/PageHeader";
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
 import { toast } from "sonner";
-import XlsxPopulate from "xlsx-populate";
-import { saveAs } from "file-saver";
 
 // Lazy load heavy chart components
 const ReportsCharts = React.lazy(() => import("@/components/buriti/ReportsCharts"));
