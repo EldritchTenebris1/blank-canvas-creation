@@ -1,8 +1,8 @@
 import * as React from "react";
 import { 
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, 
-  CartesianGrid, PieChart, Pie, Cell, Legend, LineChart, Line,
-  AreaChart, Area
+  CartesianGrid, PieChart, Pie, Cell, LineChart, Line,
+  AreaChart, Area, ScatterChart, Scatter, ZAxis
 } from "recharts";
 
 const COLORS = [
@@ -17,6 +17,7 @@ interface ChartsProps {
   topProducts: any[];
   byCategory: any[];
   evolution: any[];
+  scatterData?: any[];
 }
 
 export default function Charts({ topProducts, byCategory, evolution }: ChartsProps) {
