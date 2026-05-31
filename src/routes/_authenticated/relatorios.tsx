@@ -252,6 +252,7 @@ function RelatoriosPage() {
               topProducts={reportData.topProducts} 
               byCategory={reportData.byCategory} 
               evolution={reportData.evolution} 
+              scatterData={reportData.scatterData}
             />
           </React.Suspense>
         </div>
