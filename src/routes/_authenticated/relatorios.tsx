@@ -121,7 +121,7 @@ function RelatoriosPage() {
 
   const handleExport = () => {
     try {
-      const SEP = ";";
+      const SEP = ","; // Standard CSV separator for better compatibility
       const escapeCell = (value: string | number) => {
         const str = String(value ?? "");
         if (str.includes(SEP) || str.includes('"') || str.includes("\n")) {
@@ -130,24 +130,64 @@ function RelatoriosPage() {
         return str;
       };
       const formatMoney = (n: number) =>
-        n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false });
 
-      const headers = ["Data", "Produto", "Quantidade", "Preço Unitário", "Total"];
-      const rows = movements
+      const sections = [];
+
+      // 1. Header & Summary
+      sections.push(["RELATÓRIO DE PERFORMANCE - BURITI"].map(escapeCell).join(SEP));
+      sections.push([`Periodo: ${days} dias`, `Gerado em: ${new Date().toLocaleString("pt-BR")}`].map(escapeCell).join(SEP));
+      sections.push([]);
+
+      // 2. KPIs
+      sections.push(["KPIs PRINCIPAIS"].map(escapeCell).join(SEP));
+      sections.push(["Métrica", "Valor Atual", "Evolução %"].map(escapeCell).join(SEP));
+      sections.push(["Receita Total", formatMoney(reportData.metrics.current.revenue), `${reportData.metrics.trends.revenue.toFixed(2)}%`].map(escapeCell).join(SEP));
+      sections.push(["Lucro Líquido", formatMoney(reportData.metrics.current.profit), `${reportData.metrics.trends.profit.toFixed(2)}%`].map(escapeCell).join(SEP));
+      sections.push(["Ticket Médio", formatMoney(reportData.metrics.current.avgTicket), `${reportData.metrics.trends.avgTicket.toFixed(2)}%`].map(escapeCell).join(SEP));
+      sections.push(["Transações", reportData.metrics.current.count, `${reportData.metrics.trends.count.toFixed(2)}%`].map(escapeCell).join(SEP));
+      sections.push([]);
+
+      // 3. Top Products
+      sections.push(["TOP PRODUTOS (POR RECEITA)"].map(escapeCell).join(SEP));
+      sections.push(["Produto", "Quantidade", "Receita Total"].map(escapeCell).join(SEP));
+      reportData.topProducts.forEach(p => {
+        sections.push([p.name, p.qty, formatMoney(p.revenue)].map(escapeCell).join(SEP));
+      });
+      sections.push([]);
+
+      // 4. Sales Evolution (Chart-like data)
+      sections.push(["EVOLUÇÃO DIÁRIA"].map(escapeCell).join(SEP));
+      sections.push(["Data", "Receita", "Lucro", "Margem %"].map(escapeCell).join(SEP));
+      reportData.evolution.forEach(ev => {
+        sections.push([ev.date, formatMoney(ev.revenue), formatMoney(ev.profit), `${ev.margin.toFixed(2)}%`].map(escapeCell).join(SEP));
+      });
+      sections.push([]);
+
+      // 5. Raw Data
+      sections.push(["HISTÓRICO DETALHADO DE VENDAS"].map(escapeCell).join(SEP));
+      sections.push(["Data", "Produto", "Categoria", "Quantidade", "Preço Unitário", "Total", "Lucro Unitário"].map(escapeCell).join(SEP));
+      
+      const rawRows = movements
         .filter(m => m.type === "venda")
         .map(m => {
           const p = productMap[m.product_id];
           const price = Number(p?.sale_price || 0);
+          const cost = Number(p?.cost_price || 0);
           return [
             new Date(m.created_at).toLocaleDateString("pt-BR"),
             p?.name || "",
+            p?.category || "N/A",
             m.quantity,
             formatMoney(price),
             formatMoney(m.quantity * price),
+            formatMoney(price - cost),
           ].map(escapeCell).join(SEP);
         });
+      
+      sections.push(...rawRows);
 
-      const csvContent = [headers.map(escapeCell).join(SEP), ...rows].join("\n");
+      const csvContent = sections.join("\n");
       const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       
@@ -156,13 +196,13 @@ function RelatoriosPage() {
 
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `relatorio_${dateStr}_${days}_dias.csv`);
+      link.setAttribute("download", `relatorio_buriti_profissional_${dateStr}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      toast.success("Relatório exportado com sucesso");
+      toast.success("Relatório profissional exportado!");
     } catch (e) {
       toast.error("Erro ao exportar relatório");
     }
