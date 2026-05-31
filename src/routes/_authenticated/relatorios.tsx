@@ -188,7 +188,7 @@ function RelatoriosPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <Kpi 
               label="Receita Total" 
               value={`R$ ${reportData.metrics.current.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} 
@@ -201,6 +201,18 @@ function RelatoriosPage() {
               icon={TrendingUp} 
               trend={reportData.metrics.trends.profit}
               isAccent
+            />
+            <Kpi 
+              label="Ticket Médio" 
+              value={`R$ ${reportData.metrics.current.avgTicket.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} 
+              icon={Award} 
+              trend={reportData.metrics.trends.avgTicket}
+            />
+            <Kpi 
+              label="Transações" 
+              value={reportData.metrics.current.count.toLocaleString("pt-BR")} 
+              icon={Calendar} 
+              trend={reportData.metrics.trends.count}
             />
             <Kpi 
               label="Itens Vendidos" 
