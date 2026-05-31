@@ -15,7 +15,7 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
       </div>
       <h1 className="mb-2 text-2xl font-bold text-foreground">Oops! Algo deu errado.</h1>
       <p className="mb-8 max-w-md text-muted-foreground">
-        Ocorreu um erro inesperado no sistema. Nossa equipe técnica já foi notificada (simulação).
+        Ocorreu um erro inesperado no sistema. Por favor, tente novamente ou entre em contato com o suporte se o problema persistir.
       </p>
       <div className="flex gap-4">
         <Button onClick={resetErrorBoundary} variant="outline" className="flex items-center gap-2">
