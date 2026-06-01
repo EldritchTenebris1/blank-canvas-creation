@@ -6,8 +6,5 @@
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "dist/client"
-  },
-  "observability": {
-    "enabled": true
   }
 }
