@@ -362,7 +362,8 @@ function ProdutosPage() {
   const [open, setOpen] = React.useState(false);
   const [catOpen, setCatOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const { data: products = [], remove, isLoading } = useProducts();
+  const [reorderMode, setReorderMode] = React.useState(false);
+  const { data: products = [], remove, isLoading, reorder, isReordering } = useProducts();
 
   const filtered = React.useMemo(() => {
     const s = search.toLowerCase();
@@ -383,6 +384,15 @@ function ProdutosPage() {
     setEditing(p);
     setOpen(true);
   }, []);
+
+  const handleMoveOrder = React.useCallback((index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= products.length) return;
+    const ids = products.map((p) => p.id);
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    reorder(ids);
+  }, [products, reorder]);
+
 
   return (
     <div className="space-y-8 pb-20 md:pb-0">
