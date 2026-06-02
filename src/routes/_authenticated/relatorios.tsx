@@ -293,7 +293,7 @@ function RelatoriosPage() {
         ["RELATÓRIO DE VENDAS - AUTO POSTO BURITI"],
         [`Período: ${days} dias`, `Exportado em: ${new Date().toLocaleString("pt-BR")}`],
         [],
-        ["Data", "Produto", "Quantidade", "Preço", "Total", "Custo", "Lucro"],
+        ["Data", "Frentista", "Produto", "Quantidade", "Preço", "Total", "Custo", "Lucro"],
       ];
 
       movements
@@ -304,6 +304,7 @@ function RelatoriosPage() {
           const cost = Number(p?.cost_price || 0);
           rows.push([
             new Date(m.created_at).toLocaleDateString("pt-BR"),
+            sellerName((m as any).user_id),
             p?.name || "",
             String(m.quantity),
             price.toFixed(2).replace('.', ','),
