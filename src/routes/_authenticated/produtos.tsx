@@ -402,9 +402,19 @@ function ProdutosPage() {
           <p className="text-sm text-muted-foreground">Gerencie o portfólio de produtos e níveis de segurança.</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Button
+            variant={reorderMode ? "default" : "outline"}
+            size="lg"
+            onClick={() => { setReorderMode((v) => !v); setSearch(""); }}
+            className={cn("w-full sm:w-auto border-white/5", reorderMode ? "shadow-glow-primary" : "bg-white/5")}
+          >
+            {reorderMode ? <Check size={20} className="mr-2" /> : <ListOrdered size={20} className="mr-2" />}
+            {reorderMode ? "Concluir ordem" : "Ordenar"}
+          </Button>
           <Button variant="outline" size="lg" onClick={() => setCatOpen(true)} className="w-full sm:w-auto border-white/5 bg-white/5">
             <Settings2 size={20} className="mr-2" /> Categorias
           </Button>
+
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
             <DialogTrigger asChild>
               <Button size="lg" className="w-full sm:w-auto shadow-glow-primary">
