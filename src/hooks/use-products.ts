@@ -25,6 +25,7 @@ export type Product = z.infer<typeof productSchema> & {
   description: string | null;
   pista_qty: number;
   estoque_qty: number;
+  sort_order: number | null;
 };
 
 export function useProducts() {
@@ -34,7 +35,11 @@ export function useProducts() {
   const query = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("*").order("name");
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("sort_order", { ascending: true, nullsFirst: false })
+        .order("name");
       if (error) throw error;
       return (data ?? []) as Product[];
     },
