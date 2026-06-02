@@ -231,6 +231,7 @@ export type Database = {
           pista_min: number
           pista_qty: number
           sale_price: number
+          sort_order: number | null
           supplier: string | null
           updated_at: string
         }
@@ -251,6 +252,7 @@ export type Database = {
           pista_min?: number
           pista_qty?: number
           sale_price: number
+          sort_order?: number | null
           supplier?: string | null
           updated_at?: string
         }
@@ -271,6 +273,7 @@ export type Database = {
           pista_min?: number
           pista_qty?: number
           sale_price?: number
+          sort_order?: number | null
           supplier?: string | null
           updated_at?: string
         }
@@ -462,7 +465,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      register_sale: { Args: { _items: Json }; Returns: undefined }
     }
     Enums: {
       stock_location: "pista" | "principal" | "estoque"
