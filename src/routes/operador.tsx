@@ -34,7 +34,7 @@ function OperadorPage() {
   const { data: products = [] } = useQuery({
     queryKey: ["products-pista"],
     queryFn: async () =>
-      ((await supabase.from("products").select("id,name,brand,category,pista_qty,pista_min,sale_price").gt("pista_qty", 0).order("name")).data ?? []) as Product[],
+      ((await supabase.from("products").select("id,name,brand,category,pista_qty,pista_min,sale_price").gt("pista_qty", 0).order("sort_order", { ascending: true, nullsFirst: false }).order("name")).data ?? []) as Product[],
     refetchInterval: 3000,
     enabled: role === "frentista",
   });
@@ -125,20 +125,15 @@ function OperadorPage() {
   async function finalize() {
     if (cartItems.length === 0) return;
     if (!user) return;
-    const updates = cartItems.map(async ({ p, qty }) => {
-      const { error: e1 } = await supabase.from("products")
-        .update({ pista_qty: p.pista_qty - qty }).eq("id", p.id);
-      if (e1) throw e1;
-      const { error: e2 } = await supabase.from("movements").insert({
-        product_id: p.id, type: "venda", quantity: qty, location: "pista", user_id: user.id,
-      });
-      if (e2) throw e2;
-    });
     try {
-      await Promise.all(updates);
+      const { error } = await supabase.rpc("register_sale", {
+        _items: cartItems.map(({ p, qty }) => ({ product_id: p.id, quantity: qty })),
+      });
+      if (error) throw error;
       toast.success(`Venda registrada: R$ ${total.toFixed(2)}`);
       setCart({});
       qc.invalidateQueries({ queryKey: ["products-pista"] });
+      qc.invalidateQueries({ queryKey: ["frentista-month-sales"] });
     } catch (e) {
       toast.error((e as Error).message);
     }
