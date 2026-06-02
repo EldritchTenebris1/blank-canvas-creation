@@ -1,7 +1,9 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, DollarSign, Package, Award, Loader2, Download, ArrowUpRight, ArrowDownRight, Calendar, Activity, FileSpreadsheet } from "lucide-react";
 import { PageHeader } from "@/components/buriti/PageHeader";
+import { supabase } from "@/integrations/supabase/client";
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
 import { toast } from "sonner";
@@ -18,7 +20,29 @@ function RelatoriosPage() {
   const { data: movements = [], isLoading: loadingMovements } = useMovements(days * 2);
   const { data: products = [], isLoading: loadingProducts } = useProducts();
 
+  // Mapa user_id -> nome do frentista (employees + profiles como fallback)
+  const { data: sellerMap = {} } = useQuery({
+    queryKey: ["seller-map"],
+    queryFn: async () => {
+      const [{ data: emps }, { data: profs }] = await Promise.all([
+        supabase.from("employees").select("user_id,name"),
+        supabase.from("profiles").select("id,full_name"),
+      ]);
+      const map: Record<string, string> = {};
+      (profs ?? []).forEach((p: any) => { if (p.id) map[p.id] = p.full_name || "—"; });
+      (emps ?? []).forEach((e: any) => { if (e.user_id) map[e.user_id] = e.name || map[e.user_id] || "—"; });
+      return map;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const sellerName = React.useCallback(
+    (uid: string | null | undefined) => (uid ? sellerMap[uid] ?? "Não identificado" : "Não identificado"),
+    [sellerMap],
+  );
+
   const productMap = React.useMemo(() => Object.fromEntries(products.map((p) => [p.id, p])), [products]);
+  
   
   const reportData = React.useMemo(() => {
     const now = new Date();
@@ -195,7 +219,7 @@ function RelatoriosPage() {
 
       // --- 4. Histórico Detalhado (Aba Separada) ---
       const detailSheet = workbook.addSheet("Dados Detalhados");
-      const detHeader = ["Data", "Produto", "Categoria", "Quantidade", "Preço Venda", "Custo Unitário", "Total Venda", "Lucro Bruto"];
+      const detHeader = ["Data", "Frentista", "Produto", "Categoria", "Quantidade", "Preço Venda", "Custo Unitário", "Total Venda", "Lucro Bruto"];
       detHeader.forEach((h, i) => {
         detailSheet.cell(1, i + 1).value(h).style(headerStyle);
       });
@@ -207,19 +231,44 @@ function RelatoriosPage() {
           const p = productMap[m.product_id];
           const price = Number(p?.sale_price || 0);
           const cost = Number(p?.cost_price || 0);
-          
+
           detailSheet.cell(row, 1).value(new Date(m.created_at)).style({ numberFormat: "dd/mm/yyyy" });
-          detailSheet.cell(row, 2).value(p?.name || "N/A");
-          detailSheet.cell(row, 3).value(p?.category || "Diversos");
-          detailSheet.cell(row, 4).value(m.quantity);
-          detailSheet.cell(row, 5).value(price).style({ numberFormat: '"R$" #,##0.00' });
-          detailSheet.cell(row, 6).value(cost).style({ numberFormat: '"R$" #,##0.00' });
-          detailSheet.cell(row, 7).value(m.quantity * price).style({ numberFormat: '"R$" #,##0.00' });
-          detailSheet.cell(row, 8).value(m.quantity * (price - cost)).style({ numberFormat: '"R$" #,##0.00' });
+          detailSheet.cell(row, 2).value(sellerName((m as any).user_id));
+          detailSheet.cell(row, 3).value(p?.name || "N/A");
+          detailSheet.cell(row, 4).value(p?.category || "Diversos");
+          detailSheet.cell(row, 5).value(m.quantity);
+          detailSheet.cell(row, 6).value(price).style({ numberFormat: '"R$" #,##0.00' });
+          detailSheet.cell(row, 7).value(cost).style({ numberFormat: '"R$" #,##0.00' });
+          detailSheet.cell(row, 8).value(m.quantity * price).style({ numberFormat: '"R$" #,##0.00' });
+          detailSheet.cell(row, 9).value(m.quantity * (price - cost)).style({ numberFormat: '"R$" #,##0.00' });
         });
 
+      // --- 5. Vendas por Frentista (Aba Separada) ---
+      const sellerSheet = workbook.addSheet("Vendas por Frentista");
+      ["Frentista", "Unidades", "Faturamento", "Lucro"].forEach((h, i) => {
+        sellerSheet.cell(1, i + 1).value(h).style(headerStyle);
+      });
+      const sellerAgg: Record<string, { units: number; revenue: number; profit: number }> = {};
+      movements.filter(m => m.type === "venda").forEach((m) => {
+        const name = sellerName((m as any).user_id);
+        const p = productMap[m.product_id];
+        const price = Number(p?.sale_price || 0);
+        const cost = Number(p?.cost_price || 0);
+        if (!sellerAgg[name]) sellerAgg[name] = { units: 0, revenue: 0, profit: 0 };
+        sellerAgg[name].units += m.quantity;
+        sellerAgg[name].revenue += m.quantity * price;
+        sellerAgg[name].profit += m.quantity * (price - cost);
+      });
+      Object.entries(sellerAgg).sort((a, b) => b[1].revenue - a[1].revenue).forEach(([name, v], i) => {
+        const row = i + 2;
+        sellerSheet.cell(row, 1).value(name);
+        sellerSheet.cell(row, 2).value(v.units).style({ horizontalAlignment: "center" });
+        sellerSheet.cell(row, 3).value(v.revenue).style({ numberFormat: '"R$" #,##0.00' });
+        sellerSheet.cell(row, 4).value(v.profit).style({ numberFormat: '"R$" #,##0.00' });
+      });
+
       // Auto-ajuste de colunas
-      [sheet, detailSheet].forEach(s => {
+      [sheet, detailSheet, sellerSheet].forEach(s => {
         for (let i = 1; i <= 10; i++) s.column(i).width(20);
       });
 
@@ -244,7 +293,7 @@ function RelatoriosPage() {
         ["RELATÓRIO DE VENDAS - AUTO POSTO BURITI"],
         [`Período: ${days} dias`, `Exportado em: ${new Date().toLocaleString("pt-BR")}`],
         [],
-        ["Data", "Produto", "Quantidade", "Preço", "Total", "Custo", "Lucro"],
+        ["Data", "Frentista", "Produto", "Quantidade", "Preço", "Total", "Custo", "Lucro"],
       ];
 
       movements
@@ -255,6 +304,7 @@ function RelatoriosPage() {
           const cost = Number(p?.cost_price || 0);
           rows.push([
             new Date(m.created_at).toLocaleDateString("pt-BR"),
+            sellerName((m as any).user_id),
             p?.name || "",
             String(m.quantity),
             price.toFixed(2).replace('.', ','),

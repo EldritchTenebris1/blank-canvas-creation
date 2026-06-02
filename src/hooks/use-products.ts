@@ -25,6 +25,7 @@ export type Product = z.infer<typeof productSchema> & {
   description: string | null;
   pista_qty: number;
   estoque_qty: number;
+  sort_order: number | null;
 };
 
 export function useProducts() {
@@ -34,7 +35,11 @@ export function useProducts() {
   const query = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("*").order("name");
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("sort_order", { ascending: true, nullsFirst: false })
+        .order("name");
       if (error) throw error;
       return (data ?? []) as Product[];
     },
@@ -128,6 +133,38 @@ export function useProducts() {
     }
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      await Promise.all(
+        orderedIds.map((id, idx) =>
+          supabase.from("products").update({ sort_order: (idx + 1) * 10 }).eq("id", id),
+        ),
+      );
+    },
+    onMutate: async (orderedIds: string[]) => {
+      await queryClient.cancelQueries({ queryKey: ["products"] });
+      const previous = queryClient.getQueryData<Product[]>(["products"]);
+      if (previous) {
+        const map = new Map(previous.map((p) => [p.id, p]));
+        const next = orderedIds
+          .map((id, idx) => {
+            const p = map.get(id);
+            return p ? { ...p, sort_order: (idx + 1) * 10 } : null;
+          })
+          .filter(Boolean) as Product[];
+        queryClient.setQueryData(["products"], next);
+      }
+      return { previous };
+    },
+    onError: (error: any, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(["products"], ctx.previous);
+      toast.error(error.message || "Erro ao reordenar");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+
   return {
     ...query,
     save: saveMutation.mutateAsync,
@@ -136,5 +173,7 @@ export function useProducts() {
     isDeleting: deleteMutation.isPending,
     moveStock: moveStockMutation.mutateAsync,
     isMoving: moveStockMutation.isPending,
+    reorder: reorderMutation.mutateAsync,
+    isReordering: reorderMutation.isPending,
   };
 }

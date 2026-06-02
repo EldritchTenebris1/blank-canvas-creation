@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Loader2, Package, Tag, Hash, DollarSign, ArrowDownToLine, Search, Settings2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Package, Tag, Hash, DollarSign, ArrowDownToLine, Search, Settings2, ListOrdered, ArrowUp, ArrowDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -362,7 +362,8 @@ function ProdutosPage() {
   const [open, setOpen] = React.useState(false);
   const [catOpen, setCatOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const { data: products = [], remove, isLoading } = useProducts();
+  const [reorderMode, setReorderMode] = React.useState(false);
+  const { data: products = [], remove, isLoading, reorder, isReordering } = useProducts();
 
   const filtered = React.useMemo(() => {
     const s = search.toLowerCase();
@@ -384,6 +385,15 @@ function ProdutosPage() {
     setOpen(true);
   }, []);
 
+  const handleMoveOrder = React.useCallback((index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= products.length) return;
+    const ids = products.map((p) => p.id);
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    reorder(ids);
+  }, [products, reorder]);
+
+
   return (
     <div className="space-y-8 pb-20 md:pb-0">
       <header className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -392,9 +402,19 @@ function ProdutosPage() {
           <p className="text-sm text-muted-foreground">Gerencie o portfólio de produtos e níveis de segurança.</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Button
+            variant={reorderMode ? "default" : "outline"}
+            size="lg"
+            onClick={() => { setReorderMode((v) => !v); setSearch(""); }}
+            className={cn("w-full sm:w-auto border-white/5", reorderMode ? "shadow-glow-primary" : "bg-white/5")}
+          >
+            {reorderMode ? <Check size={20} className="mr-2" /> : <ListOrdered size={20} className="mr-2" />}
+            {reorderMode ? "Concluir ordem" : "Ordenar"}
+          </Button>
           <Button variant="outline" size="lg" onClick={() => setCatOpen(true)} className="w-full sm:w-auto border-white/5 bg-white/5">
             <Settings2 size={20} className="mr-2" /> Categorias
           </Button>
+
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
             <DialogTrigger asChild>
               <Button size="lg" className="w-full sm:w-auto shadow-glow-primary">
@@ -415,17 +435,50 @@ function ProdutosPage() {
 
       <CategoryManagementDialog open={catOpen} onOpenChange={setCatOpen} />
 
-      <div className="relative max-w-md group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 transition-colors group-focus-within:text-primary" size={18} />
-        <Input 
-          placeholder="Busca instantânea..." 
-          value={search} 
-          onChange={(e) => setSearch(e.target.value)} 
-          className="pl-11 h-12 bg-white/5 border-white/5 focus:bg-white/10" 
-        />
-      </div>
+      {reorderMode ? (
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs text-muted-foreground leading-relaxed">
+          <p>↕️ <strong>Modo ordenação:</strong> use as setas para definir a sequência (ex: Funil → Galão). Essa ordem vale em <span className="text-foreground font-medium">Pista, Estoque e Operador</span>.</p>
+        </div>
+      ) : (
+        <div className="relative max-w-md group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 transition-colors group-focus-within:text-primary" size={18} />
+          <Input 
+            placeholder="Busca instantânea..." 
+            value={search} 
+            onChange={(e) => setSearch(e.target.value)} 
+            className="pl-11 h-12 bg-white/5 border-white/5 focus:bg-white/10" 
+          />
+        </div>
+      )}
 
-      {isLoading ? (
+      {reorderMode ? (
+        <div className="space-y-2">
+          {products.map((p, index) => (
+            <div key={p.id} className="flex items-center gap-3 rounded-2xl border border-white/5 bg-white/5 p-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-black text-primary tabular-nums">
+                {index + 1}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-bold">{p.name}</div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
+                  {p.brand ?? "—"} · {p.category ?? "—"}
+                </div>
+              </div>
+              <div className="flex shrink-0 gap-1">
+                <Button size="icon" variant="ghost" className="h-9 w-9 bg-white/5 rounded-xl disabled:opacity-20"
+                  disabled={index === 0 || isReordering} onClick={() => handleMoveOrder(index, -1)}>
+                  <ArrowUp size={16} />
+                </Button>
+                <Button size="icon" variant="ghost" className="h-9 w-9 bg-white/5 rounded-xl disabled:opacity-20"
+                  disabled={index === products.length - 1 || isReordering} onClick={() => handleMoveOrder(index, 1)}>
+                  <ArrowDown size={16} />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : isLoading ? (
+
         <div className="flex items-center justify-center p-24">
           <Loader2 className="animate-spin text-primary" size={48} />
         </div>
