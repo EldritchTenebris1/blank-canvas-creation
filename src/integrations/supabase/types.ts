@@ -353,6 +353,95 @@ export type Database = {
           },
         ]
       }
+      shift_counts: {
+        Row: {
+          counted_qty: number
+          created_at: string
+          id: string
+          product_id: string
+          shift_id: string
+          system_qty: number
+          verified: boolean
+        }
+        Insert: {
+          counted_qty?: number
+          created_at?: string
+          id?: string
+          product_id: string
+          shift_id: string
+          system_qty?: number
+          verified?: boolean
+        }
+        Update: {
+          counted_qty?: number
+          created_at?: string
+          id?: string
+          product_id?: string
+          shift_id?: string
+          system_qty?: number
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_counts_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shifts: {
+        Row: {
+          cash_closing: number | null
+          cash_opening: number
+          closed_at: string | null
+          conferente_name: string | null
+          conferente_user_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          opened_at: string
+          responsible_name: string | null
+          responsible_user_id: string
+          shift_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cash_closing?: number | null
+          cash_opening?: number
+          closed_at?: string | null
+          conferente_name?: string | null
+          conferente_user_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          responsible_name?: string | null
+          responsible_user_id: string
+          shift_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cash_closing?: number | null
+          cash_opening?: number
+          closed_at?: string | null
+          conferente_name?: string | null
+          conferente_user_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          responsible_name?: string | null
+          responsible_user_id?: string
+          shift_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       stock_items: {
         Row: {
           id: string
