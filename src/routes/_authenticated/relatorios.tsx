@@ -1,7 +1,9 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, DollarSign, Package, Award, Loader2, Download, ArrowUpRight, ArrowDownRight, Calendar, Activity, FileSpreadsheet } from "lucide-react";
 import { PageHeader } from "@/components/buriti/PageHeader";
+import { supabase } from "@/integrations/supabase/client";
 import { useProducts } from "@/hooks/use-products";
 import { useMovements } from "@/hooks/use-movements";
 import { toast } from "sonner";
