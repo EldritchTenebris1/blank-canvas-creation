@@ -20,7 +20,29 @@ function RelatoriosPage() {
   const { data: movements = [], isLoading: loadingMovements } = useMovements(days * 2);
   const { data: products = [], isLoading: loadingProducts } = useProducts();
 
+  // Mapa user_id -> nome do frentista (employees + profiles como fallback)
+  const { data: sellerMap = {} } = useQuery({
+    queryKey: ["seller-map"],
+    queryFn: async () => {
+      const [{ data: emps }, { data: profs }] = await Promise.all([
+        supabase.from("employees").select("user_id,name"),
+        supabase.from("profiles").select("id,full_name"),
+      ]);
+      const map: Record<string, string> = {};
+      (profs ?? []).forEach((p: any) => { if (p.id) map[p.id] = p.full_name || "—"; });
+      (emps ?? []).forEach((e: any) => { if (e.user_id) map[e.user_id] = e.name || map[e.user_id] || "—"; });
+      return map;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const sellerName = React.useCallback(
+    (uid: string | null | undefined) => (uid ? sellerMap[uid] ?? "Não identificado" : "Não identificado"),
+    [sellerMap],
+  );
+
   const productMap = React.useMemo(() => Object.fromEntries(products.map((p) => [p.id, p])), [products]);
+  
   
   const reportData = React.useMemo(() => {
     const now = new Date();
