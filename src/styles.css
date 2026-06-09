@@ -145,7 +145,8 @@
     background-image: var(--gradient-mesh);
     background-attachment: fixed;
     color: var(--color-foreground);
-    font-feature-settings: "ss01", "ss03", "cv01", "cv11";
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11", "tnum";
     -webkit-font-smoothing: antialiased;
     letter-spacing: -0.01em;
   }
