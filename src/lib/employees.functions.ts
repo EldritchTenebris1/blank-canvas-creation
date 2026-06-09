@@ -82,10 +82,17 @@ export const deleteEmployeeFn = createServerFn({ method: "POST" })
       .select("user_id")
       .eq("id", data.id)
       .maybeSingle();
+
+    // Always remove the employee row (FK is ON DELETE SET NULL, so deleting
+    // the auth user alone leaves the employee record behind).
+    const { error: delErr } = await supabaseAdmin
+      .from("employees")
+      .delete()
+      .eq("id", data.id);
+    if (delErr) throw new Error(delErr.message);
+
     if (emp?.user_id) {
       await supabaseAdmin.auth.admin.deleteUser(emp.user_id);
-    } else {
-      await supabaseAdmin.from("employees").delete().eq("id", data.id);
     }
     return { ok: true };
   });
