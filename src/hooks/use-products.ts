@@ -250,6 +250,9 @@ export function useProducts() {
     isDeleting: deleteMutation.isPending,
     moveStock: moveStockMutation.mutateAsync,
     isMoving: moveStockMutation.isPending,
+    adjustStock: adjustStockMutation.mutateAsync,
+    isAdjusting: adjustStockMutation.isPending,
+
     reorder: reorderMutation.mutateAsync,
     isReordering: reorderMutation.isPending,
   };
