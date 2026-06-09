@@ -143,12 +143,14 @@ export function useProducts() {
       location,
       op,
       linkOther,
+      type: typeOverride,
     }: {
       productId: string;
       qty: number;
       location: "pista" | "estoque";
       op: "add" | "remove";
       linkOther: boolean;
+      type?: TransactionType;
     }) => {
       const product = query.data?.find((p) => p.id === productId);
       if (!product) throw new Error("Produto não encontrado");
@@ -185,11 +187,10 @@ export function useProducts() {
         .eq("id", productId);
       if (updateError) throw updateError;
 
-      const type: TransactionType = !linkOther
-        ? "ajuste"
-        : op === "add"
-          ? "entrada"
-          : "reposicao";
+      const type: TransactionType =
+        typeOverride ??
+        (!linkOther ? "ajuste" : op === "add" ? "entrada" : "reposicao");
+
 
       const { error: movementError } = await supabase.from("movements").insert({
         product_id: productId,
