@@ -133,6 +133,84 @@ export function useProducts() {
     }
   });
 
+  // Movimentação avançada: Entrada/Remover com vínculo opcional entre pista e estoque.
+  // op: "add" | "remove"; location: a localização-alvo; linkOther: ao mover na pista,
+  // ajusta o estoque de forma inversa (entrada na pista baixa do estoque, etc).
+  const adjustStockMutation = useMutation({
+    mutationFn: async ({
+      productId,
+      qty,
+      location,
+      op,
+      linkOther,
+      type: typeOverride,
+    }: {
+      productId: string;
+      qty: number;
+      location: "pista" | "estoque";
+      op: "add" | "remove";
+      linkOther: boolean;
+      type?: TransactionType;
+    }) => {
+      const product = query.data?.find((p) => p.id === productId);
+      if (!product) throw new Error("Produto não encontrado");
+      if (qty <= 0) throw new Error("Informe uma quantidade válida");
+
+      const delta = op === "add" ? qty : -qty;
+      const other = location === "pista" ? "estoque" : "pista";
+
+      const targetCur = location === "pista" ? product.pista_qty || 0 : product.estoque_qty || 0;
+      const newTarget = targetCur + delta;
+      if (newTarget < 0) throw new Error("Quantidade insuficiente");
+
+      const payload: Database["public"]["Tables"]["products"]["Update"] = {};
+      if (location === "pista") payload.pista_qty = newTarget;
+      else payload.estoque_qty = newTarget;
+
+      if (linkOther) {
+        const otherCur = other === "pista" ? product.pista_qty || 0 : product.estoque_qty || 0;
+        const newOther = otherCur - delta; // inverso
+        if (newOther < 0) {
+          throw new Error(
+            other === "estoque"
+              ? "Estoque insuficiente para enviar à pista"
+              : "Quantidade insuficiente na pista",
+          );
+        }
+        if (other === "pista") payload.pista_qty = newOther;
+        else payload.estoque_qty = newOther;
+      }
+
+      const { error: updateError } = await supabase
+        .from("products")
+        .update(payload)
+        .eq("id", productId);
+      if (updateError) throw updateError;
+
+      const type: TransactionType =
+        typeOverride ??
+        (!linkOther ? "ajuste" : op === "add" ? "entrada" : "reposicao");
+
+
+      const { error: movementError } = await supabase.from("movements").insert({
+        product_id: productId,
+        type,
+        quantity: qty,
+        location,
+        user_id: user?.id,
+      });
+      if (movementError) throw movementError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["movements"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+
   const reorderMutation = useMutation({
     mutationFn: async (orderedIds: string[]) => {
       await Promise.all(
@@ -173,6 +251,9 @@ export function useProducts() {
     isDeleting: deleteMutation.isPending,
     moveStock: moveStockMutation.mutateAsync,
     isMoving: moveStockMutation.isPending,
+    adjustStock: adjustStockMutation.mutateAsync,
+    isAdjusting: adjustStockMutation.isPending,
+
     reorder: reorderMutation.mutateAsync,
     isReordering: reorderMutation.isPending,
   };
